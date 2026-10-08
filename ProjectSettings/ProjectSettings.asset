@@ -82,7 +82,7 @@ PlayerSettings:
   androidApplicationEntry: 2
   defaultIsNativeResolution: 1
   macRetinaSupport: 1
-  runInBackground: 0
+  runInBackground: 1
   muteOtherAudioSources: 0
   Prepare IOS For Recording: 0
   Force IOS Speakers When Recording: 0
@@ -144,7 +144,8 @@ PlayerSettings:
   visionOSBundleVersion: 1.0
   tvOSBundleVersion: 1.0
   bundleVersion: 1.0
-  preloadedAssets: []
+  preloadedAssets:
+  - {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   xboxOneDisableKinectGpuReservation: 1
@@ -294,7 +295,10 @@ PlayerSettings:
   androidSymbolsSizeThreshold: 800
   m_BuildTargetIcons: []
   m_BuildTargetPlatformIcons: []
-  m_BuildTargetBatching: []
+  m_BuildTargetBatching:
+  - m_BuildTarget: Standalone
+    m_StaticBatching: 1
+    m_DynamicBatching: 0
   m_BuildTargetShaderSettings: []
   m_BuildTargetGraphicsJobs: []
   m_BuildTargetGraphicsJobMode: []
@@ -581,7 +585,26 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Android: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    EmbeddedLinux: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    GameCoreScarlett: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    GameCoreXboxOne: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    Kepler: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    LinuxHeadlessSimulation: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    Nintendo Switch: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    Nintendo Switch 2: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    PS4: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    PS5: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    QNX: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    Server: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    Standalone: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    VisionOS: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    WebGL: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    Windows Store Apps: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    XboxOne: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    iPhone: UNITY_MCP_READY;UNITY_MCP_DEPS_6
+    tvOS: UNITY_MCP_READY;UNITY_MCP_DEPS_6
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -681,11 +704,11 @@ PlayerSettings:
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
   enableDirectStorage: 0
-  cloudProjectId: 
+  cloudProjectId: 05862683-be94-4266-8004-32fa787462d6
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: 
-  organizationId: 
+  projectName: CloudEyrie
+  organizationId: cassielfang
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}

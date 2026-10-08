@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59b703238c95cd74283178b23a0d7922, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.GameConfig
+  Spirit:
+    Max: 100
+    Initial: 80
+    RegenOutOfCombat: 5
+    RegenInCombat: 1
+    SpringRestoreRate: 30
+    SpringRestoreCapRatio: 1
+    SwitchEntityToMist: 10
+    SwitchMistToEntity: 5
+    SwitchMistToMerge: 30
+    MergeMinSpirit: 70
+    SwitchMergeToEntity: 15
+    SwitchMergeToMist: 10
+    ForcedMistThreshold: 10
+    SwitchLockDuration: 0.5
+    LightAttackCost: 8
+    HeavyAttackCost: 15
+    CloudDashCost: 12
+    MistShotCost: 5
+    MergePurifyCostPerSec: 20
+    MergeBurstCost: 30
+    BlockCost: 10
+    MergePurifyDamagePerSec: 30
+    MergePurifyRadius: 220
+    MergeBurstDamage: 50
+    MergeBurstRadius: 340
+    MistBaseDrain: 3
+    MistFlyDrainExtra: 2
+    MistPassObstacleCost: 20
+    EnemyYangMeleeDamage: 15
+    EnemyYinRangedDamage: 10
+    BossMeleeDamage: 20
+    BossSkillDamage: 35
+    CorruptionContactDrain: 5
+    MergeCooldown: 5
+    MergeSleepDuration: 0
+  Tide:
+    Period: 120
+    HighTideRegenMult: 2
+    HighTideEnemyActivityMult: 1.2
+    LowTideRegenMult: 0.5
+  Combat:
+    BaseLightDamage: 15
+    ComboDamageMult:
+    - 1
+    - 1.2
+    - 1.5
+    ComboKnockback: 48
+    ComboWindow: 0.3
+    LightTapThreshold: 0.2
+    HeavyChargeTime: 1
+    HeavyFullDamageMult: 2.5
+    HeavyHalfDamageMult: 1.5
+    HeavyKnockback: 96
+    BlockReduction: 0.7
+    PerfectBlockWindow: 0.2
+    MistShotDamageRatio: 0.6
+    MistShotKnockback: 4.8
+    MistShotSpeed: 320
+    MistShotLifetime: 2
+  Enemy:
+    PatrolSpeed: 46.08
+    ChaseSpeed: 122.88
+    PatrolRange: 140
+    PatrolPause: 0.8
+    SightRange: 140
+    VerticalTolerance: 70
+    DiscoverDuration: 0.45
+    AttackRange: 72
+    AttackStartup: 0.3
+    AttackDuration: 0.55
+    AttackCooldown: 2.16
+    RangedAttackRange: 460
+    RangedAttackDuration: 1.5
+    RangedAttackTimeScale: 2
+    ArrowDamage: 15
+    ArrowSpeed: 900
+    HitStunDuration: 0.3
+    DeathDuration: 0.5
+  Boss:
+    MaxHp: 1000
+    Phase2HpRatio: 0.7
+    Phase3HpRatio: 0.35
+    LamentHpRatio: 0.1
+    FogFirePerWave: 2
+    FogFireMaxAlive: 3
+    FogFireWaveInterval: 7
+    FogFireSpeed: 105
+    FogFireDamage: 15
+    FogFireHp: 40
+    FogFireContactCooldown: 1.4
+    FogFireArtScale: 1
+    FogFireRiseTimeScale: 1.8
