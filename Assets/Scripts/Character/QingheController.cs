@@ -668,8 +668,8 @@ namespace CloudEyrie
         /// 当前托住角色的地面碰撞体。用集合而不是布尔 —— 同时踩着地面和石阶、
         /// 然后离开其中一个时，布尔会被错误地清成 false。
         /// </summary>
-        private readonly System.Collections.Generic.HashSet<int> _groundContacts =
-            new System.Collections.Generic.HashSet<int>();
+        private readonly System.Collections.Generic.HashSet<EntityId> _groundContacts =
+            new System.Collections.Generic.HashSet<EntityId>();
 
         /// <summary>
         /// 这次接触算不算「站在地面上」。
@@ -702,7 +702,7 @@ namespace CloudEyrie
 
         private void TrackGround(Collision2D collision)
         {
-            int id = collision.collider.GetInstanceID();
+            EntityId id = collision.collider.GetEntityId();
 
             if (IsGroundContact(collision))
             {
@@ -775,7 +775,7 @@ namespace CloudEyrie
 
         private void OnCollisionExit2D(Collision2D collision)
         {
-            _groundContacts.Remove(collision.collider.GetInstanceID());
+            _groundContacts.Remove(collision.collider.GetEntityId());
             RefreshGrounded();
         }
 

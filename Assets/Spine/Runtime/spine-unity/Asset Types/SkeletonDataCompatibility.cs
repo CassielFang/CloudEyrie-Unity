@@ -63,6 +63,7 @@ namespace Spine.Unity {
 		[System.Serializable]
 		public class CompatibilityProblemInfo {
 			public VersionInfo actualVersion;
+			[System.NonSerialized]
 			public int[][] compatibleVersions;
 			public string explicitProblemDescription = null;
 
