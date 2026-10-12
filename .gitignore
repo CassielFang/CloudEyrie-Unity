@@ -105,3 +105,17 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# ============================================================
+# 本项目追加（上面是 github/gitignore 的 Unity 模板，勿手改）
+# ============================================================
+
+# VS2022 新格式解决方案文件 —— 模板只忽略了 *.sln
+*.slnx
+
+# 就地改文件前的备份（如 Spine 的 *.json.orig）
+*.orig
+
+# tools/ 下可再生成的产物：跑脚本就能重出，不必入库
+/tools/_mined/
+/tools/overlay_*.png

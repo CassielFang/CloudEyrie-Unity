@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>《云岫·狐引》五行关卡设计 v3</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    background: #1a1f24; color: #e8e4dc; line-height: 1.7;
+    -webkit-font-smoothing: antialiased; padding: 30px 20px;
+  }
+  .page { max-width: 1400px; margin: 0 auto; }
+  h1 {
+    text-align: center; font-size: 26px; font-weight: 300; letter-spacing: 10px;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #4a9d6e 0%, #c8503c 25%, #b08a4a 50%, #b8c4d4 75%, #3c7ea6 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { text-align: center; font-size: 12px; color: #8a8070; letter-spacing: 4px; margin-bottom: 8px; }
+  .version-note { text-align: center; font-size: 11px; color: #6ab8a0; letter-spacing: 2px; margin-bottom: 30px; }
+  h2 {
+    font-size: 18px; font-weight: 600; color: #a8d5ba; margin: 44px 0 18px;
+    padding-left: 14px; border-left: 3px solid #6ab8a0; letter-spacing: 2px;
+  }
+  h3 { font-size: 14px; font-weight: 600; color: #d4c4a8; margin: 24px 0 12px; }
+  p { font-size: 13.5px; color: #c0b8a8; margin-bottom: 8px; }
+  strong { color: #f5f0e6; font-weight: 600; }
+
+  /* 五行主题色 */
+  .c-mu { color: #6ec88a; } .bg-mu { background: #4a9d6e; }
+  .c-huo { color: #e8785c; } .bg-huo { background: #c8503c; }
+  .c-tu { color: #d8b06a; } .bg-tu { background: #b08a4a; }
+  .c-jin { color: #d4dce8; } .bg-jin { background: #b8c4d4; }
+  .c-shui { color: #6ab8d8; } .bg-shui { background: #3c7ea6; }
+
+  /* 总览表 */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12.5px; }
+  th {
+    background: #232a32; color: #a8d5ba; font-weight: 600; text-align: left;
+    padding: 10px 12px; font-size: 11.5px; letter-spacing: 1px; border-bottom: 2px solid #3a4a4a;
+  }
+  td { background: #1e242a; padding: 10px 12px; border-bottom: 1px solid #2a3238; vertical-align: top; }
+  tr:hover td { background: #222930; }
+  td p { font-size: 12px; margin-bottom: 4px; }
+
+  /* 关卡图容器 */
+  .level-map {
+    background: #0d1014; border-radius: 6px; border: 1px solid #2a323a;
+    overflow: hidden; margin: 16px 0;
+  }
+  .map-label {
+    padding: 10px 16px; background: #1a2026; border-bottom: 1px solid #2a323a;
+    font-size: 12px; color: #8a8070; letter-spacing: 2px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #a09888; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .map-svg { width: 100%; display: block; }
+
+  /* 机关卡片 */
+  .mechanics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 16px 0; }
+  .mech-card {
+    background: linear-gradient(135deg, #1e2830 0%, #1a2028 100%);
+    border: 1px solid #2a3a3a; border-radius: 6px; padding: 14px;
+  }
+  .mech-card .icon { font-size: 20px; margin-bottom: 6px; }
+  .mech-card h4 { font-size: 12.5px; margin-bottom: 3px; }
+  .mech-card .desc { font-size: 11px; color: #8a8070; line-height: 1.6; }
+  .mech-card .value { margin-top: 6px; font-size: 9.5px; color: #6a6050; font-family: monospace; white-space: pre-line; }
+
+  /* 流程图 */
+  .portal-flow {
+    display: flex; align-items: center; justify-content: center; gap: 0;
+    margin: 20px 0; flex-wrap: wrap;
+  }
+  .flow-node {
+    padding: 12px 18px; border-radius: 6px; text-align: center;
+    border: 1px solid; min-width: 110px;
+  }
+  .flow-node .fn-title { font-size: 14px; font-weight: 600; letter-spacing: 2px; }
+  .flow-node .fn-sub { font-size: 10px; color: #a09888; margin-top: 2px; }
+  .flow-arrow { font-size: 18px; color: #6a7060; padding: 0 10px; }
+
+  .tip-box {
+    background: rgba(106,184,160,0.08); border: 1px solid rgba(106,184,160,0.3);
+    border-radius: 6px; padding: 12px 16px; margin: 14px 0; font-size: 12.5px; color: #a8c8b8;
+  }
+  .warn-box {
+    background: rgba(200,80,60,0.08); border: 1px solid rgba(200,80,60,0.3);
+    border-radius: 6px; padding: 12px 16px; margin: 14px 0; font-size: 12.5px; color: #d8a898;
+  }
+</style></head>
+<body><div class="page">
+
+<h1>云岫 · 狐引</h1>
+<div class="subtitle">五行关卡详细设计 · 平台跳跃与机关篇</div>
+<div class="version-note">v3.0 · 栖川工作室 · 2026.10 · 金木水火土五境 + 传送门串联</div>
+
+<!-- ==================== 一、总览 ==================== -->
+<h2>一、五行关卡总览</h2>
+
+<p>五个场景按<strong>五行相生序</strong>排列：<span class="c-mu"><strong>木</strong></span> → <span class="c-huo"><strong>火</strong></span> → <span class="c-tu"><strong>土</strong></span> → <span class="c-jin"><strong>金</strong></span> → <span class="c-shui"><strong>水</strong></span>（木生火、火生土、土生金、金生水）。每境围绕一个<strong>元素专属机关体系</strong>展开，同时复用三形态（实体/灵雾/灵合）、踏云闪、灵界屏障等核心能力。水境尽头集齐五行灵炁印记，开启<strong>中央祭坛</strong>挑战九尾狐。</p>
+
+<table>
+  <tbody><tr>
+    <th style="width:7%">场景</th><th style="width:12%">名称</th><th style="width:13%">视觉主调</th>
+    <th style="width:20%">核心机关体系</th><th style="width:22%">教学重点</th>
+    <th style="width:13%">敌人配置</th><th style="width:12%">预估时长</th>
+  </tr>
+  <tr>
+    <td><p class="c-mu"><strong>木</strong></p></td><td><p><strong>青芽境</strong></p></td>
+    <td><p>青绿山谷、古树藤蔓、晨雾</p></td>
+    <td><p>藤蔓生长平台 · 花瓣弹跳 · 枯藤灵障</p></td>
+    <td><p>跳跃/踏云闪复习 + 机关触发概念（踩种子）</p></td>
+    <td><p>近战山魈×4</p></td><td><p>4-5 min</p></td>
+  </tr>
+  <tr>
+    <td><p class="c-huo"><strong>火</strong></p></td><td><p><strong>赤焰境</strong></p></td>
+    <td><p>朱红岩窟、岩浆河、火柱</p></td>
+    <td><p>间歇火柱 · 岩浆浮台 · 火盆点燃</p></td>
+    <td><p>时序观察（等火停）+ 攻击点火机关</p></td>
+    <td><p>近战×2 + 弓手×2</p></td><td><p>5-6 min</p></td>
+  </tr>
+  <tr>
+    <td><p class="c-tu"><strong>土</strong></p></td><td><p><strong>玄岩境</strong></p></td>
+    <td><p>赭黄峡谷、巨石阵、流沙</p></td>
+    <td><p>升降石柱 · 落石走廊 · 推石凹槽</p></td>
+    <td><p>时机判断 + 物理推动（实体专属）</p></td>
+    <td><p>近战×3 + 弓手×1</p></td><td><p>5-6 min</p></td>
+  </tr>
+  <tr>
+    <td><p class="c-jin"><strong>金</strong></p></td><td><p><strong>白锋境</strong></p></td>
+    <td><p>银白剑冢、悬浮古剑、寒光</p></td>
+    <td><p>旋转剑轮 · 磁力平台 · 剑碑序列</p></td>
+    <td><p>轨迹预判 + 顺序解谜（灵合共鸣）</p></td>
+    <td><p>近战×2 + 弓手×3</p></td><td><p>5-6 min</p></td>
+  </tr>
+  <tr>
+    <td><p class="c-shui"><strong>水</strong></p></td><td><p><strong>玄泽境</strong></p></td>
+    <td><p>黛蓝水泽、浮石、水幕瀑布</p></td>
+    <td><p>水流浮台 · 水位机关 · 水幕灵道</p></td>
+    <td><p>环境互动（水位）+ 五行综合回顾</p></td>
+    <td><p>近战×2 + 弓手×2</p></td><td><p>6-7 min</p></td>
+  </tr>
+  <tr>
+    <td colspan="2"><p><strong>终</strong></p></td>
+    <td><p>中央祭坛（五行光环）</p></td>
+    <td><p>——</p></td>
+    <td><p>九尾狐三阶段Boss战（复用已有设计）</p></td>
+    <td><p>九尾狐</p></td><td><p>8-10 min</p></td>
+  </tr>
+</tbody></table>
+
+<div class="tip-box">
+💡 <strong>设计原则</strong>：每境遵循「教学段 → 变化段 → 综合段 → 灵泉存档 → 传送门」五拍结构。机关难度曲线 = 单机关教学（★）→ 双机关组合（★★★）→ 机关+能力混合（★★★★）。掉落惩罚统一：落坑/碰岩浆回到<strong>本段起点</strong>，不回存档点，降低挫败感。
+</div>
+
+<!-- ==================== 二、传送门系统 ==================== -->
+<h2>二、传送门系统（五境串联）</h2>
+
+<div class="portal-flow">
+  <div class="flow-node" style="border-color:#4a9d6e"><div class="fn-title c-mu">青芽境</div><div class="fn-sub">木之印记</div></div>
+  <div class="flow-arrow">➜</div>
+  <div class="flow-node" style="border-color:#c8503c"><div class="fn-title c-huo">赤焰境</div><div class="fn-sub">火之印记</div></div>
+  <div class="flow-arrow">➜</div>
+  <div class="flow-node" style="border-color:#b08a4a"><div class="fn-title c-tu">玄岩境</div><div class="fn-sub">土之印记</div></div>
+  <div class="flow-arrow">➜</div>
+  <div class="flow-node" style="border-color:#b8c4d4"><div class="fn-title c-jin">白锋境</div><div class="fn-sub">金之印记</div></div>
+  <div class="flow-arrow">➜</div>
+  <div class="flow-node" style="border-color:#3c7ea6"><div class="fn-title c-shui">玄泽境</div><div class="fn-sub">水之印记</div></div>
+  <div class="flow-arrow">➜</div>
+  <div class="flow-node" style="border-color:#d4c4a8"><div class="fn-title" style="color:#d4c4a8">中央祭坛</div><div class="fn-sub">九尾狐Boss</div></div>
+</div>
+
+<div class="mechanics-grid">
+  <div class="mech-card"><div class="icon">🌀</div><h4>元素传送门</h4>
+    <div class="desc">每境终点一座。靠近后自动播放激活动画（元素粒子汇聚成门），踏入即传送。传送时有1.5s水墨晕染转场（复用遮罩素材）。</div>
+    <div class="value">触发范围: 半径2m
+转场: 1.5s 水墨扩散</div></div>
+  <div class="mech-card"><div class="icon">🔰</div><h4>五行灵炁印记</h4>
+    <div class="desc">首次抵达每境终点传送门时获得对应印记（永久收集品）。印记在HUD左上以五行图标点亮显示，集齐5枚解锁中央祭坛。</div>
+    <div class="value">获取: 触门即得
+HUD: 五行圆环点亮</div></div>
+  <div class="mech-card"><div class="icon">💧</div><h4>灵泉存档</h4>
+    <div class="desc">每境终点传送门前必设灵泉：回满灵炁+自动存档。死亡后从本境灵泉复活，已获印记不丢失。</div>
+    <div class="value">恢复: 灵炁100%
+存档: 触碰即存</div></div>
+  <div class="mech-card"><div class="icon">🗺️</div><h4>选关回廊（可选）</h4>
+    <div class="desc">中央祭坛界面设五座小传送门，可重回任意已通关卡补收集碎片。GameJam版本若工期紧张可砍，主线不受影响。</div>
+    <div class="value">优先级: P1（可砍）</div></div>
+</div>
+
+<!-- ==================== 三、木境 ==================== -->
+<h2>三、<span class="c-mu">木 · 青芽境</span>（教学巩固 + 生长机关）</h2>
+
+<div class="level-map">
+  <div class="map-label">
+    <span>青芽境 · 侧视关卡图（全程约340m）</span>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#3a5a44"></span>地面</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#6ec88a"></span>藤蔓平台</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#e8a8c8"></span>弹跳花</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#8a6a3a"></span>种子机关</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#7ec8e8"></span>灵障/灵泉</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#ffd700"></span>碎片</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#c8503c"></span>敌人</span>
+    </div>
+  </div>
+  <svg class="map-svg" viewBox="0 0 1700 300" xmlns="http://www.w3.org/2000/svg">
+    <!-- 地面段 -->
+    <rect x="0" y="250" width="140" height="50" fill="#3a5a44"></rect>
+    <rect x="220" y="250" width="180" height="50" fill="#3a5a44"></rect>
+    <rect x="480" y="250" width="140" height="50" fill="#3a5a44"></rect>
+    <rect x="700" y="250" width="180" height="50" fill="#3a5a44"></rect>
+    <rect x="960" y="250" width="160" height="50" fill="#3a5a44"></rect>
+    <rect x="1200" y="250" width="180" height="50" fill="#3a5a44"></rect>
+    <rect x="1460" y="250" width="240" height="50" fill="#3a5a44"></rect>
+    <!-- 段0 起点传送门 -->
+    <ellipse cx="50" cy="228" rx="14" ry="24" fill="none" stroke="#6ec88a" stroke-width="2"></ellipse>
+    <ellipse cx="50" cy="228" rx="7" ry="14" fill="#6ec88a" opacity="0.3"></ellipse>
+    <text x="60" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段0 · 抵达</text>
+    <!-- 段1 藤蔓阶梯 -->
+    <text x="240" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段1 · 藤蔓生长</text>
+    <rect x="240" y="218" width="14" height="10" fill="#8a6a3a" rx="2"></rect>
+    <text x="238" y="210" fill="#8a6a3a" font-size="9">种子</text>
+    <rect x="280" y="210" width="50" height="8" fill="#6ec88a" rx="3" opacity="0.85"></rect>
+    <rect x="350" y="180" width="50" height="8" fill="#6ec88a" rx="3" opacity="0.85"></rect>
+    <rect x="300" y="140" width="50" height="8" fill="#6ec88a" rx="3" opacity="0.85" stroke="#ffd700" stroke-dasharray="3 2"></rect>
+    <polygon points="325,118 331,128 319,128" fill="#ffd700"></polygon>
+    <text x="318" y="112" fill="#ffd700" font-size="9">碎片①</text>
+    <!-- 段2 弹跳花谷 -->
+    <text x="500" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段2 · 弹跳花谷</text>
+    <ellipse cx="500" cy="242" rx="16" ry="9" fill="#e8a8c8"></ellipse>
+    <ellipse cx="560" cy="212" rx="16" ry="9" fill="#e8a8c8"></ellipse>
+    <ellipse cx="620" cy="182" rx="16" ry="9" fill="#e8a8c8"></ellipse>
+    <text x="640" y="160" fill="#e8a8c8" font-size="9">连弹上崖</text>
+    <!-- 段3 枯藤灵障 -->
+    <text x="730" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段3 · 枯藤灵障</text>
+    <rect x="780" y="170" width="8" height="80" fill="#7ec8e8" opacity="0.6"></rect>
+    <text x="764" y="160" fill="#7ec8e8" font-size="9">灵雾穿行</text>
+    <circle cx="750" cy="240" r="5" fill="#c8503c"></circle>
+    <circle cx="830" cy="240" r="5" fill="#c8503c"></circle>
+    <!-- 段4 综合：移动藤台+弹跳 -->
+    <text x="990" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段4 · 藤台横渡</text>
+    <rect x="980" y="200" width="50" height="8" fill="#6ec88a" rx="3" opacity="0.6"></rect>
+    <path d="M 980 196 L 1030 196" stroke="#6ec88a" stroke-dasharray="4 3" opacity="0.4"></path>
+    <rect x="1070" y="170" width="50" height="8" fill="#6ec88a" rx="3" opacity="0.85"></rect>
+    <ellipse cx="1160" cy="242" rx="16" ry="9" fill="#e8a8c8"></ellipse>
+    <!-- 段5 灵泉+终点门 -->
+    <text x="1250" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段5 · 灵泉试炼</text>
+    <circle cx="1260" cy="240" r="5" fill="#c8503c"></circle>
+    <circle cx="1300" cy="240" r="5" fill="#c8503c"></circle>
+    <circle cx="1360" cy="236" r="10" fill="#7ec8e8" opacity="0.8"></circle>
+    <text x="1348" y="220" fill="#7ec8e8" font-size="9">灵泉</text>
+    <polygon points="1330,150 1336,160 1324,160" fill="#ffd700"></polygon>
+    <rect x="1290" y="160" width="50" height="8" fill="#6ec88a" rx="3" opacity="0.85"></rect>
+    <text x="1280" y="150" fill="#ffd700" font-size="9">碎片②(隐藏高台)</text>
+    <ellipse cx="1620" cy="228" rx="14" ry="24" fill="none" stroke="#e8785c" stroke-width="2"></ellipse>
+    <ellipse cx="1620" cy="228" rx="7" ry="14" fill="#e8785c" opacity="0.3"></ellipse>
+    <text x="1580" y="190" fill="#e8785c" font-size="10">传送门 → 赤焰境</text>
+    <path d="M 140 300 L 140 20 M 460 300 L 460 20 M 680 300 L 680 20 M 940 300 L 940 20 M 1180 300 L 1180 20 M 1440 300 L 1440 20" stroke="#2a323a" stroke-dasharray="2 4"></path>
+  </svg>
+</div>
+
+<table>
+  <tbody><tr><th style="width:7%">段落</th><th style="width:14%">名称</th><th style="width:44%">操作与机关设计</th><th style="width:20%">能力要求</th><th style="width:15%">难度</th></tr>
+  <tr><td><p><strong>段0</strong></p></td><td><p>木灵苏醒</p></td><td><p>从传送门走出，青禾环顾新场景。平坦地面+一只山魈热身战，<strong>复习实体攻击三连击</strong>。背景古树上垂下发光藤蔓预告本境主题。</p></td><td><p>移动 · 攻击</p></td><td><p>★</p></td></tr>
+  <tr><td><p><strong>段1</strong></p></td><td><p>藤蔓生长</p></td><td><p>悬崖边一颗<strong>发光种子</strong>：踩上去→藤蔓破土而出长成3层阶梯平台（逐层升高）。第三层顶端藏<strong>碎片①</strong>。教学核心：<strong>场景物件可被触发</strong>。</p></td><td><p>跳跃 · 二段跳</p></td><td><p>★★</p></td></tr>
+  <tr><td><p><strong>段2</strong></p></td><td><p>弹跳花谷</p></td><td><p>深谷中三朵巨型<strong>弹跳花</strong>递增高处排列。踩上花瓣被弹起（弹跳力=2倍跳跃高度），连弹三次上岸。第二朵花位置偏移，需空中微调方向。掉落回段2起点。</p></td><td><p>弹跳节奏</p></td><td><p>★★</p></td></tr>
+  <tr><td><p><strong>段3</strong></p></td><td><p>枯藤灵障</p></td><td><p>被枯死藤蔓封死的通道（灵界屏障·木形态变体）：切<strong>灵雾态穿行</strong>。屏障两侧各一只山魈，先战再穿。穿出后回望可见屏障上的木纹封印消散。</p></td><td><p>灵雾 · 战斗</p></td><td><p>★★</p></td></tr>
+  <tr><td><p><strong>段4</strong></p></td><td><p>藤台横渡</p></td><td><p>宽谷上空一座<strong>横向移动藤蔓平台</strong>（藤蔓托着木板摆动）→ 固定藤台 → 弹跳花收尾上岸。移动平台速度缓慢（教学级），站上后随平台移动即可。</p></td><td><p>时机 · 空中调整</p></td><td><p>★★★</p></td></tr>
+  <tr><td><p><strong>段5</strong></p></td><td><p>灵泉试炼</p></td><td><p>灵泉前最后热身战（山魈×2）。左侧隐藏：二段跳+空中踏云闪可上<strong>高藤台拿碎片②</strong>。灵泉存档后踏入朱红传送门。</p></td><td><p>综合</p></td><td><p>★★★</p></td></tr>
+</tbody></table>
+
+<h3>木境特色机关</h3>
+<div class="mechanics-grid">
+  <div class="mech-card"><div class="icon">🌱</div><h4>藤蔓种子</h4>
+    <div class="desc">踩踏/攻击触发，藤蔓沿预设路径生长成平台。生长动画1.2s，平台永久存在。发光提示可交互。</div>
+    <div class="value">触发: 踩踏
+生长: 1.2s
+复用: spr_spirit_mechanism 换色</div></div>
+  <div class="mech-card"><div class="icon">🌸</div><h4>弹跳花</h4>
+    <div class="desc">花瓣受踩下压后弹起，将角色弹射至8m高（≈2倍跳跃）。弹跳瞬间花瓣绽放粒子。无伤害。</div>
+    <div class="value">弹力: 8m垂直
+冷却: 0.5s</div></div>
+  <div class="mech-card"><div class="icon">🍂</div><h4>枯藤灵障</h4>
+    <div class="desc">灵界屏障的木境皮肤：枯枝缠绕的墙，灵雾态可穿。穿过时枯枝向两侧退散。</div>
+    <div class="value">复用: spr_spirit_barrier 换贴图</div></div>
+  <div class="mech-card"><div class="icon">🌿</div><h4>摆荡藤台</h4>
+    <div class="desc">藤蔓吊挂的木板，钟摆式横移。振幅4m，周期3s。角色站上随动。</div>
+    <div class="value">振幅: ±4m
+周期: 3s</div></div>
+</div>
+
+<!-- ==================== 四、火境 ==================== -->
+<h2>四、<span class="c-huo">火 · 赤焰境</span>（时序观察 + 点燃机关）</h2>
+
+<div class="level-map">
+  <div class="map-label">
+    <span>赤焰境 · 侧视关卡图（全程约360m）</span>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#5a3430"></span>岩地</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#e8785c"></span>间歇火柱</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#ff9848"></span>岩浆</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#ffd76a"></span>火盆机关</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#8a8a9a"></span>浮石台</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#7ec8e8"></span>灵泉</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#ffd700"></span>碎片</span>
+    </div>
+  </div>
+  <svg class="map-svg" viewBox="0 0 1750 300" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="250" width="130" height="50" fill="#5a3430"></rect>
+    <rect x="200" y="250" width="200" height="50" fill="#5a3430"></rect>
+    <rect x="480" y="250" width="120" height="50" fill="#5a3430"></rect>
+    <rect x="680" y="250" width="200" height="50" fill="#5a3430"></rect>
+    <rect x="960" y="250" width="160" height="50" fill="#5a3430"></rect>
+    <rect x="1200" y="250" width="180" height="50" fill="#5a3430"></rect>
+    <rect x="1470" y="250" width="280" height="50" fill="#5a3430"></rect>
+    <ellipse cx="45" cy="228" rx="14" ry="24" fill="none" stroke="#6ec88a" stroke-width="2"></ellipse>
+    <ellipse cx="45" cy="228" rx="7" ry="14" fill="#6ec88a" opacity="0.3"></ellipse>
+    <text x="55" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段0 · 灼热警告</text>
+    <!-- 段1 间歇火柱走廊 -->
+    <text x="240" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段1 · 火柱走廊</text>
+    <rect x="230" y="170" width="10" height="80" fill="#e8785c" opacity="0.85"></rect>
+    <rect x="290" y="170" width="10" height="80" fill="#e8785c" opacity="0.4"></rect>
+    <rect x="350" y="170" width="10" height="80" fill="#e8785c" opacity="0.85"></rect>
+    <text x="252" y="160" fill="#e8785c" font-size="9">交错喷射</text>
+    <!-- 段2 岩浆河 -->
+    <text x="500" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段2 · 岩浆浮石</text>
+    <rect x="410" y="262" width="260" height="14" fill="#ff9848" opacity="0.9"></rect>
+    <text x="480" y="292" fill="#ff9848" font-size="9">岩浆（碰即伤+回落点）</text>
+    <rect x="440" y="220" width="40" height="10" fill="#8a8a9a" rx="2"></rect>
+    <rect x="520" y="205" width="40" height="10" fill="#8a8a9a" rx="2"></rect>
+    <rect x="600" y="220" width="40" height="10" fill="#8a8a9a" rx="2"></rect>
+    <!-- 段3 火盆机关 -->
+    <text x="720" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段3 · 点燃火盆</text>
+    <rect x="730" y="230" width="12" height="18" fill="#6a5a4a"></rect>
+    <text x="716" y="222" fill="#ffd76a" font-size="9">火盆A</text>
+    <rect x="790" y="230" width="12" height="18" fill="#6a5a4a"></rect>
+    <text x="774" y="222" fill="#ffd76a" font-size="9">火盆B</text>
+    <rect x="850" y="180" width="10" height="70" fill="#e8785c" opacity="0.5"></rect>
+    <text x="838" y="170" fill="#e8785c" font-size="9">双燃→火墙熄</text>
+    <circle cx="760" cy="240" r="5" fill="#c8503c"></circle>
+    <!-- 段4 火柱+浮石综合 -->
+    <text x="1000" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段4 · 烈焰试炼</text>
+    <rect x="900" y="262" width="290" height="14" fill="#ff9848" opacity="0.9"></rect>
+    <rect x="980" y="215" width="40" height="10" fill="#8a8a9a" rx="2"></rect>
+    <path d="M 980 210 L 1020 210" stroke="#8a8a9a" stroke-dasharray="3 3" opacity="0.5"></path>
+    <rect x="1060" y="180" width="10" height="80" fill="#e8785c" opacity="0.85"></rect>
+    <rect x="1100" y="215" width="40" height="10" fill="#8a8a9a" rx="2"></rect>
+    <polygon points="1090,140 1096,150 1084,150" fill="#ffd700"></polygon>
+    <text x="1072" y="134" fill="#ffd700" font-size="9">碎片③(险位)</text>
+    <!-- 段5 灵泉+门 -->
+    <text x="1240" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段5 · 灵泉休整</text>
+    <circle cx="1240" cy="240" r="5" fill="#c8503c"></circle>
+    <circle cx="1280" cy="235" r="5" fill="#b8c4d4"></circle>
+    <text x="1270" y="222" fill="#b8c4d4" font-size="8">弓手</text>
+    <circle cx="1350" cy="236" r="10" fill="#7ec8e8" opacity="0.8"></circle>
+    <text x="1338" y="220" fill="#7ec8e8" font-size="9">灵泉</text>
+    <polygon points="1430,180 1436,190 1424,190" fill="#ffd700"></polygon>
+    <rect x="1400" y="195" width="60" height="8" fill="#8a8a9a" rx="2"></rect>
+    <text x="1400" y="174" fill="#ffd700" font-size="9">碎片④(高台)</text>
+    <ellipse cx="1690" cy="228" rx="14" ry="24" fill="none" stroke="#d8b06a" stroke-width="2"></ellipse>
+    <ellipse cx="1690" cy="228" rx="7" ry="14" fill="#d8b06a" opacity="0.3"></ellipse>
+    <text x="1645" y="190" fill="#d8b06a" font-size="10">传送门 → 玄岩境</text>
+    <path d="M 190 300 L 190 20 M 460 300 L 460 20 M 660 300 L 660 20 M 940 300 L 940 20 M 1180 300 L 1180 20 M 1450 300 L 1450 20" stroke="#2a323a" stroke-dasharray="2 4"></path>
+  </svg>
+</div>
+
+<table>
+  <tbody><tr><th style="width:7%">段落</th><th style="width:14%">名称</th><th style="width:44%">操作与机关设计</th><th style="width:20%">能力要求</th><th style="width:15%">难度</th></tr>
+  <tr><td><p><strong>段0</strong></p></td><td><p>灼热警告</p></td><td><p>传送门出口即见远处火柱冲天。平坦路+一只近战敌人。地面有<strong>焦黑痕迹</strong>预告危险区。</p></td><td><p>移动 · 攻击</p></td><td><p>★</p></td></tr>
+  <tr><td><p><strong>段1</strong></p></td><td><p>火柱走廊</p></td><td><p>三道<strong>间歇火柱</strong>交错喷射（喷2s/停2s，相位错开1s）。教学核心：<strong>停顿时通过</strong>。火柱喷前有0.5s地面红光预警。被烧扣血1格+短暂硬直。</p></td><td><p>时序观察 · 冲刺</p></td><td><p>★★</p></td></tr>
+  <tr><td><p><strong>段2</strong></p></td><td><p>岩浆浮石</p></td><td><p>岩浆河上的<strong>浮石台三连跳</strong>。浮石沉入岩浆前会微颤+发红光（站1.5s后开始下沉）。节奏：跳-跳-跳，不可恋站。</p></td><td><p>连续跳跃</p></td><td><p>★★★</p></td></tr>
+  <tr><td><p><strong>段3</strong></p></td><td><p>点燃火盆</p></td><td><p>通道被<strong>火墙</strong>封死。两侧各一座未点燃的火盆：<strong>实体攻击火盆点燃</strong>（教学：攻击可与场景互动），两座同燃后火墙熄灭。盆间一只敌人干扰。</p></td><td><p>战斗 · 机关触发</p></td><td><p>★★</p></td></tr>
+  <tr><td><p><strong>段4</strong></p></td><td><p>烈焰试炼</p></td><td><p>本境最难段：岩浆上浮石（横向移动）→ 穿越一道间歇火柱 → 落浮石。火柱后上方藏<strong>碎片③</strong>：需在火柱停顿瞬间二段跳+踏云闪取。</p></td><td><p>时序+跳跃综合</p></td><td><p>★★★★</p></td></tr>
+  <tr><td><p><strong>段5</strong></p></td><td><p>灵泉休整</p></td><td><p>弓手+近战组合热身战（复习跳台切后排）。右侧高台踏云闪上，藏<strong>碎片④</strong>。灵泉存档后入赭黄传送门。</p></td><td><p>综合</p></td><td><p>★★★</p></td></tr>
+</tbody></table>
+
+<h3>火境特色机关</h3>
+<div class="mechanics-grid">
+  <div class="mech-card"><div class="icon">🔥</div><h4>间歇火柱</h4>
+    <div class="desc">地面火口周期性喷发火柱。喷前0.5s红光预警。伤害1格+小硬直。多火柱可设相位差。</div>
+    <div class="value">周期: 喷2s/停2s
+预警: 0.5s 红光
+伤害: 1格</div></div>
+  <div class="mech-card"><div class="icon">🌋</div><h4>岩浆地面</h4>
+    <div class="desc">接触扣1格血并弹回本段起点的安全落点。不做即死，保证GameJam玩家不弃坑。</div>
+    <div class="value">伤害: 1格+回落点</div></div>
+  <div class="mech-card"><div class="icon">🏺</div><h4>火盆机关</h4>
+    <div class="desc">实体攻击点燃（火星粒子+燃烧音效）。多盆联动：全部点燃触发开门/熄火墙/升起平台。</div>
+    <div class="value">触发: 攻击
+联动: 2-3盆</div></div>
+  <div class="mech-card"><div class="icon">🪨</div><h4>沉浮浮石</h4>
+    <div class="desc">站上1.5s后开始下沉，0.8s沉没；离开后2s复位。下沉前微颤+红光预警。</div>
+    <div class="value">站立时限: 1.5s
+下沉: 0.8s</div></div>
+</div>
+
+<!-- ==================== 五、土境 ==================== -->
+<h2>五、<span class="c-tu">土 · 玄岩境</span>（时机判断 + 物理推动）</h2>
+
+<div class="level-map">
+  <div class="map-label">
+    <span>玄岩境 · 侧视关卡图（全程约360m）</span>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#4a3d2a"></span>岩地</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#d8b06a"></span>升降石柱</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#a89878"></span>落石</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#8a8a8a"></span>可推玄石</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#d8c898"></span>流沙</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#7ec8e8"></span>灵障/灵泉</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#ffd700"></span>碎片</span>
+    </div>
+  </div>
+  <svg class="map-svg" viewBox="0 0 1750 300" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="250" width="130" height="50" fill="#4a3d2a"></rect>
+    <rect x="200" y="250" width="200" height="50" fill="#4a3d2a"></rect>
+    <rect x="470" y="250" width="150" height="50" fill="#4a3d2a"></rect>
+    <rect x="700" y="250" width="180" height="50" fill="#4a3d2a"></rect>
+    <rect x="960" y="250" width="180" height="50" fill="#4a3d2a"></rect>
+    <rect x="1220" y="250" width="160" height="50" fill="#4a3d2a"></rect>
+    <rect x="1470" y="250" width="280" height="50" fill="#4a3d2a"></rect>
+    <ellipse cx="45" cy="228" rx="14" ry="24" fill="none" stroke="#e8785c" stroke-width="2"></ellipse>
+    <ellipse cx="45" cy="228" rx="7" ry="14" fill="#e8785c" opacity="0.3"></ellipse>
+    <text x="55" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段0 · 大地震颤</text>
+    <!-- 段1 升降石柱 -->
+    <text x="240" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段1 · 石柱阵</text>
+    <rect x="230" y="190" width="36" height="60" fill="#d8b06a" opacity="0.9"></rect>
+    <rect x="300" y="150" width="36" height="100" fill="#d8b06a" opacity="0.5"></rect>
+    <rect x="370" y="190" width="36" height="60" fill="#d8b06a" opacity="0.9"></rect>
+    <path d="M 248 185 L 248 175 M 318 145 L 318 135 M 388 185 L 388 175" stroke="#d8b06a" stroke-width="2"></path>
+    <text x="268" y="128" fill="#d8b06a" font-size="9">交替升降</text>
+    <!-- 段2 落石走廊 -->
+    <text x="500" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段2 · 落石走廊</text>
+    <circle cx="500" cy="70" r="12" fill="#a89878"></circle>
+    <path d="M 500 84 L 500 230" stroke="#a89878" stroke-dasharray="4 4" opacity="0.5"></path>
+    <circle cx="560" cy="60" r="12" fill="#a89878"></circle>
+    <path d="M 560 74 L 560 230" stroke="#a89878" stroke-dasharray="4 4" opacity="0.5"></path>
+    <rect x="486" y="240" width="28" height="6" fill="#e8785c" opacity="0.5"></rect>
+    <rect x="546" y="240" width="28" height="6" fill="#e8785c" opacity="0.5"></rect>
+    <text x="500" y="50" fill="#a89878" font-size="9">预警→坠落</text>
+    <!-- 段3 推石凹槽 -->
+    <text x="730" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段3 · 推石机关</text>
+    <rect x="720" y="222" width="26" height="26" fill="#8a8a8a" rx="3"></rect>
+    <text x="712" y="214" fill="#8a8a8a" font-size="9">玄石</text>
+    <path d="M 750 240 L 800 240" stroke="#d8b06a" stroke-width="2" stroke-dasharray="4 3"></path>
+    <rect x="800" y="242" width="30" height="8" fill="#d8b06a" opacity="0.6"></rect>
+    <text x="796" y="236" fill="#d8b06a" font-size="9">凹槽</text>
+    <rect x="840" y="150" width="36" height="100" fill="#d8b06a" opacity="0.4"></rect>
+    <text x="830" y="142" fill="#d8b06a" font-size="9">触发→柱升</text>
+    <!-- 段4 流沙+石柱综合 -->
+    <text x="1000" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段4 · 流沙试炼</text>
+    <rect x="890" y="258" width="320" height="16" fill="#d8c898" opacity="0.8"></rect>
+    <text x="1000" y="292" fill="#d8c898" font-size="9">流沙（持续下陷，需快速通过）</text>
+    <rect x="940" y="200" width="36" height="50" fill="#d8b06a" opacity="0.9"></rect>
+    <rect x="1030" y="180" width="36" height="70" fill="#d8b06a" opacity="0.5"></rect>
+    <rect x="1120" y="200" width="36" height="50" fill="#d8b06a" opacity="0.9"></rect>
+    <polygon points="1048,140 1054,150 1042,150" fill="#ffd700"></polygon>
+    <text x="1030" y="134" fill="#ffd700" font-size="9">碎片⑤(柱顶)</text>
+    <!-- 段5 灵障+灵泉 -->
+    <text x="1260" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段5 · 岩封灵障</text>
+    <rect x="1290" y="170" width="8" height="80" fill="#7ec8e8" opacity="0.6"></rect>
+    <text x="1270" y="160" fill="#7ec8e8" font-size="9">灵雾穿行</text>
+    <circle cx="1260" cy="240" r="5" fill="#c8503c"></circle>
+    <circle cx="1340" cy="240" r="5" fill="#c8503c"></circle>
+    <circle cx="1400" cy="236" r="10" fill="#7ec8e8" opacity="0.8"></circle>
+    <text x="1388" y="220" fill="#7ec8e8" font-size="9">灵泉</text>
+    <polygon points="1440,180 1446,190 1434,190" fill="#ffd700"></polygon>
+    <rect x="1410" y="195" width="60" height="8" fill="#d8b06a" rx="2"></rect>
+    <text x="1410" y="174" fill="#ffd700" font-size="9">碎片⑥</text>
+    <ellipse cx="1690" cy="228" rx="14" ry="24" fill="none" stroke="#d4dce8" stroke-width="2"></ellipse>
+    <ellipse cx="1690" cy="228" rx="7" ry="14" fill="#d4dce8" opacity="0.3"></ellipse>
+    <text x="1645" y="190" fill="#d4dce8" font-size="10">传送门 → 白锋境</text>
+    <path d="M 190 300 L 190 20 M 450 300 L 450 20 M 680 300 L 680 20 M 940 300 L 940 20 M 1200 300 L 1200 20 M 1450 300 L 1450 20" stroke="#2a323a" stroke-dasharray="2 4"></path>
+  </svg>
+</div>
+
+<table>
+  <tbody><tr><th style="width:7%">段落</th><th style="width:14%">名称</th><th style="width:44%">操作与机关设计</th><th style="width:20%">能力要求</th><th style="width:15%">难度</th></tr>
+  <tr><td><p><strong>段0</strong></p></td><td><p>大地震颤</p></td><td><p>进入后画面微震+远处落石轰鸣（音效氛围）。平路热身战。地面<strong>龟裂纹理</strong>预告本境主题。</p></td><td><p>移动 · 攻击</p></td><td><p>★</p></td></tr>
+  <tr><td><p><strong>段1</strong></p></td><td><p>石柱阵</p></td><td><p>三根<strong>升降石柱</strong>交替起落（周期3s，相位错开1s）。柱面刻有符文发光提示下一根升起。趁高位跳上→等邻柱升起→再跳。教学：<strong>观察周期再行动</strong>。</p></td><td><p>时机 · 跳跃</p></td><td><p>★★★</p></td></tr>
+  <tr><td><p><strong>段2</strong></p></td><td><p>落石走廊</p></td><td><p>顶部悬石区：角色进入触发区后，地面出现<strong>红色裂纹预警圈</strong>（0.8s）→巨石坠落砸地（伤害1格）→碎石3s后消失，可踩。利用预警间隙冲刺或停留诱石后通过。</p></td><td><p>预警规避 · 冲刺</p></td><td><p>★★★</p></td></tr>
+  <tr><td><p><strong>段3</strong></p></td><td><p>推石机关</p></td><td><p>高处通道被断崖阻隔。地面一块<strong>可推动玄石</strong>：实体态推住前行（推动速度1.5m/s），推入<strong>凹槽</strong>后触发符文，旁侧石柱升起形成通路。教学：<strong>实体态的物理互动</strong>。</p></td><td><p>推物 · 解谜</p></td><td><p>★★</p></td></tr>
+  <tr><td><p><strong>段4</strong></p></td><td><p>流沙试炼</p></td><td><p>长沙漠坑为<strong>流沙区</strong>：站立持续缓慢下陷（0.4m/s），移动可抵消，沉没头顶即扣1格回起点。流沙中三根升降石柱是落脚点——<strong>柱升时跳上、柱降前跳走</strong>。中柱顶藏<strong>碎片⑤</strong>。</p></td><td><p>连续时机操作</p></td><td><p>★★★★</p></td></tr>
+  <tr><td><p><strong>段5</strong></p></td><td><p>岩封灵障</p></td><td><p>灵障（石形态）前一场小战，灵雾穿障后灵泉存档。右侧石柱顶藏<strong>碎片⑥</strong>（二段跳+空中踏云闪）。入银白传送门。</p></td><td><p>综合</p></td><td><p>★★★</p></td></tr>
+</tbody></table>
+
+<h3>土境特色机关</h3>
+<div class="mechanics-grid">
+  <div class="mech-card"><div class="icon">🗿</div><h4>升降石柱</h4>
+    <div class="desc">按周期升降的石柱平台，柱顶可站立。升起前符文发光0.5s预告。多柱可设相位差形成阶梯波。</div>
+    <div class="value">周期: 3s（升1.5s停1.5s）
+预告: 符文亮起0.5s</div></div>
+  <div class="mech-card"><div class="icon">🪨</div><h4>预警落石</h4>
+    <div class="desc">触发区内地面出现红色裂纹圈0.8s后巨石坠落。砸中扣1格。落地碎石可站立3s后消散。</div>
+    <div class="value">预警: 0.8s 红圈
+碎石存续: 3s</div></div>
+  <div class="mech-card"><div class="icon">⬛</div><h4>可推玄石</h4>
+    <div class="desc">实体态贴近按住方向键推动。推入凹槽触发机关（升柱/开门）。灵雾态无法推动——形态分工教学。</div>
+    <div class="value">推速: 1.5m/s
+限定: 实体态</div></div>
+  <div class="mech-card"><div class="icon">🏜️</div><h4>流沙</h4>
+    <div class="desc">区域内持续下陷0.4m/s，跳跃/移动暂缓。完全沉没扣1格回起点。沙面有漩涡纹理提示。</div>
+    <div class="value">下陷: 0.4m/s
+惩罚: 1格+回起点</div></div>
+</div>
+
+<!-- ==================== 六、金境 ==================== -->
+<h2>六、<span class="c-jin">金 · 白锋境</span>（轨迹预判 + 序列解谜）</h2>
+
+<div class="level-map">
+  <div class="map-label">
+    <span>白锋境 · 侧视关卡图（全程约360m）</span>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#3a3f4a"></span>剑冢地面</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#d4dce8"></span>旋转剑轮</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#8ab8d8"></span>磁力平台</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#c8a86a"></span>剑碑</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#7ec8e8"></span>灵泉</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#ffd700"></span>碎片</span>
+    </div>
+  </div>
+  <svg class="map-svg" viewBox="0 0 1750 300" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="250" width="130" height="50" fill="#3a3f4a"></rect>
+    <rect x="200" y="250" width="200" height="50" fill="#3a3f4a"></rect>
+    <rect x="480" y="250" width="140" height="50" fill="#3a3f4a"></rect>
+    <rect x="700" y="250" width="180" height="50" fill="#3a3f4a"></rect>
+    <rect x="960" y="250" width="180" height="50" fill="#3a3f4a"></rect>
+    <rect x="1220" y="250" width="160" height="50" fill="#3a3f4a"></rect>
+    <rect x="1470" y="250" width="280" height="50" fill="#3a3f4a"></rect>
+    <ellipse cx="45" cy="228" rx="14" ry="24" fill="none" stroke="#d8b06a" stroke-width="2"></ellipse>
+    <ellipse cx="45" cy="228" rx="7" ry="14" fill="#d8b06a" opacity="0.3"></ellipse>
+    <text x="55" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段0 · 万剑之冢</text>
+    <!-- 段1 剑轮 -->
+    <text x="240" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段1 · 剑轮回廊</text>
+    <circle cx="260" cy="200" r="26" fill="none" stroke="#d4dce8" stroke-width="2"></circle>
+    <path d="M 260 176 L 260 224 M 236 200 L 284 200" stroke="#d4dce8" stroke-width="3"></path>
+    <circle cx="260" cy="200" r="4" fill="#d4dce8"></circle>
+    <circle cx="340" cy="170" r="26" fill="none" stroke="#d4dce8" stroke-width="2"></circle>
+    <path d="M 340 146 L 340 194 M 316 170 L 364 170" stroke="#d4dce8" stroke-width="3"></path>
+    <text x="272" y="128" fill="#d4dce8" font-size="9">旋转轨迹规避</text>
+    <!-- 段2 磁力平台 -->
+    <text x="510" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段2 · 磁力浮台</text>
+    <rect x="440" y="230" width="50" height="8" fill="#8ab8d8" rx="2" opacity="0.9"></rect>
+    <path d="M 465 225 L 465 160" stroke="#8ab8d8" stroke-dasharray="4 3" opacity="0.5"></path>
+    <rect x="440" y="150" width="50" height="8" fill="#8ab8d8" rx="2" opacity="0.5"></rect>
+    <text x="500" y="196" fill="#8ab8d8" font-size="9">站上缓升</text>
+    <rect x="540" y="120" width="50" height="8" fill="#8ab8d8" rx="2" opacity="0.9"></rect>
+    <!-- 段3 剑碑序列 -->
+    <text x="730" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段3 · 剑碑序列</text>
+    <rect x="720" y="210" width="10" height="40" fill="#c8a86a" rx="2"></rect>
+    <rect x="760" y="210" width="10" height="40" fill="#c8a86a" rx="2" opacity="0.5"></rect>
+    <rect x="800" y="210" width="10" height="40" fill="#c8a86a" rx="2" opacity="0.5"></rect>
+    <text x="730" y="200" fill="#c8a86a" font-size="9">壹→贰→叁</text>
+    <rect x="845" y="170" width="8" height="80" fill="#d4dce8" opacity="0.6"></rect>
+    <text x="828" y="160" fill="#d4dce8" font-size="9">剑气门</text>
+    <circle cx="740" cy="240" r="5" fill="#b8c4d4"></circle>
+    <text x="730" y="228" fill="#b8c4d4" font-size="8">弓手</text>
+    <!-- 段4 剑轮+磁力综合 -->
+    <text x="1000" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段4 · 万锋试炼</text>
+    <circle cx="1000" cy="180" r="26" fill="none" stroke="#d4dce8" stroke-width="2"></circle>
+    <path d="M 1000 156 L 1000 204 M 976 180 L 1024 180" stroke="#d4dce8" stroke-width="3"></path>
+    <rect x="1050" y="200" width="50" height="8" fill="#8ab8d8" rx="2"></rect>
+    <path d="M 1105 204 L 1150 204" stroke="#8ab8d8" stroke-dasharray="4 3" opacity="0.5"></path>
+    <circle cx="1150" cy="160" r="26" fill="none" stroke="#d4dce8" stroke-width="2"></circle>
+    <path d="M 1150 136 L 1150 184 M 1126 160 L 1174 160" stroke="#d4dce8" stroke-width="3"></path>
+    <polygon points="1075,150 1081,160 1069,160" fill="#ffd700"></polygon>
+    <text x="1058" y="144" fill="#ffd700" font-size="9">碎片⑦(险位)</text>
+    <!-- 段5 灵泉+门 -->
+    <text x="1260" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段5 · 剑心休整</text>
+    <circle cx="1260" cy="240" r="5" fill="#c8503c"></circle>
+    <circle cx="1300" cy="235" r="5" fill="#b8c4d4"></circle>
+    <circle cx="1360" cy="236" r="10" fill="#7ec8e8" opacity="0.8"></circle>
+    <text x="1348" y="220" fill="#7ec8e8" font-size="9">灵泉</text>
+    <polygon points="1420,170 1426,180 1414,180" fill="#ffd700"></polygon>
+    <rect x="1390" y="185" width="60" height="8" fill="#8ab8d8" rx="2"></rect>
+    <text x="1390" y="164" fill="#ffd700" font-size="9">碎片⑧(磁力高台)</text>
+    <ellipse cx="1690" cy="228" rx="14" ry="24" fill="none" stroke="#6ab8d8" stroke-width="2"></ellipse>
+    <ellipse cx="1690" cy="228" rx="7" ry="14" fill="#6ab8d8" opacity="0.3"></ellipse>
+    <text x="1645" y="190" fill="#6ab8d8" font-size="10">传送门 → 玄泽境</text>
+    <path d="M 190 300 L 190 20 M 460 300 L 460 20 M 680 300 L 680 20 M 940 300 L 940 20 M 1200 300 L 1200 20 M 1450 300 L 1450 20" stroke="#2a323a" stroke-dasharray="2 4"></path>
+  </svg>
+</div>
+
+<table>
+  <tbody><tr><th style="width:7%">段落</th><th style="width:14%">名称</th><th style="width:44%">操作与机关设计</th><th style="width:20%">能力要求</th><th style="width:15%">难度</th></tr>
+  <tr><td><p><strong>段0</strong></p></td><td><p>万剑之冢</p></td><td><p>无数古剑插地的荒原，剑刃随步伐轻颤作响（音效氛围）。热身战一只。空中飘着<strong>剑气虚影</strong>预告危险。</p></td><td><p>移动 · 攻击</p></td><td><p>★</p></td></tr>
+  <tr><td><p><strong>段1</strong></p></td><td><p>剑轮回廊</p></td><td><p>两座<strong>旋转剑轮</strong>（古剑绕轴旋转，周期2.5s）。剑刃划过有空档期——<strong>看空档穿行或跳过</strong>。触碰扣1格。第二座位置更高，需跳台+穿空档。</p></td><td><p>轨迹预判</p></td><td><p>★★★</p></td></tr>
+  <tr><td><p><strong>段2</strong></p></td><td><p>磁力浮台</p></td><td><p>发蓝光的<strong>磁力平台</strong>：站上后被磁力牵引<strong>缓缓上升</strong>（1m/s），升至顶端自动悬停3s后回落。乘第一台升→跳到高位第二台→上岸。教学：<strong>平台即电梯</strong>。</p></td><td><p>平台接力</p></td><td><p>★★</p></td></tr>
+  <tr><td><p><strong>段3</strong></p></td><td><p>剑碑序列</p></td><td><p>通道被<strong>剑气门</strong>封锁。门前三座古剑碑，<strong>按灵炁微光提示的顺序（壹→贰→叁）用灵合态共鸣激活</strong>：切灵合靠近剑碑自动共鸣点亮。顺序错误则全部熄灭重来。弓手在旁干扰，先清场。</p></td><td><p>灵合 · 顺序解谜</p></td><td><p>★★</p></td></tr>
+  <tr><td><p><strong>段4</strong></p></td><td><p>万锋试炼</p></td><td><p>本境最难：穿剑轮空档 → 落磁力平台（被牵引<strong>横移</strong>）→ 空中再穿第二座剑轮。中段剑轮上方藏<strong>碎片⑦</strong>：需磁力平台横移经过瞬间踏云闪取。</p></td><td><p>综合预判</p></td><td><p>★★★★</p></td></tr>
+  <tr><td><p><strong>段5</strong></p></td><td><p>剑心休整</p></td><td><p>近战+弓手组合战。右侧磁力高台乘至顶藏<strong>碎片⑧</strong>。灵泉存档后入黛蓝传送门。</p></td><td><p>综合</p></td><td><p>★★★</p></td></tr>
+</tbody></table>
+
+<h3>金境特色机关</h3>
+<div class="mechanics-grid">
+  <div class="mech-card"><div class="icon">⚔️</div><h4>旋转剑轮</h4>
+    <div class="desc">2-4柄古剑绕轴匀速旋转的伤害机关。剑刃触碰扣1格，旋转空档可安全通过。轴心有符文光，转速恒定可预判。</div>
+    <div class="value">周期: 2.5s/圈
+伤害: 1格</div></div>
+  <div class="mech-card"><div class="icon">🧲</div><h4>磁力平台</h4>
+    <div class="desc">站上后被磁力牵引沿固定轨迹移动（升/横移）。蓝光越亮移动越快。到终点悬停3s后复位。</div>
+    <div class="value">移速: 1m/s
+悬停: 3s</div></div>
+  <div class="mech-card"><div class="icon">🗡️</div><h4>剑碑序列</h4>
+    <div class="desc">3座剑碑按灵炁提示顺序用灵合共鸣点亮。全部点亮开剑气门。点错全部重置。碑身有古篆数字微光提示顺序。</div>
+    <div class="value">数量: 3座
+限定: 灵合态激活</div></div>
+  <div class="mech-card"><div class="icon">🚪</div><h4>剑气门</h4>
+    <div class="desc">剑气凝成的光幕门，不可穿越不可破坏。仅由对应机关（剑碑序列）解除。解除时万剑齐鸣音效+光幕碎裂。</div>
+    <div class="value">复用: 屏障框架+金系皮肤</div></div>
+</div>
+
+<!-- ==================== 七、水境 ==================== -->
+<h2>七、<span class="c-shui">水 · 玄泽境</span>（环境互动 + 五行综合）</h2>
+
+<div class="level-map">
+  <div class="map-label">
+    <span>玄泽境 · 侧视关卡图（全程约380m）</span>
+    <div class="legend">
+      <span class="legend-item"><span class="legend-dot" style="background:#2a3d4a"></span>泽地</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#6ab8d8"></span>水流浮台</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#4a8ab8"></span>水域</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#c8a86a"></span>水钟机关</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#9ad8e8"></span>水幕灵道</span>
+      <span class="legend-item"><span class="legend-dot" style="background:#ffd700"></span>碎片</span>
+    </div>
+  </div>
+  <svg class="map-svg" viewBox="0 0 1800 300" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="250" width="130" height="50" fill="#2a3d4a"></rect>
+    <rect x="200" y="250" width="180" height="50" fill="#2a3d4a"></rect>
+    <rect x="460" y="250" width="140" height="50" fill="#2a3d4a"></rect>
+    <rect x="680" y="250" width="160" height="50" fill="#2a3d4a"></rect>
+    <rect x="920" y="250" width="200" height="50" fill="#2a3d4a"></rect>
+    <rect x="1200" y="250" width="180" height="50" fill="#2a3d4a"></rect>
+    <rect x="1470" y="250" width="330" height="50" fill="#2a3d4a"></rect>
+    <ellipse cx="45" cy="228" rx="14" ry="24" fill="none" stroke="#d4dce8" stroke-width="2"></ellipse>
+    <ellipse cx="45" cy="228" rx="7" ry="14" fill="#d4dce8" opacity="0.3"></ellipse>
+    <text x="55" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段0 · 水镜长廊</text>
+    <!-- 段1 水流浮台 -->
+    <text x="240" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段1 · 流溪浮台</text>
+    <rect x="390" y="240" width="270" height="12" fill="#4a8ab8" opacity="0.7"></rect>
+    <path d="M 400 245 L 440 245 M 500 245 L 540 245 M 600 245 L 640 245" stroke="#9ad8e8" stroke-width="2" opacity="0.6"></path>
+    <rect x="420" y="222" width="44" height="10" fill="#6ab8d8" rx="2"></rect>
+    <rect x="510" y="222" width="44" height="10" fill="#6ab8d8" rx="2" opacity="0.6"></rect>
+    <rect x="590" y="222" width="44" height="10" fill="#6ab8d8" rx="2"></rect>
+    <text x="480" y="216" fill="#6ab8d8" font-size="9">浮台顺水流漂移</text>
+    <!-- 段2 水钟水位机关 -->
+    <text x="700" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段2 · 水钟涨落</text>
+    <circle cx="700" cy="225" r="12" fill="none" stroke="#c8a86a" stroke-width="3"></circle>
+    <text x="688" y="212" fill="#c8a86a" font-size="9">水钟</text>
+    <rect x="740" y="225" width="100" height="27" fill="#4a8ab8" opacity="0.5"></rect>
+    <rect x="740" y="195" width="100" height="15" fill="#4a8ab8" opacity="0.3"></rect>
+    <text x="752" y="190" fill="#9ad8e8" font-size="9">敲钟→水位涨</text>
+    <rect x="780" y="180" width="40" height="8" fill="#6ab8d8" rx="2"></rect>
+    <!-- 段3 水幕灵道 -->
+    <text x="960" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段3 · 水幕灵道</text>
+    <rect x="1000" y="120" width="12" height="130" fill="#9ad8e8" opacity="0.5"></rect>
+    <text x="980" y="110" fill="#9ad8e8" font-size="9">瀑布水幕</text>
+    <rect x="1012" y="200" width="60" height="8" fill="#6ab8d8" rx="2" opacity="0.7"></rect>
+    <rect x="1012" y="150" width="60" height="8" fill="#6ab8d8" rx="2" opacity="0.7"></rect>
+    <circle cx="960" cy="240" r="5" fill="#c8503c"></circle>
+    <polygon points="1042,110 1048,120 1036,120" fill="#ffd700"></polygon>
+    <text x="1020" y="104" fill="#ffd700" font-size="9">碎片⑨(幕中)</text>
+    <!-- 段4 五行综合 -->
+    <text x="1240" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段4 · 五行回廊</text>
+    <ellipse cx="1230" cy="242" rx="14" ry="8" fill="#e8a8c8"></ellipse>
+    <rect x="1290" y="170" width="10" height="80" fill="#e8785c" opacity="0.85"></rect>
+    <rect x="1340" y="190" width="30" height="60" fill="#d8b06a" opacity="0.9"></rect>
+    <circle cx="1420" cy="170" r="22" fill="none" stroke="#d4dce8" stroke-width="2"></circle>
+    <path d="M 1420 150 L 1420 190 M 1400 170 L 1440 170" stroke="#d4dce8" stroke-width="2.5"></path>
+    <text x="1300" y="140" fill="#d4c4a8" font-size="9">花弹→火柱→石柱→剑轮</text>
+    <!-- 段5 灵泉+最终门 -->
+    <text x="1500" y="30" fill="#8a8070" font-size="11" letter-spacing="2">段5 · 归源灵泉</text>
+    <circle cx="1500" cy="240" r="5" fill="#c8503c"></circle>
+    <circle cx="1540" cy="235" r="5" fill="#b8c4d4"></circle>
+    <circle cx="1600" cy="236" r="10" fill="#7ec8e8" opacity="0.8"></circle>
+    <text x="1588" y="220" fill="#7ec8e8" font-size="9">灵泉</text>
+    <polygon points="1560,170 1566,180 1554,180" fill="#ffd700"></polygon>
+    <rect x="1530" y="185" width="60" height="8" fill="#6ab8d8" rx="2"></rect>
+    <text x="1525" y="164" fill="#ffd700" font-size="9">碎片⑩</text>
+    <ellipse cx="1720" cy="228" rx="16" ry="26" fill="none" stroke="#d4c4a8" stroke-width="3"></ellipse>
+    <ellipse cx="1720" cy="228" rx="8" ry="15" fill="#d4c4a8" opacity="0.4"></ellipse>
+    <text x="1658" y="190" fill="#d4c4a8" font-size="10">最终传送门 → 中央祭坛</text>
+    <path d="M 190 300 L 190 20 M 440 300 L 440 20 M 660 300 L 660 20 M 900 300 L 900 20 M 1180 300 L 1180 20 M 1450 300 L 1450 20" stroke="#2a323a" stroke-dasharray="2 4"></path>
+  </svg>
+</div>
+
+<table>
+  <tbody><tr><th style="width:7%">段落</th><th style="width:14%">名称</th><th style="width:44%">操作与机关设计</th><th style="width:20%">能力要求</th><th style="width:15%">难度</th></tr>
+  <tr><td><p><strong>段0</strong></p></td><td><p>水镜长廊</p></td><td><p>平静水面倒映山影，步伐激起涟漪。热身战一只。远处传来隐约狐鸣（Boss伏笔，音效）。</p></td><td><p>移动 · 攻击</p></td><td><p>★</p></td></tr>
+  <tr><td><p><strong>段1</strong></p></td><td><p>流溪浮台</p></td><td><p>溪流上<strong>浮台顺水漂移</strong>（1.2m/s向右，到尽头折返）。跳上浮台随水移动→接力跳上下一座→上岸。教学：<strong>动中求稳</strong>，水面掉落仅回到岸边不扣血。</p></td><td><p>移动平台接力</p></td><td><p>★★★</p></td></tr>
+  <tr><td><p><strong>段2</strong></p></td><td><p>水钟涨落</p></td><td><p>高崖阻断去路，崖下水池太浅浮不起平台。池边一座<strong>青铜水钟</strong>：<strong>灵合态共鸣敲响</strong>→水位上涨30s→浮台升起可乘上崖。水位下降前需通过（时间压力教学）。</p></td><td><p>灵合 · 限时行动</p></td><td><p>★★★</p></td></tr>
+  <tr><td><p><strong>段3</strong></p></td><td><p>水幕灵道</p></td><td><p>瀑布水幕后是垂直通道：<strong>灵雾态穿水幕</strong>（水幕对灵雾无阻力），幕内两层浮台攀爬。最高层藏<strong>碎片⑨</strong>。实体态会被水流冲落——强制灵雾教学。</p></td><td><p>灵雾 · 垂直攀爬</p></td><td><p>★★★</p></td></tr>
+  <tr><td><p><strong>段4</strong></p></td><td><p>五行回廊</p></td><td><p><strong>终章综合试炼</strong>：弹跳花（木）→ 间歇火柱（火）→ 升降石柱（土）→ 旋转剑轮（金）连续串联，每样一座、强度降低，作为Boss前的能力总复习。全程约40秒流程。</p></td><td><p>四系综合</p></td><td><p>★★★★</p></td></tr>
+  <tr><td><p><strong>段5</strong></p></td><td><p>归源灵泉</p></td><td><p>最后一场双人组热身战。左侧高台<strong>碎片⑩</strong>。灵泉存档后，<strong>五行印记齐鸣</strong>，最终传送门在水光中浮现——进入中央祭坛挑战九尾狐。</p></td><td><p>综合</p></td><td><p>★★★</p></td></tr>
+</tbody></table>
+
+<h3>水境特色机关</h3>
+<div class="mechanics-grid">
+  <div class="mech-card"><div class="icon">🌊</div><h4>水流浮台</h4>
+    <div class="desc">浮于水面的木台，顺水流方向漂移，到边界折返。角色落水不扣血，仅被冲回岸边（水境主题：包容）。</div>
+    <div class="value">漂移: 1.2m/s
+落水: 无伤害回岸</div></div>
+  <div class="mech-card"><div class="icon">🔔</div><h4>青铜水钟</h4>
+    <div class="desc">灵合态共鸣敲响，区域水位上涨30s。钟体刻水波纹，敲时涟漪扩散+低沉钟鸣。水位变化带动浮台升降。</div>
+    <div class="value">涨水: 30s
+限定: 灵合态</div></div>
+  <div class="mech-card"><div class="icon">💦</div><h4>水幕灵道</h4>
+    <div class="desc">瀑布水幕：实体态被水流冲落（下冲力），灵雾态可自由穿行。幕内隐藏空间常藏碎片。</div>
+    <div class="value">实体: 冲落
+灵雾: 穿行</div></div>
+  <div class="mech-card"><div class="icon">♻️</div><h4>五行回廊</h4>
+    <div class="desc">终章综合段：木火土金各取一座代表机关串联复用。资产零新增，纯编排。Boss前最终校验玩家能力。</div>
+    <div class="value">复用: 全部已有机关</div></div>
+</div>
+
+<!-- ==================== 八、机关参数总表 ==================== -->
+<h2>八、全机关参数速查表（程序对接用）</h2>
+
+<table>
+  <tbody><tr><th>机关</th><th>场景</th><th>触发方式</th><th>关键参数</th><th>伤害/惩罚</th><th>实现优先级</th></tr>
+  <tr><td><p>藤蔓种子</p></td><td><p class="c-mu">木</p></td><td><p>踩踏</p></td><td><p>生长1.2s，平台永久</p></td><td><p>无</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>弹跳花</p></td><td><p class="c-mu">木</p></td><td><p>踩踏自动</p></td><td><p>弹力8m，冷却0.5s</p></td><td><p>无</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>摆荡藤台</p></td><td><p class="c-mu">木</p></td><td><p>自动</p></td><td><p>振幅±4m，周期3s</p></td><td><p>无（掉落回段起点）</p></td><td><p>P1</p></td></tr>
+  <tr><td><p>间歇火柱</p></td><td><p class="c-huo">火</p></td><td><p>自动周期</p></td><td><p>喷2s停2s，预警0.5s</p></td><td><p>1格+硬直</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>岩浆</p></td><td><p class="c-huo">火</p></td><td><p>接触</p></td><td><p>——</p></td><td><p>1格+回落点</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>火盆</p></td><td><p class="c-huo">火</p></td><td><p>实体攻击</p></td><td><p>2-3盆联动</p></td><td><p>无</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>沉浮浮石</p></td><td><p class="c-huo">火</p></td><td><p>站立计时</p></td><td><p>1.5s后沉，0.8s沉没</p></td><td><p>间接（落岩浆）</p></td><td><p>P1</p></td></tr>
+  <tr><td><p>升降石柱</p></td><td><p class="c-tu">土</p></td><td><p>自动周期</p></td><td><p>周期3s，预告0.5s</p></td><td><p>无</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>预警落石</p></td><td><p class="c-tu">土</p></td><td><p>触发区</p></td><td><p>预警0.8s，碎石存3s</p></td><td><p>1格</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>可推玄石</p></td><td><p class="c-tu">土</p></td><td><p>实体推动</p></td><td><p>推速1.5m/s</p></td><td><p>无</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>流沙</p></td><td><p class="c-tu">土</p></td><td><p>区域内</p></td><td><p>下陷0.4m/s</p></td><td><p>1格+回起点</p></td><td><p>P1</p></td></tr>
+  <tr><td><p>旋转剑轮</p></td><td><p class="c-jin">金</p></td><td><p>自动旋转</p></td><td><p>2.5s/圈</p></td><td><p>1格</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>磁力平台</p></td><td><p class="c-jin">金</p></td><td><p>站立触发</p></td><td><p>移速1m/s，悬停3s</p></td><td><p>无</p></td><td><p>P1</p></td></tr>
+  <tr><td><p>剑碑序列</p></td><td><p class="c-jin">金</p></td><td><p>灵合共鸣</p></td><td><p>3座按序，错则重置</p></td><td><p>无</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>水流浮台</p></td><td><p class="c-shui">水</p></td><td><p>自动漂移</p></td><td><p>1.2m/s折返</p></td><td><p>落水回岸（无伤害）</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>青铜水钟</p></td><td><p class="c-shui">水</p></td><td><p>灵合共鸣</p></td><td><p>涨水30s</p></td><td><p>无</p></td><td><p>P1</p></td></tr>
+  <tr><td><p>水幕</p></td><td><p class="c-shui">水</p></td><td><p>形态判定</p></td><td><p>实体冲落/灵雾穿行</p></td><td><p>冲落（无伤害）</p></td><td><p>P0</p></td></tr>
+  <tr><td><p>元素传送门</p></td><td><p>全场景</p></td><td><p>靠近触发</p></td><td><p>半径2m，转场1.5s</p></td><td><p>无</p></td><td><p>P0</p></td></tr>
+</tbody></table>
+
+<!-- ==================== 九、资产复用 ==================== -->
+<h2>九、美术资产复用与新增清单</h2>
+
+<p>现有 P0 资产（天空/远山/中峰/云雾/地面模块/灵泉/屏障/碎片/九尾狐）全部沿用，<strong>五境差异主要靠调色 + 雾效密度 + 前景元素贴图换色</strong>实现，最大化控制美术工作量。</p>
+
+<table>
+  <tbody><tr><th style="width:10%">场景</th><th style="width:30%">复用资产（调色方案）</th><th style="width:35%">需新增贴图/动画</th><th style="width:25%">工作量评估</th></tr>
+  <tr><td><p class="c-mu"><strong>木</strong></p></td><td><p>现有素材即木境基调（青绿），零调色直接可用</p></td><td><p>藤蔓平台×2、弹跳花、种子、枯藤灵障</p></td><td><p>小（4件小物）</p></td></tr>
+  <tr><td><p class="c-huo"><strong>火</strong></p></td><td><p>背景整体调暖红+火星粒子；地面模块调焦岩色</p></td><td><p>火柱动画、岩浆贴图、火盆、浮石</p></td><td><p>中（4件，火柱需帧动画）</p></td></tr>
+  <tr><td><p class="c-tu"><strong>土</strong></p></td><td><p>背景调赭黄+尘雾；地面模块调砂岩色</p></td><td><p>石柱、落石、玄石、流沙贴图</p></td><td><p>小（4件静态）</p></td></tr>
+  <tr><td><p class="c-jin"><strong>金</strong></p></td><td><p>背景调冷银+寒光雾；地面模块调石青色</p></td><td><p>剑轮（单剑贴图旋转即可）、磁力台、剑碑、剑气门</p></td><td><p>小（旋转由程序实现）</p></td></tr>
+  <tr><td><p class="c-shui"><strong>水</strong></p></td><td><p>背景调黛蓝+水雾加密；地面模块调泽色</p></td><td><p>浮台、水钟、水幕（半透明贴图+UV流动）</p></td><td><p>小（3件）</p></td></tr>
+  <tr><td><p><strong>祭坛</strong></p></td><td><p>Boss高台mod_ground_boss沿用</p></td><td><p>五行光环地面贴图（五印点亮动画）</p></td><td><p>小（1件）</p></td></tr>
+</tbody></table>
+
+
+
+<div class="warn-box">
+⚠️ <strong>叙事提示</strong>：五境是青禾追寻九尾狐足迹穿行的「五行灵脉」——每境传送门激活时，可插一帧九尾狐剪影远眺的过场（复用现有美术，零成本强化主线动机）。水境段0的狐鸣音效与Boss战开场呼应。当然这个有点细节了，所以大家看进度吧</div>
+
+</div>
+</body></html>
