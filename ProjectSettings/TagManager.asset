@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags: []
   layers:
   - Default
@@ -13,11 +13,11 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - WORLD
+  - PLAYER
+  - ENEMY
+  - HITBOX
+  - ARROW
   - 
   - 
   - 
@@ -41,3 +41,39 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 3137079997
+    locked: 0
+  - name: Scenery
+    uniqueID: 792199326
+    locked: 0
+  - name: Ground
+    uniqueID: 3803529630
+    locked: 0
+  - name: Props
+    uniqueID: 1504818033
+    locked: 0
+  - name: Hazard
+    uniqueID: 3185177229
+    locked: 0
+  - name: Minions
+    uniqueID: 1191491200
+    locked: 0
+  - name: Boss
+    uniqueID: 946449708
+    locked: 0
+  - name: Player
+    uniqueID: 477166624
+    locked: 0
+  - name: BarrierFront
+    uniqueID: 3719260519
+    locked: 0
+  - name: Fx
+    uniqueID: 1288901971
+    locked: 0
+  - name: WorldHud
+    uniqueID: 1987257096
+    locked: 0
+  m_RenderingLayers:
+  - Default
+  m_MigratedRenderPipelines: []

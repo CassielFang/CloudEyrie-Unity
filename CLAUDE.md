@@ -105,6 +105,18 @@ QingheController        只做：读输入快照 → 物理 → 着地判定 →
 补丁清单见 `Assets/Spine/UNITY6.6-PATCH-NOTES.md`。**任何重新导入 Spine 的操作都会覆盖补丁**，
 症状是"安全模式 + CS0619"。复发时按那份 notes 重打。
 
+## 编辑器工具（`Assets/Editor/`）
+
+| 工具 | 什么时候用 |
+|---|---|
+| **CloudEyrie/校验当前场景** | **改完关卡/场景后、提交前跑一次**。抓 `Default` 层漏网的碰撞体（对谁都碰不到，零报错）、关键组件重复、空 sprite |
+| **CloudEyrie/工程设置/注册层名与排序层** | 自动跑（域重载时）。把 `WORLD/PLAYER/…` 与 11 个排序层写进 `TagManager.asset` |
+| **CloudEyrieTextureImporter** | 自动。对**任意层级**的 `Resources/` 与 `Assets/Art/` 设 PPU=1 |
+
+⚠️ **关卡美术必须放在某个 `Resources/` 目录下**（可以是嵌套的，如
+`Assets/Levels/<关>/Resources/…`）。放到别处会按 Unity 默认 PPU=100 导入 →
+`Resources.Load<Sprite>` 返回 null 且**不报错**。
+
 ## 已知的坑
 
 完整清单见 `docs/dev/避坑清单.md`。最容易踩的几条：

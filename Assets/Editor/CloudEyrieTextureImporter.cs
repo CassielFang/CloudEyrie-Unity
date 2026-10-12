@@ -50,8 +50,19 @@ namespace CloudEyrie.EditorTools
         {
             string path = assetPath.Replace('\\', '/');
 
+            // ⚠️ 判据是「**任意层级**的 Resources 目录」，不是只看根目录那一个。
+            //
+            // Unity 把**任何**名为 `Resources` 的文件夹都并入全局 Resources 命名空间
+            // （`Resources.Load` 只认相对路径，不认它在哪一层），所以嵌套 Resources 下的美术
+            // **本来就必须** ppu=1。原来写成 `StartsWith("Assets/Resources/")` 时，
+            // `Assets/Levels/Mu/Resources/…` 会被判成「非美术」→ 走 Unity 默认 ppu=100 →
+            // `Resources.Load<Sprite>` 返回 null，**且不报任何错**。
+            //
+            // 关卡模组化后每关都有自带的嵌套 Resources，所以这条不是可选项。
+            // 用 Contains("/Resources/") 而不是 EndsWith/StartsWith：前者同时覆盖
+            // 根目录与任意深度的嵌套；前后的斜杠保证 `Assets/MyResources/` 这类不会被误判。
             bool isArt =
-                path.StartsWith("Assets/Resources/") ||
+                path.Contains("/Resources/") ||
                 path.StartsWith("Assets/Art/");
 
             if (!isArt)
