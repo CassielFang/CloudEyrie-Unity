@@ -730,7 +730,8 @@ namespace CloudEyrie
 
             if (_selected == 0)
             {
-                GameSceneManager.Load(GameScenes.Main);
+                // 进 Host（关卡宿主），由它再叠加加载第一关 —— 不再是直接进 Main
+                GameSceneManager.LoadSingle(GameScenes.Host);
                 return;
             }
 
@@ -796,7 +797,7 @@ namespace CloudEyrie
         /// </summary>
         private void Quit()
         {
-            GameSceneManager.Load(GameScenes.Ending);
+            GameSceneManager.LoadSingle(GameScenes.Ending);
         }
     }
 }

@@ -219,6 +219,46 @@ namespace CloudEyrie
             Layout();
         }
 
+        /// <summary>
+        /// 运行时换一套背景规格（换关卡的主题）。
+        ///
+        /// <b>为什么不是重建背景节点</b>：背景是常驻件（在 Host 场景），
+        /// 重建节点就要重新接引用。这里只换规格再 <see cref="Build"/> ——
+        /// 而 <c>Build()</c> 本来就是幂等的（先 <c>Destroy</c> 掉上一轮建出来的层再重建），
+        /// 所以不需要额外写清理逻辑。
+        ///
+        /// 顺序上**必须先更新行程再 Build**：层宽是按相机行程反推的
+        /// （见 <see cref="SetRange"/> 的推导），行程还是上一关的话，
+        /// 层会被按错误的宽度建出来 —— 表现是关卡末尾露空。
+        /// </summary>
+        public void ApplyTheme(LevelTheme theme, float camMin, float camMax)
+        {
+            if (theme == null)
+            {
+                Debug.LogWarning("[Parallax] ApplyTheme 收到空的 LevelTheme —— 背景保持原样。" +
+                                 "关卡定义里没配 theme 时就是这个下场。");
+                return;
+            }
+
+            layers = theme.layers != null && theme.layers.Length > 0 ? theme.layers : DefaultLayers;
+            scenery = theme.scenery != null && theme.scenery.Length > 0 ? theme.scenery : DefaultScenery;
+
+            if (theme.viewWidthOverride > 0f)
+            {
+                viewWidthOverride = theme.viewWidthOverride;
+            }
+
+            _specs = layers;
+            _viewW = ResolveViewWidth();
+            _camMin = camMin;
+            _camMax = camMax;
+
+            Build();
+
+            Debug.Log($"[Parallax] 换主题「{theme.name}」：{_specs.Length} 层 / {scenery.Length} 组景物，" +
+                      $"行程 [{camMin:F0}, {camMax:F0}]");
+        }
+
         private void Awake()
         {
             _viewW = ResolveViewWidth();

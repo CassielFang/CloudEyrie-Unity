@@ -225,10 +225,24 @@ namespace CloudEyrie
             {
                 Begin();
             }
+            else
+            {
+                // 不自动开打时，等关卡编排发话。
+                // 关卡模组化之前是 LevelDirector 直接调 Begin()；
+                // 现在编排是数据，数据表表达不了"调某个方法"，所以走事件。
+                EventBus.On<object>(GameEvents.BossBegin, OnBossBeginRequested);
+            }
+        }
+
+        private void OnBossBeginRequested(object _)
+        {
+            Begin();
         }
 
         private void OnDestroy()
         {
+            EventBus.Off<object>(GameEvents.BossBegin, OnBossBeginRequested);
+
             if (_damageable != null)
             {
                 _damageable.OnDeath = null;
@@ -609,7 +623,15 @@ namespace CloudEyrie
         private void GoToEnding()
         {
             Debug.Log("[Boss] 净化过场结束，进入结局");
-            GameSceneManager.Load(GameScenes.Ending);
+            // 走 LevelHost 是为了经过复位协议（与 GlobalBackKey 同一个理由）
+            if (LevelHost.Instance != null)
+            {
+                LevelHost.Instance.GoEnding();
+            }
+            else
+            {
+                GameSceneManager.LoadSingle(GameScenes.Ending);
+            }
         }
 
         // ============================================================ 工具

@@ -230,9 +230,14 @@ namespace CloudEyrie
                 return;
             }
 
+            // ⚠️ groundNode 是**遗留字段**：着地判定早就改成按层了
+            // （见 IsGroundContact —— 层 == WORLD 且接触法线朝上）。
+            // 这里以前报 "groundNode 未设置！着地判定会永远失败"，那句话是**错的**：
+            // 它不会失败。关卡模组化后地面在另一个场景，这个引用必然为空，
+            // 再报错就纯属刷屏，所以改成只在 Verbose 档提示一句。
             if (groundNode == null)
             {
-                Debug.LogError("[Qinghe Controller] groundNode 未设置！着地判定会永远失败。");
+                GameLog.V("[Qinghe Controller] groundNode 未设置（正常：着地按层判定，不看它）");
             }
 
             ApplyBodyScale();

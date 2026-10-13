@@ -101,6 +101,22 @@ namespace CloudEyrie
         [Tooltip("地面美术条。会被横向拉满整关 —— 原图只有一屏宽，不够长会在关卡首尾露空")]
         [SerializeField] private Transform groundArt;
 
+        /// <summary>
+        /// 是否由本组件驱动**段落编排**（开场过场 / 相机锁定 / BGM / 背景平移）。
+        ///
+        /// ⚠️ <b>关卡模组化之后要关掉它（置 false）。</b>
+        /// 那些编排已经搬到 <c>LevelDefinition.segments</c> 数据里，由 <see cref="LevelRuntime"/> 执行 ——
+        /// 两边同时跑会互相打架（一个锁相机、另一个解锁，谁最后跑谁说了算，
+        /// 而这种竞争从现象上完全看不出来）。
+        ///
+        /// 本组件**仍然保留几何搭建**（<see cref="BuildLevel"/> 里的小怪 / 屏障 / 灵泉）——
+        /// 那部分要等关卡改成可视化摆放之后才退役，见 docs/plan/路线图.md 的 P4。
+        ///
+        /// 默认 true，是为了**旧的 Main 场景不改也能照常跑**（回退用）。
+        /// </summary>
+        [Tooltip("是否由本组件驱动段落编排。关卡模组化后由 LevelRuntime 接管，这里置 false")]
+        [SerializeField] private bool orchestrateSegments = true;
+
         // ---- 关卡道具的摆放参数 ----
         //
         // ⚠️ 这些原图都是**打印级尺寸**，而且四周有大量透明留白（肉眼看不出来）。
@@ -341,6 +357,13 @@ namespace CloudEyrie
                 BuildLevel();
             }
 
+            // 编排关掉时（关卡模组化）黑幕归 Host 场景的 LevelHost 管，
+            // 这里再建一个会出现两层黑幕，各自淡入淡出 —— 表现是"画面忽明忽暗"
+            if (!orchestrateSegments)
+            {
+                return;
+            }
+
             // 黑幕要在 EnterSegment(Opening) 之前建好 —— 那一步会立刻把它压成全黑
             GameObject fadeGo = new GameObject("ScreenFade");
             fadeGo.transform.SetParent(transform, false);
@@ -363,6 +386,13 @@ namespace CloudEyrie
 
             UpdateMistLesson();
             UpdateSpring();
+
+            // 下面的都是**段落编排**。关卡模组化后由 LevelRuntime 按数据执行，
+            // 本组件只管几何与玩法（屏障开合、灵泉判定 —— 那两条在上面，不受影响）。
+            if (!orchestrateSegments)
+            {
+                return;
+            }
 
             // 兜底：只要不在开场段，脚本方向就必须是 0。
             // 正常路径由 EnterSegment(Explore) 清掉，但那是「某个分支记得清」式的写法 ——

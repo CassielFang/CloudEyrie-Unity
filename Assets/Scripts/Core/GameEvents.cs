@@ -37,6 +37,19 @@ namespace CloudEyrie
         // ---- 界面提示 ----
         /// <summary>请求在屏幕上闪一行短提示。载荷：<see cref="HintEvent"/>。</summary>
         public const string HintRequested = "hint-requested";
+
+        // ---- 关卡编排 ----
+        /// <summary>
+        /// 让 Boss 开打。无载荷。
+        ///
+        /// 由关卡编排里那条 <c>SegmentCue.emitEvent = "boss-begin"</c> 发出，
+        /// <see cref="BossAI"/> 自己订阅。
+        ///
+        /// <b>为什么不直接调 <c>boss.Begin()</c></b>：数据表表达不了"调用某个组件的某个方法"，
+        /// 只能表达"发生了这件事"。让关心它的组件自己订阅，编排侧才不必认识 Boss ——
+        /// 新关卡想加一个"进这段就开打"的 Boss，也只要配一条 cue 即可。
+        /// </summary>
+        public const string BossBegin = "boss-begin";
     }
 
     /// <summary>

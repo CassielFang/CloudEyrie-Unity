@@ -28,7 +28,7 @@ namespace CloudEyrie
         {
             string target = string.IsNullOrEmpty(firstScene) ? GameScenes.Title : firstScene;
             GameLog.I($"[Bootstrap] 初始化完成，进入 {target}");
-            GameSceneManager.Load(target);
+            GameSceneManager.LoadSingle(target);
         }
     }
 }

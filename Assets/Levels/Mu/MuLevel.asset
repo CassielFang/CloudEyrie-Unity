@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dabcd9e021f2983448823334bedb7f8f, type: 3}
+  m_Name: MuLevel
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelDefinition
+  id: mu
+  displayName: "\u6728\xB7\u9752\u82BD\u5883"
+  element: 0
+  order: 0
+  sceneName: Mu
+  artRoot: Mu
+  defaultSpawnMarker: Spawn_Default
+  levelLeft: 0
+  levelRight: 3200
+  theme: {fileID: 11400000, guid: d4eeaae3f8ab00c4f924ba65bcfd9a4d, type: 2}
+  segments:
+  - id: opening
+    note: "\u5F00\u573A\u8FC7\u573A\uFF1A\u9501\u76F8\u673A + \u80CC\u666F\u63A8\u8FDB + \u4ECE\u5168\u9ED1\u6DE1\u5165"
+    trigger: 1
+    atX: 0
+    volumeName: 
+    camera: 1
+    autoPanSpeed: 18
+    setBgm: 1
+    bgm: 0
+    fade: 1
+    fadeSeconds: 2.5
+    releasePlayerControl: 0
+    emitEvent: 
+  - id: explore
+    note: "\u4EA4\u8FD8\u64CD\u4F5C\u6743\uFF0C\u76F8\u673A\u6062\u590D\u8DDF\u968F"
+    trigger: 0
+    atX: 420
+    volumeName: 
+    camera: 2
+    autoPanSpeed: 0
+    setBgm: 0
+    bgm: 0
+    fade: 0
+    fadeSeconds: 0.8
+    releasePlayerControl: 1
+    emitEvent: 
+  - id: boss-p1
+    note: "Boss \u6218\u573A\uFF1A\u9501\u76F8\u673A + \u80CC\u666F\u63A8\u8FDB + \u6362 Boss \u66F2 + \u5F00\u6253"
+    trigger: 0
+    atX: 2320
+    volumeName: 
+    camera: 1
+    autoPanSpeed: 12
+    setBgm: 1
+    bgm: 1
+    fade: 0
+    fadeSeconds: 0.8
+    releasePlayerControl: 0
+    emitEvent: boss-begin
+  isFinal: 0

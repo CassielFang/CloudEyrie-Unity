@@ -95,7 +95,17 @@ namespace CloudEyrie
                 // 见 TitleScreen.StartAtMenu 的说明。
                 TitleScreen.StartAtMenu = true;
 
-                GameSceneManager.Load(GameScenes.Title);
+                // 走 LevelHost 是为了**经过复位协议** —— 裸 LoadScene 会把灵炁值、
+                // 战斗来源集合、timeScale 这些跨场景静态状态一路带进标题页
+                if (LevelHost.Instance != null)
+                {
+                    LevelHost.Instance.ReturnToTitle();
+                }
+                else
+                {
+                    // 不在关卡里（已经在标题页了）：没有宿主可走，直接切
+                    GameSceneManager.LoadSingle(GameScenes.Title);
+                }
             }
         }
     }
