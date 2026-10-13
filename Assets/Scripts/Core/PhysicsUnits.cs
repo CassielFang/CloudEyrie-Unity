@@ -57,14 +57,44 @@ namespace CloudEyrie
             return cocosValue * VelocityScale;
         }
 
+        private static bool _applied;
+
         /// <summary>
-        /// 应用全局物理设置。与 <see cref="PhysicsGroups.Apply"/> 一起由
-        /// <see cref="GameManager"/> 在启动时调用。
+        /// 应用全局物理设置。幂等。
         /// </summary>
         public static void Apply()
         {
+            if (_applied)
+            {
+                return;
+            }
+
+            _applied = true;
+
             Physics2D.gravity = Gravity;
             Debug.Log($"[PhysicsUnits] 重力设为 {Gravity}（Cocos 的 -320 px/s²）");
+        }
+
+        /// <summary>
+        /// <b>不管从哪个场景按 Play，都先把物理设对。</b>
+        ///
+        /// 原来这两件事（重力 + 碰撞矩阵）只在 <see cref="GameManager"/> 里做，
+        /// 而 GameManager 住在 <c>Bootstrap</c> 场景 —— 于是**从别的场景按 Play 就全错**：
+        /// 重力退化成 Unity 默认的 -9.81，跳跃与弹跳高度**放大 32 倍**，
+        /// 角色一弹就飞出屏幕，而且**一句报错都没有**。
+        ///
+        /// 这是踩出来的：调弹跳花时一直从 <c>Host</c> 场景起播，玩家被弹到 y=14915，
+        /// 查了很久才反应过来不是机关的问题，是重力没设。
+        ///
+        /// 关卡模组化之后，**打开 Host 或某个关卡场景直接按 Play 是最自然的做法**，
+        /// 所以这一步不能再依赖「必须先过 Bootstrap」。
+        /// <c>BeforeSceneLoad</c> 早于任何场景的 Awake，保证第一个物理步进就是对的。
+        /// </summary>
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void ApplyOnPlay()
+        {
+            Apply();
+            PhysicsGroups.Apply();
         }
     }
 }

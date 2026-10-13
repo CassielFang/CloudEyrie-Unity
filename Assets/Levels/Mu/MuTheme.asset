@@ -13,29 +13,14 @@ MonoBehaviour:
   m_Name: MuTheme
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelTheme
   layers:
-  - path: "\u80CC\u666F/\u8FDC\u666F"
-    factor: 0.15
-    yOffset: 120
-    height: 1350
-    drift: 26
-    driftPeriod: 36
-    autoPan: 1
-  - path: "\u80CC\u666F/\u4E2D\u666F"
-    factor: 0.45
-    yOffset: -40
-    height: 0
-    drift: 0
+  - path: Mu/bg/mu_far
+    factor: 0.6
+    yOffset: 100
+    height: 900
+    drift: 20
     driftPeriod: 40
-    autoPan: 0
-  scenery:
-  - path: "\u80CC\u666F/\u5C71\xB7\u900F\u660E"
-    factor: 0.62
-    height: 620
-    bottomY: -300
-    xs:
-    - 520
-    - 1720
-    - 2760
+    autoPan: 1
+  scenery: []
   viewWidthOverride: 0
   tint: {r: 1, g: 1, b: 1, a: 1}
   fogDensity: 0

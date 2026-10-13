@@ -240,8 +240,11 @@ namespace CloudEyrie
                 return;
             }
 
+            // ⚠️ layers 与 scenery 的**空值语义不同**，别统一成一样的：
+            //   null      = 「没配，用默认」（旧关卡不配主题也能正常显示）
+            //   空数组    = 「明确不要」（新美术自带前景，再叠默认景物就重了）
             layers = theme.layers != null && theme.layers.Length > 0 ? theme.layers : DefaultLayers;
-            scenery = theme.scenery != null && theme.scenery.Length > 0 ? theme.scenery : DefaultScenery;
+            scenery = theme.scenery != null ? theme.scenery : DefaultScenery;
 
             if (theme.viewWidthOverride > 0f)
             {
