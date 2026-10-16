@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dabcd9e021f2983448823334bedb7f8f, type: 3}
+  m_Name: TuLevel
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelDefinition
+  id: tu
+  displayName: "\u571F\xB7\u7384\u5CA9\u5883"
+  element: 2
+  order: 2
+  sceneName: Tu
+  artRoot: Tu
+  defaultSpawnMarker: Spawn_Default
+  levelLeft: 0
+  levelRight: 9600
+  theme: {fileID: 11400000, guid: 0f4304b3e20941840958a61c8262765e, type: 2}
+  segments:
+  - id: opening
+    note: "\u5F00\u573A\uFF1A\u8FDC\u5904\u843D\u77F3\u8F70\u9E23"
+    trigger: 1
+    atX: 0
+    volumeName: 
+    camera: 1
+    autoPanSpeed: 18
+    setBgm: 1
+    bgm: 0
+    fade: 1
+    fadeSeconds: 2.5
+    releasePlayerControl: 0
+    emitEvent: 
+  - id: explore
+    note: "\u4EA4\u8FD8\u64CD\u4F5C\u6743"
+    trigger: 0
+    atX: 420
+    volumeName: 
+    camera: 2
+    autoPanSpeed: 0
+    setBgm: 0
+    bgm: 0
+    fade: 0
+    fadeSeconds: 0.8
+    releasePlayerControl: 1
+    emitEvent: 
+  isFinal: 0

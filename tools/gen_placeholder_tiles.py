@@ -48,6 +48,12 @@ THEMES = {
         "edge": (86, 52, 48),
         "out": "Assets/Levels/Huo/Resources/Huo/terrain",
     },
+    "tu": {   # 土·玄岩境：赭黄砂岩
+        "top": (206, 178, 122),
+        "body": (156, 130, 92),
+        "edge": (112, 92, 64),
+        "out": "Assets/Levels/Tu/Resources/Tu/terrain",
+    },
 }
 
 
