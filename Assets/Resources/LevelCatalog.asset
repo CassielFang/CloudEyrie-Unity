@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelCatalog
   levels:
   - {fileID: 11400000, guid: db59ad74cfd6da846992b06cd1a7cc74, type: 2}
+  - {fileID: 11400000, guid: 087d70bfc3205274d9b4a67ba6b6efc6, type: 2}

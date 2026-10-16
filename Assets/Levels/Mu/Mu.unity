@@ -4020,6 +4020,67 @@ Transform:
   - {fileID: 1110915686}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1929503706
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 536129018615200286, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 8700
+      objectReference: {fileID: 0}
+    - target: {fileID: 536129018615200286, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -295
+      objectReference: {fileID: 0}
+    - target: {fileID: 536129018615200286, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 536129018615200286, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 536129018615200286, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 536129018615200286, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 536129018615200286, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 536129018615200286, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 536129018615200286, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 536129018615200286, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3547698421612871257, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: radius
+      value: 120
+      objectReference: {fileID: 0}
+    - target: {fileID: 7575766757303817914, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
+      propertyPath: m_Name
+      value: Portal_To_Huo
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 9a895504d04f7ab42827700e137b2144, type: 3}
 --- !u!1001 &1955878338
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4404,3 +4465,4 @@ SceneRoots:
   - {fileID: 2000047253}
   - {fileID: 1710889617}
   - {fileID: 310587417}
+  - {fileID: 1929503706}
