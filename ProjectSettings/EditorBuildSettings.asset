@@ -26,5 +26,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Levels/Tu/Tu.unity
     guid: a6867b34dbf884b46a6e3b1e696238ed
+  - enabled: 1
+    path: Assets/Levels/Jin/Jin.unity
+    guid: b738f96bb6e8bb741a2b8ffb698c6e78
+  - enabled: 1
+    path: Assets/Levels/Shui/Shui.unity
+    guid: 71e7535a668b69545991ce984a02d318
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

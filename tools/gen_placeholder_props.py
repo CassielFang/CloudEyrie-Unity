@@ -38,6 +38,12 @@ MOSS = (122, 164, 112)
 BEAST = (74, 62, 82)
 BEAST_DARK = (48, 40, 58)
 
+# 旋转剑轮：冷银钢色
+STEEL = (206, 214, 226)
+STEEL_LIGHT = (236, 242, 250)
+STEEL_DARK = (120, 134, 152)
+WHEEL = 300
+
 W, H = 128, 160
 DEFAULT_OUT = "Assets/Levels/Mu/Resources/Mu/props"
 
@@ -147,10 +153,46 @@ def make_minion_melee():
     return img
 
 
+def make_sword_wheel():
+    """
+    旋转剑轮：三柄古剑绕轴分布 + 轴心符文光。
+
+    ⚠️ 贴图**整个轮子**一张图，由 `SwordWheel` 旋转**节点**来转 ——
+    不是三柄剑各转各的。这样判定（按角度算扫掠）与表现永远一致：
+    各转各的话，某个角度上贴图位置和判定就会错开，表现是"明明看着剑过去了还是被打到"。
+    """
+    img = Image.new("RGBA", (WHEEL, WHEEL), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+
+    cx = cy = WHEEL // 2
+    for i in range(3):
+        a = math.radians(i * 120)
+        # 一柄剑：从轴心往外的一条细长梯形（根部宽、剑尖收）
+        for t in range(0, 100):
+            r0 = 14 + t * 1.0
+            r1 = r0 + 1.0
+            half0 = 9 - t * 0.075
+            half1 = max(1.0, 9 - (t + 1) * 0.075)
+
+            def pt(r, h):
+                return (cx + math.cos(a) * r - math.sin(a) * h,
+                        cy + math.sin(a) * r + math.cos(a) * h)
+
+            d.polygon([pt(r0, -half0), pt(r1, -half1), pt(r1, half1), pt(r0, half0)],
+                      fill=STEEL, outline=STEEL_DARK)
+
+    # 轴心符文光
+    d.ellipse([cx - 22, cy - 22, cx + 22, cy + 22], fill=STEEL_LIGHT, outline=STEEL_DARK)
+    d.ellipse([cx - 9, cy - 9, cx + 9, cy + 9], fill=(150, 200, 220))
+
+    return img
+
+
 PROPS = {
     "bounce_flower": make_bounce_flower,
     "platform_board": make_platform_board,
     "minion_melee": make_minion_melee,
+    "sword_wheel": make_sword_wheel,
 }
 
 

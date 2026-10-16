@@ -54,6 +54,18 @@ THEMES = {
         "edge": (112, 92, 64),
         "out": "Assets/Levels/Tu/Resources/Tu/terrain",
     },
+    "jin": {  # 金·白锋境：石青剑冢
+        "top": (210, 218, 228),
+        "body": (150, 160, 176),
+        "edge": (104, 114, 132),
+        "out": "Assets/Levels/Jin/Resources/Jin/terrain",
+    },
+    "shui": {  # 水·玄泽境：黛蓝泽地
+        "top": (152, 190, 206),
+        "body": (100, 138, 158),
+        "edge": (66, 96, 114),
+        "out": "Assets/Levels/Shui/Resources/Shui/terrain",
+    },
 }
 
 

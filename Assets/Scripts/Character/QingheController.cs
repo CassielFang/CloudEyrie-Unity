@@ -211,6 +211,18 @@ namespace CloudEyrie
 
         private CompanionForm _currentForm = CompanionForm.Entity;
 
+        /// <summary>
+        /// 当前形态。**给机关用**（金境「剑碑序列」要判断玩家是不是灵合态）。
+        ///
+        /// 为什么不在机关里也走 <c>gravityScale</c> 那套判据：那个只能区分
+        /// 「有重力（实体）/ 无重力（灵雾或灵合）」，**分不出灵雾与灵合**，
+        /// 而剑碑要求的是**必须灵合**。两者的差别在这里是玩法本身，不能含糊。
+        /// </summary>
+        public CompanionForm CurrentForm
+        {
+            get { return _currentForm; }
+        }
+
         private void Awake()
         {
             _rigidBody = GetComponent<Rigidbody2D>();
