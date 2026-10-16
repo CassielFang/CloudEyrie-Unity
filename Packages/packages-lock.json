@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.ivanmurzak.unity.mcp": {
-      "version": "0.93.3",
+      "version": "1.0.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -12,21 +12,21 @@
       "url": "https://package.openupm.com"
     },
     "com.ivanmurzak.unity.mcp.animation": {
-      "version": "1.2.34",
+      "version": "2.0.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.ivanmurzak.unity.mcp": "0.93.2",
+        "com.ivanmurzak.unity.mcp": "1.0.0",
         "com.unity.modules.animation": "1.0.0"
       },
       "url": "https://package.openupm.com"
     },
     "com.ivanmurzak.unity.mcp.timeline": {
-      "version": "1.0.19",
+      "version": "2.0.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.ivanmurzak.unity.mcp": "0.93.2",
+        "com.ivanmurzak.unity.mcp": "1.0.0",
         "com.unity.timeline": "1.8.12"
       },
       "url": "https://package.openupm.com"
