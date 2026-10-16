@@ -20,11 +20,11 @@ MonoBehaviour:
   artRoot: Mu
   defaultSpawnMarker: Spawn_Default
   levelLeft: 0
-  levelRight: 3200
+  levelRight: 8832
   theme: {fileID: 11400000, guid: d4eeaae3f8ab00c4f924ba65bcfd9a4d, type: 2}
   segments:
   - id: opening
-    note: "\u5F00\u573A\u8FC7\u573A\uFF1A\u9501\u76F8\u673A + \u80CC\u666F\u63A8\u8FDB + \u4ECE\u5168\u9ED1\u6DE1\u5165"
+    note: "\u5F00\u573A\uFF1A\u9501\u76F8\u673A + \u80CC\u666F\u63A8\u8FDB + \u4ECE\u5168\u9ED1\u6DE1\u5165"
     trigger: 1
     atX: 0
     volumeName: 
@@ -37,7 +37,7 @@ MonoBehaviour:
     releasePlayerControl: 0
     emitEvent: 
   - id: explore
-    note: "\u4EA4\u8FD8\u64CD\u4F5C\u6743\uFF0C\u76F8\u673A\u6062\u590D\u8DDF\u968F"
+    note: "\u4EA4\u8FD8\u64CD\u4F5C\u6743"
     trigger: 0
     atX: 420
     volumeName: 
@@ -49,17 +49,4 @@ MonoBehaviour:
     fadeSeconds: 0.8
     releasePlayerControl: 1
     emitEvent: 
-  - id: boss-p1
-    note: "Boss \u6218\u573A\uFF1A\u9501\u76F8\u673A + \u80CC\u666F\u63A8\u8FDB + \u6362 Boss \u66F2 + \u5F00\u6253"
-    trigger: 0
-    atX: 2320
-    volumeName: 
-    camera: 1
-    autoPanSpeed: 12
-    setBgm: 1
-    bgm: 1
-    fade: 0
-    fadeSeconds: 0.8
-    releasePlayerControl: 0
-    emitEvent: boss-begin
   isFinal: 0

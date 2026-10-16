@@ -34,6 +34,10 @@ WOOD_LIGHT = (198, 166, 124)
 WOOD_LINE = (146, 112, 78)
 MOSS = (122, 164, 112)
 
+# 近战山魈：深色小兽，与青绿的场景拉开对比（敌人要一眼能认出来）
+BEAST = (74, 62, 82)
+BEAST_DARK = (48, 40, 58)
+
 W, H = 128, 160
 DEFAULT_OUT = "Assets/Levels/Mu/Resources/Mu/props"
 
@@ -104,9 +108,49 @@ def make_platform_board():
     return img
 
 
+MINION_W, MINION_H = 128, 130
+
+
+def make_minion_melee():
+    """
+    近战山魈的占位立绘：深色小兽 + 两只角 + 一只眼。
+
+    刻意**不用**弹跳花那张图当占位 —— 摆出来的近战怪长得像花，看截图会以为是摆错了。
+    正式美术到位后同名覆盖即可。
+
+    ⚠️ 朝向：朝右（与青禾一致）。`EnemyAI` 的 `artNaturalFacing` 要跟着对，
+    它靠翻转节点做左右，判错会让小怪背对着人走。
+    """
+    img = Image.new("RGBA", (MINION_W, MINION_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+
+    cx = MINION_W // 2
+    body_top, body_bot = 34, MINION_H - 6
+
+    # 身体：一个立起来的椭圆
+    d.ellipse([cx - 44, body_top, cx + 44, body_bot], fill=BEAST, outline=BEAST_DARK)
+
+    # 两只角
+    for sx in (-1, 1):
+        d.polygon([(cx + sx * 26, body_top + 6),
+                   (cx + sx * 44, 6),
+                   (cx + sx * 14, body_top + 16)], fill=BEAST_DARK)
+
+    # 前伸的一条腿（朝右，暗示朝向）
+    d.polygon([(cx + 18, body_bot - 26), (cx + 56, body_bot - 6),
+               (cx + 54, body_bot + 2), (cx + 12, body_bot - 6)], fill=BEAST_DARK)
+
+    # 眼（也偏右，进一步读朝向）
+    d.ellipse([cx + 2, body_top + 22, cx + 26, body_top + 46], fill=(250, 240, 220))
+    d.ellipse([cx + 12, body_top + 30, cx + 22, body_top + 42], fill=(40, 34, 46))
+
+    return img
+
+
 PROPS = {
     "bounce_flower": make_bounce_flower,
     "platform_board": make_platform_board,
+    "minion_melee": make_minion_melee,
 }
 
 

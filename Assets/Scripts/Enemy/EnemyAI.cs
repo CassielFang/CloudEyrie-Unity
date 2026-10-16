@@ -109,10 +109,24 @@ namespace CloudEyrie
         /// 远程型（持弓的阳浊小怪）：攻击距离取 <c>RangedAttackRange</c>，
         /// 且攻击时**生成一支箭的抛射物**，而不是近身直接结算伤害。
         ///
-        /// 由生成方设置（<see cref="LevelDirector"/> 造小怪时），不是 Inspector 属性 ——
-        /// 本项目的小怪参数统一走 <see cref="GameConfig"/>，不给单实例开面板。
+        /// <b>2026-10-17 由 <c>[NonSerialized]</c> 改成序列化字段。</b>
+        /// 原来它只能是运行时赋值（由 LevelDirector 造小怪时设），理由是
+        /// 「小怪参数统一走 GameConfig，不给单实例开面板」——
+        /// 那是**关卡由代码搭建**时代的约定。
+        ///
+        /// 关卡改成 prefab 可视化摆放之后，"近战山魈"与"远程弓手"是**两个 prefab**，
+        /// 这个区别必须能存在 prefab 上；不然摆出来的近战怪会静默变回远程
+        /// （字段没序列化，加载后是 false 以外的默认值，且不报错）。
+        ///
+        /// 保留 <c>Ranged</c> 这个名字与可写性，老调用点（<c>Ranged = true</c>）不受影响。
         /// </summary>
-        [System.NonSerialized] public bool Ranged;
+        [SerializeField] private bool ranged;
+
+        public bool Ranged
+        {
+            get { return ranged; }
+            set { ranged = value; }
+        }
 
         private Rigidbody2D _rigidBody;
         private Damageable _damageable;
