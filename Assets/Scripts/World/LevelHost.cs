@@ -94,7 +94,41 @@ namespace CloudEyrie
                 catalog.Validate();
             }
 
+            // 关卡场景**已经加载着**（关卡策划直接 Play 了某个关卡场景，
+            // 由 LevelStandaloneBootstrap 把宿主补进来）→ **认领它**，
+            // 而不是傻乎乎再去加载第一关 —— 那样会出现两个关卡叠在一起。
+            LevelDefinition already = FindLoadedLevel(catalog);
+
+            if (already != null)
+            {
+                GameLog.I($"[LevelHost] 认领已加载的关卡「{already.displayName}」（独立试玩）");
+                StartCoroutine(SwapRoutine(already, null, false, skipLoad: true));
+                return;
+            }
+
             EnterLevel(firstLevelId);
+        }
+
+        /// <summary>已加载的关卡场景里，有没有哪一个是关卡目录里的关卡。</summary>
+        private static LevelDefinition FindLoadedLevel(LevelCatalog catalog)
+        {
+            if (catalog == null || catalog.levels == null)
+            {
+                return null;
+            }
+
+            for (int i = 0; i < catalog.levels.Length; i++)
+            {
+                LevelDefinition def = catalog.levels[i];
+
+                if (def != null && !string.IsNullOrEmpty(def.sceneName)
+                    && GameSceneManager.IsLoaded(def.sceneName))
+                {
+                    return def;
+                }
+            }
+
+            return null;
         }
 
         // ============================================================
@@ -169,7 +203,14 @@ namespace CloudEyrie
         // 换关主流程 —— 顺序本身就是正确性的一部分
         // ============================================================
 
-        private IEnumerator SwapRoutine(LevelDefinition def, string entryMarkerId, bool carryPlayerState)
+        /// <param name="skipLoad">
+        /// 关卡场景**已经加载着**（独立试玩），跳过卸载与加载两步，
+        /// 只做落位 / 换主题 / 注入执行者 / 复位。
+        /// 复用一个协程而不是另写一个 AdoptLevel —— 那几段逻辑一模一样，
+        /// 复制一份的话以后改落位规则要记得改两处。
+        /// </param>
+        private IEnumerator SwapRoutine(LevelDefinition def, string entryMarkerId,
+                                        bool carryPlayerState, bool skipLoad = false)
         {
             _swapping = true;
 
@@ -187,30 +228,33 @@ namespace CloudEyrie
             // 2) 复位协议（见 ResetProtocol 的注释，顺序有理由）
             ResetProtocol.BeforeLevelUnload();
 
-            // 3) 卸旧关
-            if (!string.IsNullOrEmpty(CurrentSceneName))
+            if (!skipLoad)
             {
-                AsyncOperation unload = GameSceneManager.UnloadAdditive(CurrentSceneName);
-
-                if (unload != null)
+                // 3) 卸旧关
+                if (!string.IsNullOrEmpty(CurrentSceneName))
                 {
-                    yield return unload;
+                    AsyncOperation unload = GameSceneManager.UnloadAdditive(CurrentSceneName);
+
+                    if (unload != null)
+                    {
+                        yield return unload;
+                    }
                 }
+
+                // 4) 载新关
+                AsyncOperation load = GameSceneManager.LoadAdditive(def.sceneName);
+
+                if (load == null)
+                {
+                    Debug.LogError($"[LevelHost] 加载关卡场景「{def.sceneName}」失败 —— " +
+                                   "多半是没在 Build Settings 里注册。");
+                    GameFlow.Pop();
+                    _swapping = false;
+                    yield break;
+                }
+
+                yield return load;
             }
-
-            // 4) 载新关
-            AsyncOperation load = GameSceneManager.LoadAdditive(def.sceneName);
-
-            if (load == null)
-            {
-                Debug.LogError($"[LevelHost] 加载关卡场景「{def.sceneName}」失败 —— " +
-                               "多半是没在 Build Settings 里注册。");
-                GameFlow.Pop();
-                _swapping = false;
-                yield break;
-            }
-
-            yield return load;
 
             Scene scene = SceneManager.GetSceneByName(def.sceneName);
             Current = def;

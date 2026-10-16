@@ -734,6 +734,7 @@ GameObject:
   m_Component:
   - component: {fileID: 698212662}
   - component: {fileID: 698212661}
+  - component: {fileID: 698212663}
   m_Layer: 0
   m_Name: LevelRuntime
   m_TagString: Untagged
@@ -768,6 +769,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &698212663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 698212660}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5d0049aab49a834686e7154a746264a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelStandaloneBootstrap
+  hostScene: Host
 --- !u!1 &713273867
 GameObject:
   m_ObjectHideFlags: 0
@@ -4689,6 +4703,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f7fcf8afc7f3464eabf66d9c0cf6a56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.FireWall
+  condition: 0
   groupId: huo_03
   blocker: {fileID: 814233518}
   sense: {fileID: 2115364520}
