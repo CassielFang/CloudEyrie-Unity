@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: 86e0a11dcce2a04488d73f0e6547f8be
+guid: e85dba787dc952d4889a3ca7d4618ed6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9141954164787856287
-    second: fx_waterfall_0
+      213: 4575118359688993998
+    second: fx_water_0
+  - first:
+      213: 2911571613292729969
+    second: fx_water_1
+  - first:
+      213: 3735812256995944178
+    second: fx_water_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -102,12 +108,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: fx_waterfall_0
+      name: fx_water_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 256
+        width: 254
         height: 256
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -117,8 +123,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f93451170eebede70800000000000000
-      internalID: 9141954164787856287
+      spriteID: ecc51aa78e51e7f30800000000000000
+      internalID: 4575118359688993998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fx_water_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 107
+        width: 26
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1769c64c4faf76820800000000000000
+      internalID: 2911571613292729969
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fx_water_2
+      rect:
+        serializedVersion: 2
+        x: 4
+        y: 145
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f62bcd547548d330800000000000000
+      internalID: 3735812256995944178
       vertices: []
       indices: 
       edges: []

@@ -48,16 +48,10 @@ namespace CloudEyrie.EditorTools
         private const string PortalOnSpritePath = "场景小物件/灵界机关（亮）（传送门）";
         private const string PortalOffSpritePath = "场景小物件/灵界机关（暗）（传送门）";
 
-        // 火柱 / 岩浆 / 水流：三张 256×256 的**无缝平铺材质**
+        // 火柱 / 岩浆 / 水流
         private const string FlameSpritePath = "fx_tex/fx_flame";
         private const string LavaSpritePath = "fx_tex/fx_lava";
-        private const string WaterSpritePath = "fx_tex/fx_waterfall";
-
-        /// <summary>平铺时一个瓦片在世界里占多大。这几张原图 256px、PPU=1，即原生 256 世界单位；
-        /// 按危险体的实际尺寸缩小，免得一个瓦片比整个机关还大。</summary>
-        private const float FlameTileSize = 120f;
-        private const float LavaTileSize = 240f;
-        private const float WaterTileSize = 300f;
+        private const string WaterSpritePath = "fx_tex/fx_water";
 
         /// <summary>美术与地面的关系：内容底边压进地面多少世界单位（旧的 springGroundSink / barrierGroundSink）。</summary>
         private const float GroundSink = 30f;
@@ -188,7 +182,7 @@ namespace CloudEyrie.EditorTools
                 // ⚠️ Checkpoint **没有美术字段** —— 灵泉的 Art 是纯装饰，
                 //    挂上去只为了「看得见」。别顺手给它 LinkField，它真的没有那个字段。
                 bool ok = ApplySprite(art, SpringSpritePath, PropsLayer, SpringArtScale,
-                                      new Vector2(0f, centerY), tiled: false, tileSize: 0f);
+                                      new Vector2(0f, centerY), Vector2.zero);
 
                 report.Add(ok
                     ? $"✅ {Path(cp.gameObject)} → 灵泉石台（缩放 {SpringArtScale}，y {centerY:0.##}）"
@@ -248,8 +242,8 @@ namespace CloudEyrie.EditorTools
 
                 if (ok)
                 {
-                    ok &= ApplySprite(artOn, PortalOnSpritePath, PropsLayer, scale, localPos, false, 0f);
-                    ok &= ApplySprite(artOff, PortalOffSpritePath, PropsLayer, scale, localPos, false, 0f);
+                    ok &= ApplySprite(artOn, PortalOnSpritePath, PropsLayer, scale, localPos, Vector2.zero);
+                    ok &= ApplySprite(artOff, PortalOffSpritePath, PropsLayer, scale, localPos, Vector2.zero);
                     ok &= LinkField(portal, "visualOn", artOn, report, portal.gameObject);
                     ok &= LinkField(portal, "visualOff", artOff, report, portal.gameObject);
                 }
@@ -287,7 +281,7 @@ namespace CloudEyrie.EditorTools
                 float centerY = BarrierContentBottomPx * BarrierArtScale - GroundSink;
 
                 bool ok = ApplySprite(art, BarrierSpritePath, PropsLayer, BarrierArtScale,
-                                      new Vector2(0f, centerY), tiled: false, tileSize: 0f);
+                                      new Vector2(0f, centerY), Vector2.zero);
 
                 // ElementBarrier.art 是它「解锁后压暗」的表现来源，必须接上
                 ok &= LinkField(barrier, "art", art, report, barrier.gameObject);
@@ -329,7 +323,7 @@ namespace CloudEyrie.EditorTools
                 float centerY = BarrierContentBottomPx * BarrierArtScale - GroundSink;
 
                 bool ok = ApplySprite(art, BarrierSpritePath, PropsLayer, BarrierArtScale,
-                                      new Vector2(0f, centerY), tiled: false, tileSize: 0f);
+                                      new Vector2(0f, centerY), Vector2.zero);
 
                 // GroupGate.art 是它解锁时淡出的来源
                 ok &= LinkField(gate, "art", art, report, gate.gameObject);
@@ -373,26 +367,22 @@ namespace CloudEyrie.EditorTools
                 float damage = damageProp != null ? damageProp.floatValue : 0f;
 
                 string spritePath = null;
-                float tileSize = 0f;
                 string why;
 
                 if (period > 0.0001f)
                 {
                     spritePath = FlameSpritePath;
-                    tileSize = FlameTileSize;
                     why = $"周期性（period={period}）→ 火柱";
                 }
                 else if (damage > 0.0001f)
                 {
                     spritePath = LavaSpritePath;
-                    tileSize = LavaTileSize;
                     why = $"常驻伤害（spiritDamage={damage}）→ 岩浆";
                 }
                 else if (hazard.gameObject.name.Contains("Water_Drift"))
                 {
                     // 配置与 Pit 无异，只能认名字。这条是**明知故犯**的例外，所以单独提示
                     spritePath = WaterSpritePath;
-                    tileSize = WaterTileSize;
                     why = "名字含 Water_Drift → 水流（配置与 Pit 相同，只能靠名字）";
                 }
                 else
@@ -419,19 +409,8 @@ namespace CloudEyrie.EditorTools
                     continue;
                 }
 
-                // 平铺：局部尺寸铺满碰撞盒，节点对齐盒心，再用 localScale 把「一个瓦片」缩到 tileSize
-                bool ok = ApplySprite(art, spritePath, HazardLayer, 1f, box.offset, tiled: true, tileSize: tileSize);
-
-                // box.size 是「世界」尺寸，而 size 是「局部」尺寸，缩放非 1 时要除回去
-                if (ok && art != null)
-                {
-                    SpriteRenderer sr = art.GetComponent<SpriteRenderer>();
-
-                    if (sr != null)
-                    {
-                        sr.size = new Vector2(box.size.x / art.localScale.x, box.size.y / art.localScale.y);
-                    }
-                }
+                // 平铺铺满碰撞盒，节点对齐盒心（瓦片缩放由 ApplySprite 按盒子短边算）
+                bool ok = ApplySprite(art, spritePath, HazardLayer, 1f, box.offset, box.size);
 
                 // Hazard.visual 是预警压暗（dimOnWarn）的来源，接上它火柱才会在喷发前变暗
                 ok &= LinkField(hazard, "visual", art, report, hazard.gameObject);
@@ -469,8 +448,17 @@ namespace CloudEyrie.EditorTools
         }
 
         /// <summary>设 sprite / 排序层 / 缩放 / 局部位置。返回是否成功（图加载不到就是失败）。</summary>
+        /// <param name="tiledBox">
+        /// 非零 = 用平铺模式铺满这个尺寸（危险地形）。零 = 普通 Simple 模式。
+        ///
+        /// <b>瓦片的缩放是算出来的，不是手填的。</b>
+        /// 规矩是「<b>一个瓦片正好铺满盒子的短边</b>」，长边方向重复：
+        /// 竖着的火柱用盒子宽度定瓦片宽，横着的岩浆带用盒子高度定瓦片高。
+        /// 手填瓦片尺寸会在瓦片尺寸除不尽盒子时，在长边方向留下半块瓦片的接缝 ——
+        /// 那是可见的硬边，正是当初 `fx_flame` 看起来像块面板的原因之一。
+        /// </param>
         private static bool ApplySprite(Transform art, string spritePath, string layerName,
-                                        float scale, Vector2 localPos, bool tiled, float tileSize)
+                                        float scale, Vector2 localPos, Vector2 tiledBox)
         {
             Sprite sprite = Resources.Load<Sprite>(spritePath);
 
@@ -496,12 +484,23 @@ namespace CloudEyrie.EditorTools
 
             float s = scale;
 
-            if (tiled && tileSize > 0.0001f)
+            if (tiledBox.x > 0.0001f && tiledBox.y > 0.0001f)
             {
-                float native = sprite.rect.height;   // PPU=1，像素数就是世界单位
-                s = native > 0.01f ? tileSize / native : 1f;
+                // PPU=1，所以原图像素数就是世界单位
+                float spriteW = sprite.rect.width;
+                float spriteH = sprite.rect.height;
+
+                // 「一个瓦片铺满盒子的短边」：横着的带子按高度定、竖着的柱子按宽度定
+                float shortSide = Mathf.Min(tiledBox.x, tiledBox.y);
+                float spriteShort = tiledBox.x <= tiledBox.y ? spriteW : spriteH;
+
+                s = spriteShort > 0.01f ? shortSide / spriteShort : 1f;
+
                 sr.drawMode = SpriteDrawMode.Tiled;
                 sr.tileMode = SpriteTileMode.Continuous;
+
+                // size 是「局部」尺寸，渲染尺寸 = size × localScale，所以要把缩放除回去
+                sr.size = new Vector2(tiledBox.x / s, tiledBox.y / s);
             }
             else
             {
