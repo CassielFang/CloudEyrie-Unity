@@ -27,6 +27,13 @@ PETAL_DARK = (198, 132, 166)
 CORE = (255, 236, 210)
 STEM = (96, 140, 96)
 
+# 摆荡藤台：木色 + 青苔，与瓦片地形的青绿同族
+WOOD = (168, 132, 92)
+WOOD_DARK = (118, 90, 60)
+WOOD_LIGHT = (198, 166, 124)
+WOOD_LINE = (146, 112, 78)
+MOSS = (122, 164, 112)
+
 W, H = 128, 160
 DEFAULT_OUT = "Assets/Levels/Mu/Resources/Mu/props"
 
@@ -69,8 +76,37 @@ def make_bounce_flower():
     return img
 
 
+PLANK_W, PLANK_H = 192, 96
+
+
+def make_platform_board():
+    """
+    摆荡藤台：一块木板。**不画吊绳** —— 平台是整体平移的，画上去的绳子会跟着一起
+    飘走，反而穿帮。绳子留给正式美术用单独一层处理（或者干脆不画，靠上下文的藤蔓暗示）。
+    """
+    img = Image.new("RGBA", (PLANK_W, PLANK_H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+
+    # 板子只占下面一条，上面留白给"吊挂"的空间感
+    top = PLANK_H - 34
+
+    d.rectangle([4, top, PLANK_W - 5, PLANK_H - 3], fill=WOOD, outline=WOOD_DARK, width=2)
+    d.line([4, top + 1, PLANK_W - 5, top + 1], fill=WOOD_LIGHT)      # 受光的上沿
+
+    # 木纹：几条横向的浅线
+    for y in range(top + 8, PLANK_H - 6, 7):
+        d.line([10, y, PLANK_W - 11, y], fill=WOOD_LINE)
+
+    # 两端各一撮青苔（木境的绿意，也让"哪面能站"更好读）
+    for x0 in (4, PLANK_W - 26):
+        d.ellipse([x0, top - 7, x0 + 22, top + 7], fill=MOSS)
+
+    return img
+
+
 PROPS = {
     "bounce_flower": make_bounce_flower,
+    "platform_board": make_platform_board,
 }
 
 
