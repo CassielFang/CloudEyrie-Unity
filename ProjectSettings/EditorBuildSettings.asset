@@ -32,5 +32,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Levels/Shui/Shui.unity
     guid: 71e7535a668b69545991ce984a02d318
+  - enabled: 1
+    path: Assets/Levels/Altar/Altar.unity
+    guid: 2bd249baa26e3cc4586637a171a8cd97
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

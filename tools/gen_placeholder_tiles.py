@@ -66,6 +66,12 @@ THEMES = {
         "edge": (66, 96, 114),
         "out": "Assets/Levels/Shui/Resources/Shui/terrain",
     },
+    "altar": {  # 中央祭坛：暖金石材（五行光环的台基）
+        "top": (216, 196, 148),
+        "body": (162, 146, 116),
+        "edge": (118, 104, 82),
+        "out": "Assets/Levels/Altar/Resources/Altar/terrain",
+    },
 }
 
 

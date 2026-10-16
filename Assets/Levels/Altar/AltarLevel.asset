@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dabcd9e021f2983448823334bedb7f8f, type: 3}
+  m_Name: AltarLevel
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelDefinition
+  id: altar
+  displayName: "\u4E2D\u592E\u796D\u575B"
+  element: 5
+  order: 5
+  sceneName: Altar
+  artRoot: Altar
+  defaultSpawnMarker: Spawn_Default
+  levelLeft: 0
+  levelRight: 3200
+  theme: {fileID: 11400000, guid: 083f7653bffea6642bc9728f6a741d1c, type: 2}
+  segments:
+  - id: opening
+    note: "\u4E94\u884C\u5370\u8BB0\u9F50\u9E23\uFF0C\u796D\u575B\u5F00\u542F"
+    trigger: 1
+    atX: 0
+    volumeName: 
+    camera: 1
+    autoPanSpeed: 14
+    setBgm: 1
+    bgm: 1
+    fade: 1
+    fadeSeconds: 2
+    releasePlayerControl: 0
+    emitEvent: 
+  - id: arena
+    note: "\u8E0F\u8FDB\u796D\u575B\uFF1A\u9501\u76F8\u673A + \u4E5D\u5C3E\u72D0\u5F00\u6253"
+    trigger: 0
+    atX: 1500
+    volumeName: 
+    camera: 1
+    autoPanSpeed: 10
+    setBgm: 0
+    bgm: 0
+    fade: 0
+    fadeSeconds: 0.8
+    releasePlayerControl: 0
+    emitEvent: boss-begin
+  isFinal: 1
