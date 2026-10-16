@@ -88,6 +88,33 @@ namespace CloudEyrie
             _wasInside = inside;
         }
 
+        /// <summary>
+        /// 首次抵达本境终点门时获得对应的**五行印记**。
+        ///
+        /// 放在传送门上、而不是另摆一个收集品，是因为设计稿的规则就是
+        /// 「抵达终点传送门即得」—— 那个印记本来就是"走通这一境"的凭证，
+        /// 不该需要玩家额外去捡。
+        /// </summary>
+        private void GrantSeal()
+        {
+            if (LevelHost.Instance == null)
+            {
+                return;
+            }
+
+            LevelDefinition def = LevelHost.Instance.Current;
+
+            if (def == null || def.element == ElementKind.Altar)
+            {
+                return;   // 祭坛不发印记
+            }
+
+            if (PlayerProgress.GrantSeal(def.element))
+            {
+                EventBus.Emit(GameEvents.HintRequested, new HintEvent { Text = "获得五行印记" });
+            }
+        }
+
         private void TryEnter()
         {
             if (requireCleared && HasLivingEnemy())
@@ -101,6 +128,8 @@ namespace CloudEyrie
             }
 
             _used = true;
+
+            GrantSeal();
 
             GameAudio.PlaySfx(SfxCue.Spirit);
             LevelHost.Instance.EnterLevel(targetLevelId, entryMarkerId, carryPlayerState);
