@@ -38,6 +38,13 @@ namespace CloudEyrie
         /// <summary>请求在屏幕上闪一行短提示。载荷：<see cref="HintEvent"/>。</summary>
         public const string HintRequested = "hint-requested";
 
+        // ---- 收集 ----
+        /// <summary>拾得一枚碎片。无载荷（要数字请读 <see cref="PlayerProgress"/>）。</summary>
+        public const string FragmentCollected = "fragment-collected";
+
+        /// <summary>获得一枚五行印记。无载荷。</summary>
+        public const string SealGranted = "seal-granted";
+
         // ---- 关卡编排 ----
         /// <summary>
         /// 让 Boss 开打。无载荷。

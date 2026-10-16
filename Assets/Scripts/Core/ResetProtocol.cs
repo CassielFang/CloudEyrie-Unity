@@ -44,7 +44,12 @@ namespace CloudEyrie
             //    旧敌人对象不会被 GC，且灵炁永久停在「战斗中」那档恢复（1/秒）。
             SpiritEnergySystem.ResetAll();
 
-            // 3) 输入层。沿用 GameManager.OnSceneLoaded 已有的做法，
+            // 3) 收集进度。碎片与印记也是静态的（要活过场景卸载），
+            //    同样必须在离开关卡时清掉 —— 否则从标题重新开始会带着上一次的收集。
+            //    ⚠️ 与灵炁值是同一类问题，别只清一半。
+            PlayerProgress.ResetAll();
+
+            // 4) 输入层。沿用 GameManager.OnSceneLoaded 已有的做法，
             //    清掉当帧消费标记与改键捕获态，免得新关第一帧读到旧输入。
             InputSystem.Reset();
 
