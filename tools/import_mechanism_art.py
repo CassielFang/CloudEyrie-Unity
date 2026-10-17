@@ -58,8 +58,13 @@ ENTRIES = [
     ("bronze_clock.png",      "水/机关_青铜水钟.png",                 "青铜水钟（场景里挂的是 SwordStele 组件）"),
 ]
 
-# 长卷是整关背景，直接覆盖引擎层同名文件（尺寸已核对 9600×1080，与关宽一致）
-SCROLL = ("美术素材/物件机关/木/木长图(最终版.png", "Assets/Levels/Mu/Resources/Mu/bg/mu_far.png")
+# 整关背景：直接覆盖引擎层同名文件（尺寸已核对 9600×1080，与关宽一致）
+# 水 / 金 这两张是美术后来补的，交付层用的是哈希文件名，靠这张表记住它是什么。
+SCROLLS = [
+    ("美术素材/物件机关/木/木长图(最终版.png",         "Assets/Levels/Mu/Resources/Mu/bg/mu_far.png",     "木·青芽境"),
+    ("美术素材/物件机关/水/b9cc00e241eb193a14a5f644203f935a.png", "Assets/Levels/Shui/Resources/Shui/bg/shui_far.png", "水·玄泽境"),
+    ("美术素材/物件机关/金/04f00334ecf8b17434e41abab47d461e.png", "Assets/Levels/Jin/Resources/Jin/bg/jin_far.png",   "金·白锋境"),
+]
 
 
 def main():
@@ -89,14 +94,13 @@ def main():
         print(f"{out_name:24s} ← {rel:36s} {note}")
         ok += 1
 
-    src, dst = SCROLL
-
-    if Path(src).is_file():
-        if not args.check:
-            shutil.copyfile(src, dst)
-        print(f"{'MU 长卷':24s} ← {Path(src).name:36s} 覆盖 {dst}")
-    else:
-        print(f"❌ 缺长卷：{src}")
+    for src, dst, label in SCROLLS:
+        if Path(src).is_file():
+            if not args.check:
+                shutil.copyfile(src, dst)
+            print(f"长卷 {label:6s} ← {Path(src).name[:30]:32s} 覆盖 {dst}")
+        else:
+            print(f"❌ 缺长卷：{src}")
 
     verb = "检查" if args.check else "导入"
     print(f"\n{verb}完成：{ok} 个机关物件 + 长卷")
