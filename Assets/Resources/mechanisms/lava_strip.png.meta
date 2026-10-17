@@ -1,0 +1,919 @@
+fileFormatVersion: 2
+guid: 0565d70dbe6f72a4b98e40dd2d3782ad
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3542718806091624028
+    second: lava_strip_0
+  - first:
+      213: 1935238622935865983
+    second: lava_strip_1
+  - first:
+      213: 7988960341472240373
+    second: lava_strip_2
+  - first:
+      213: -7674005968534998108
+    second: lava_strip_3
+  - first:
+      213: -5231023872561996152
+    second: lava_strip_4
+  - first:
+      213: 1187518803961455632
+    second: lava_strip_5
+  - first:
+      213: -8570343534345970807
+    second: lava_strip_6
+  - first:
+      213: -8146214202677636769
+    second: lava_strip_7
+  - first:
+      213: -5805091525738708156
+    second: lava_strip_8
+  - first:
+      213: -3304759324738749881
+    second: lava_strip_9
+  - first:
+      213: -9051228553307822952
+    second: lava_strip_10
+  - first:
+      213: -5377512824149774612
+    second: lava_strip_11
+  - first:
+      213: 4709412384350508540
+    second: lava_strip_12
+  - first:
+      213: -5234383275634845520
+    second: lava_strip_13
+  - first:
+      213: -7262994358474000857
+    second: lava_strip_14
+  - first:
+      213: 7820070565850983521
+    second: lava_strip_15
+  - first:
+      213: -5812634787970228210
+    second: lava_strip_16
+  - first:
+      213: 6756840881144962873
+    second: lava_strip_17
+  - first:
+      213: 3883559241894610154
+    second: lava_strip_18
+  - first:
+      213: -6848195560954007436
+    second: lava_strip_19
+  - first:
+      213: 6822838734644144593
+    second: lava_strip_20
+  - first:
+      213: -3175819624505980907
+    second: lava_strip_21
+  - first:
+      213: 1621921843742670021
+    second: lava_strip_22
+  - first:
+      213: -7789123986104631832
+    second: lava_strip_23
+  - first:
+      213: 245124374964502997
+    second: lava_strip_24
+  - first:
+      213: -2657224315142652794
+    second: lava_strip_25
+  - first:
+      213: 5806737436278720124
+    second: lava_strip_26
+  - first:
+      213: 7692933001055440844
+    second: lava_strip_27
+  - first:
+      213: -3163112559314951437
+    second: lava_strip_28
+  - first:
+      213: -4097062147958586855
+    second: lava_strip_29
+  - first:
+      213: 3382285382450146772
+    second: lava_strip_30
+  - first:
+      213: -3301122884054880724
+    second: lava_strip_31
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: lava_strip_0
+      rect:
+        serializedVersion: 2
+        x: 81
+        y: 441
+        width: 49
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5eef28ebf34a2130800000000000000
+      internalID: 3542718806091624028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_1
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 347
+        width: 130
+        height: 145
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7a55b336495bda10800000000000000
+      internalID: 1935238622935865983
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_2
+      rect:
+        serializedVersion: 2
+        x: 225
+        y: 336
+        width: 190
+        height: 148
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f2e22e6a1d7ede60800000000000000
+      internalID: 7988960341472240373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_3
+      rect:
+        serializedVersion: 2
+        x: 493
+        y: 347
+        width: 170
+        height: 154
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a37e31fa34708590800000000000000
+      internalID: -7674005968534998108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_4
+      rect:
+        serializedVersion: 2
+        x: 660
+        y: 419
+        width: 127
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 88e9a58c08ba767b0800000000000000
+      internalID: -5231023872561996152
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_5
+      rect:
+        serializedVersion: 2
+        x: 724
+        y: 439
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 014283a7f0aea7010800000000000000
+      internalID: 1187518803961455632
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_6
+      rect:
+        serializedVersion: 2
+        x: 802
+        y: 437
+        width: 48
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98b1e3096f5001980800000000000000
+      internalID: -8570343534345970807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_7
+      rect:
+        serializedVersion: 2
+        x: 810
+        y: 345
+        width: 100
+        height: 92
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f515829d755d2fe80800000000000000
+      internalID: -8146214202677636769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_8
+      rect:
+        serializedVersion: 2
+        x: 893
+        y: 475
+        width: 65
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 443c6b7930c207fa0800000000000000
+      internalID: -5805091525738708156
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_9
+      rect:
+        serializedVersion: 2
+        x: 945
+        y: 391
+        width: 72
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74a79cc47e22322d0800000000000000
+      internalID: -3304759324738749881
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_10
+      rect:
+        serializedVersion: 2
+        x: 1012
+        y: 317
+        width: 222
+        height: 168
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 894e6331693936280800000000000000
+      internalID: -9051228553307822952
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_11
+      rect:
+        serializedVersion: 2
+        x: 1170
+        y: 349
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ceee175e39c3f55b0800000000000000
+      internalID: -5377512824149774612
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_12
+      rect:
+        serializedVersion: 2
+        x: 1253
+        y: 449
+        width: 47
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf5990eac913b5140800000000000000
+      internalID: 4709412384350508540
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_13
+      rect:
+        serializedVersion: 2
+        x: 1293
+        y: 331
+        width: 152
+        height: 148
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b81a8dc42cbb57b0800000000000000
+      internalID: -5234383275634845520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_14
+      rect:
+        serializedVersion: 2
+        x: 1323
+        y: 441
+        width: 24
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 726bd79ac19a43b90800000000000000
+      internalID: -7262994358474000857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_15
+      rect:
+        serializedVersion: 2
+        x: 1496
+        y: 455
+        width: 56
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16c29044fb8768c60800000000000000
+      internalID: 7820070565850983521
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_16
+      rect:
+        serializedVersion: 2
+        x: 1502
+        y: 400
+        width: 32
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e00e4fdf47f555fa0800000000000000
+      internalID: -5812634787970228210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_17
+      rect:
+        serializedVersion: 2
+        x: 1520
+        y: 423
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 93f9b7c6bfe15cd50800000000000000
+      internalID: 6756840881144962873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_18
+      rect:
+        serializedVersion: 2
+        x: 1522
+        y: 451
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ae44055fd8c25e530800000000000000
+      internalID: 3883559241894610154
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_19
+      rect:
+        serializedVersion: 2
+        x: 1523
+        y: 431
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 470fdecab6256f0a0800000000000000
+      internalID: -6848195560954007436
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_20
+      rect:
+        serializedVersion: 2
+        x: 1557
+        y: 433
+        width: 137
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d96d322ea79fae50800000000000000
+      internalID: 6822838734644144593
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_21
+      rect:
+        serializedVersion: 2
+        x: 1563
+        y: 345
+        width: 37
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5184b92b0e83de3d0800000000000000
+      internalID: -3175819624505980907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_22
+      rect:
+        serializedVersion: 2
+        x: 1609
+        y: 319
+        width: 130
+        height: 59
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5cc7ab5d259328610800000000000000
+      internalID: 1621921843742670021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_23
+      rect:
+        serializedVersion: 2
+        x: 1687
+        y: 447
+        width: 36
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ed32c0d00977e390800000000000000
+      internalID: -7789123986104631832
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_24
+      rect:
+        serializedVersion: 2
+        x: 1727
+        y: 425
+        width: 24
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d18c8ff15bd66300800000000000000
+      internalID: 245124374964502997
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_25
+      rect:
+        serializedVersion: 2
+        x: 1758
+        y: 459
+        width: 21
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68c346f5094af1bd0800000000000000
+      internalID: -2657224315142652794
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_26
+      rect:
+        serializedVersion: 2
+        x: 1834
+        y: 353
+        width: 150
+        height: 150
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c760b51deeca59050800000000000000
+      internalID: 5806737436278720124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_27
+      rect:
+        serializedVersion: 2
+        x: 1995
+        y: 335
+        width: 152
+        height: 171
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ccf0ac83ec9c2ca60800000000000000
+      internalID: 7692933001055440844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_28
+      rect:
+        serializedVersion: 2
+        x: 2089
+        y: 353
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3f2a47dd2ed5a14d0800000000000000
+      internalID: -3163112559314951437
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_29
+      rect:
+        serializedVersion: 2
+        x: 2098
+        y: 349
+        width: 15
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 912ca300faf4427c0800000000000000
+      internalID: -4097062147958586855
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_30
+      rect:
+        serializedVersion: 2
+        x: 2134
+        y: 354
+        width: 17
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ddefed92aa40fe20800000000000000
+      internalID: 3382285382450146772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: lava_strip_31
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2172
+        height: 308
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c2eeeff1a3e0032d0800000000000000
+      internalID: -3301122884054880724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable: {}
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
