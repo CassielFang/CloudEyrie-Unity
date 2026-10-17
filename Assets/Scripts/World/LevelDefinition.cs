@@ -155,6 +155,14 @@ namespace CloudEyrie
         [Tooltip("相机右边界（世界坐标）")]
         public float levelRight = 3200f;
 
+        [Header("纵向边界")]
+        [Tooltip("相机纵向跟随的下边界。与 levelTop 相等（默认 0）= **不纵向跟随**，" +
+                 "相机保持 Host 场景里摆的固定高度 —— 这是旧行为。")]
+        public float levelBottom;
+
+        [Tooltip("相机纵向跟随的上边界。设了之后相机才会跟着玩家上下走。")]
+        public float levelTop;
+
         [Header("表现")]
         public LevelTheme theme;
 

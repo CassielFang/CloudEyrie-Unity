@@ -348,6 +348,9 @@ namespace CloudEyrie
             cameraFollow.Unlock();
             cameraFollow.cameraX = player.transform.position.x;
             cameraFollow.SetBounds(def.levelLeft, def.levelRight);
+
+            // 纵向边界：两者相等（默认）就等于关掉纵向跟随，保持旧行为
+            cameraFollow.SetVerticalBounds(def.levelBottom, def.levelTop);
         }
 
         // ============================================================
