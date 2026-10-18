@@ -308,6 +308,14 @@ namespace CloudEyrie
                 return;
             }
 
+            // 掉进无底坑：直接消失。不处理的话它会一直往下掉（实测掉到 y=-60 万），
+            // 而且永远算「活着的敌人」—— 屏障的 requireEnemiesCleared / 清场编排永远不触发。
+            if (transform.position.y < -1000f)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             // 死亡兜底（Damageable 已把血量清零但还没走到 OnDeath 的情况）
             if (_damageable == null || _damageable.GetHp() <= 0f)
             {
