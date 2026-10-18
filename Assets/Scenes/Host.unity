@@ -503,6 +503,7 @@ GameObject:
   - component: {fileID: 602103932}
   - component: {fileID: 602103931}
   - component: {fileID: 602103934}
+  - component: {fileID: 602103935}
   m_Layer: 0
   m_Name: Art
   m_TagString: Untagged
@@ -632,7 +633,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.SpineCharacterView
   idleAnimation: idle_breath
+  runAnimation: run
+  jumpAnimation: jump
+  fallAnimation: fall
+  moveThreshold: 12
   loop: 1
+--- !u!114 &602103935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 602103929}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0d7d6247d741c5145b4e474d9daf748c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.ClothSway
+  amplitude: 2.2
+  speed: 2.2
 --- !u!1 &896341155
 GameObject:
   m_ObjectHideFlags: 0
@@ -787,8 +806,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.QingheController
   moveSpeed: 160
   jumpSpeed: 320
-  secondJumpMult: 0.6
+  secondJumpMult: 0.82
   maxJumpCount: 2
+  coyoteTime: 0.1
+  jumpBufferTime: 0.12
+  jumpCutMultiplier: 0.45
+  riseGravityScale: 0.9
+  fallGravityScale: 1.35
+  secondJumpHorizontalBoost: 1.25
   dashSpeed: 960
   dashDuration: 0.15
   mistFlySpeed: 160
@@ -936,8 +961,21 @@ MonoBehaviour:
   cameraTransform: {fileID: 260131821}
   background: {fileID: 1990470755}
   smooth: 6
+  horizontalDeadZone: 140
+  lookAhead: 150
+  lookAheadSmooth: 1.6
+  restScreenY: 275
+  fallScreenY: 90
+  fallLeadSpeed: 120
+  landingRecoverSmooth: 2.5
+  verticalDeadZoneAbove: 80
+  verticalDeadZoneBelow: 300
+  verticalSmooth: 10
+  verticalFloor: 0
   levelLeft: 0
   levelRight: 2600
+  levelBottom: 0
+  levelTop: 0
   locked: 0
 --- !u!4 &1124057292
 Transform:
@@ -1341,6 +1379,7 @@ MonoBehaviour:
     - 1720
     - 2760
   autoPanSpeed: 0
+  autoPanLimit: 120
   viewWidthOverride: 0
 --- !u!4 &1990470756
 Transform:
