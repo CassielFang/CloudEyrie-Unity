@@ -5359,8 +5359,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9d430e1ce2d54d4391f5898247dec93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.WaterLevel
-  baseLevelY: -195
-  raisedHeight: 120
+  baseLevelY: -360
+  raisedHeight: 165
   riseDuration: 2
   holdDuration: 30
   lowerDuration: 3
