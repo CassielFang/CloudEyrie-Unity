@@ -144,6 +144,13 @@ namespace CloudEyrie
 
             GameAudio.PlaySfx(SfxCue.Spirit);
 
+            // 水境的水钟也是剑碑组件（复用共鸣判定）。场景里有水位系统就顺手抬水 ——
+            // 没有就不做事，所以金境那三座剑碑不受影响。
+            if (WaterLevel.Instance != null)
+            {
+                WaterLevel.Instance.Raise();
+            }
+
             GameLog.I($"[SwordStele] 第 {order} 座共鸣（组 {groupId}，进度 {st.Progress}）");
 
             if (GroupComplete(groupId))
