@@ -95,6 +95,33 @@ ENTRIES = [
     Entry("fx_spring.png", "无缝贴图类/c_quanshui.png", "copy",
           "灵泉水面。已被『场景小物件/灵泉石台（回血）』取代，保留备用"),
 
+    # ---- 青禾的角色特效（2026-10-17 第二轮筛选）----
+    Entry("fx_dust.png", "扭曲烟雾类/a001.png", "copy",
+          "起跳/落地尘雾：柔灰烟团，alpha 边缘自然"),
+    Entry("fx_cloud_ring.png", "扩散旋转类/Flare05.png", "copy",
+          "二段跳『云跃』的云环：青绿柔光，和青禾的灵炁同色系"),
+    Entry("fx_ring_white.png", "扩散旋转类/e68de1d0.png", "copy",
+          "落地冲击环 / 形态切换的白光环"),
+    Entry("fx_wave.png", "扭曲烟雾类/circlewave02.png", "copy",
+          "落地冲击波 / 水纹"),
+    Entry("fx_sparkle.png", "光点类/k_guangmang2.png", "copy",
+          "小星芒。白色可染色，用于二段跳/灵泉/形态切换"),
+    Entry("fx_magic_circle.png", "魔法阵类/jn_fu_015_h.png", "copy",
+          "灵合/形态切换的青色法阵"),
+    Entry("fx_slash_ink.png", "刀光类/4604933d.png", "copy",
+          "实体挥砍的白色笔锋（内容居中，替换 _arc）"),
+    Entry("fx_smoke.png", "扭曲烟雾类/yan1.png", "key_black",
+          "墨迹/命中碎屑的柔白烟团（替换 _bleed）。⚠️ 原图是**黑底**（alpha 全 255）—— "
+          "必须抠黑底，否则就是一块黑方板"),
+    Entry("fx_glow.png", "光点类/08ce35de.png", "copy",
+          "柔光晕（替换 _glow）"),
+    Entry("fx_streak1.png", "线性条状类/trail0066.png", "copy",
+          "飞白拖尾 1（替换 _streaks[0]）"),
+    Entry("fx_streak2.png", "线性条状类/trail014.png", "copy",
+          "飞白拖尾 2（替换 _streaks[1]）"),
+    Entry("fx_streak3.png", "线性条状类/sn_zxb_texiao_028_lan.png", "copy",
+          "飞白拖尾 3（替换 _streaks[2]）"),
+
     # ---- 地形材质（喂给 tools/gen_placeholder_tiles.py）----
     Entry("terrain_mu.png", "物件特效贴图/st_hz001.png", "copy", "木境：青苔石砖", "terrain"),
     Entry("terrain_huo.png", "无缝贴图类/纹理38_td.png", "copy", "火境：金焰纹岩", "terrain"),

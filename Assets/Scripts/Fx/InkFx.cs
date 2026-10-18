@@ -62,6 +62,21 @@ namespace CloudEyrie
 
             /// <summary>持续拖尾（灵雾飞行）：小而淡，靠频率而不是体积堆出「一路飘过去」</summary>
             Trail,
+
+            /// <summary>起跳扬尘：脚下的一小团灰烟</summary>
+            JumpDust,
+
+            /// <summary>落地扬尘 + 一圈冲击波</summary>
+            LandDust,
+
+            /// <summary>二段跳「云跃」：一圈云环 + 上升星芒</summary>
+            DoubleJump,
+
+            /// <summary>零散的小星芒（灵泉 / 拾取 / 形态切换的点缀）</summary>
+            Sparkle,
+
+            /// <summary>灵合 / 形态切换的法阵</summary>
+            MergeCircle,
         }
 
         // ---- 墨（实体形态的语言）----
@@ -80,6 +95,14 @@ namespace CloudEyrie
         /// <summary>刀锋弧：挥砍的「主笔」（见 tools/gen_fx_sprites.py 的 arc_slash）</summary>
         private static Sprite _arc;
 
+        // ---- 交付层的特效贴图（tools/import_fx_tex.py 入库）----
+        private static Sprite _dust;
+        private static Sprite _cloudRing;
+        private static Sprite _ringWhite;
+        private static Sprite _wave;
+        private static Sprite _sparkle;
+        private static Sprite _magicCircle;
+
         private static bool _loaded;
 
         private static void EnsureLoaded()
@@ -90,23 +113,34 @@ namespace CloudEyrie
             }
 
             _loaded = true;
-            _dot = Resources.Load<Sprite>("fx/ink_dot");
-            _bleed = Resources.Load<Sprite>("fx/ink_bleed");
-            _speck = Resources.Load<Sprite>("fx/ink_speck");
+
+            // 优先用交付层的实拍特效（fx_tex）；程序生成的 fx/* 只作兜底。
+            // 交付图缺了也不会整个特效消失 —— 这是刻意保留的降级路径。
+            _dot = Load("fx_tex/fx_glow", "fx/ink_dot");
+            _bleed = Load("fx_tex/fx_smoke", "fx/ink_bleed");
+            _speck = Load("fx_tex/fx_sparkle", "fx/ink_speck");
 
             _streaks = new[]
             {
-                Resources.Load<Sprite>("fx/ink_streak"),
-                Resources.Load<Sprite>("fx/ink_streak2"),
-                Resources.Load<Sprite>("fx/ink_streak3"),
+                Load("fx_tex/fx_streak1", "fx/ink_streak"),
+                Load("fx_tex/fx_streak2", "fx/ink_streak2"),
+                Load("fx_tex/fx_streak3", "fx/ink_streak3"),
             };
 
-            _ring = Resources.Load<Sprite>("fx/glow_ring");
+            _ring = Load("fx_tex/fx_ring_white", "fx/glow_ring");
+            // 半环（前/后分层）交付库没有对应素材，保留程序生成
             _ringFar = Resources.Load<Sprite>("fx/glow_ring_far");
             _ringNear = Resources.Load<Sprite>("fx/glow_ring_near");
-            _glow = Resources.Load<Sprite>("fx/glow_soft");
-            _mote = Resources.Load<Sprite>("fx/mote");
-            _arc = Resources.Load<Sprite>("fx/arc_slash");
+            _glow = Load("fx_tex/fx_glow", "fx/glow_soft");
+            _mote = Load("fx_tex/fx_sparkle", "fx/mote");
+            _arc = Load("fx_tex/fx_slash_ink", "fx/arc_slash");
+
+            _dust = Resources.Load<Sprite>("fx_tex/fx_dust");
+            _cloudRing = Resources.Load<Sprite>("fx_tex/fx_cloud_ring");
+            _ringWhite = Resources.Load<Sprite>("fx_tex/fx_ring_white");
+            _wave = Resources.Load<Sprite>("fx_tex/fx_wave");
+            _sparkle = Resources.Load<Sprite>("fx_tex/fx_sparkle");
+            _magicCircle = Resources.Load<Sprite>("fx_tex/fx_magic_circle");
 
             if (_bleed == null || _streaks[0] == null)
             {
@@ -117,6 +151,13 @@ namespace CloudEyrie
             {
                 Debug.LogWarning("[InkFx] fx/glow_ring / fx/mote 没读全，灵合与格挡特效会残缺");
             }
+        }
+
+        /// <summary>优先加载交付层贴图；缺失时回落到程序生成的占位图。</summary>
+        private static Sprite Load(string primary, string fallback)
+        {
+            Sprite s = Resources.Load<Sprite>(primary);
+            return s != null ? s : Resources.Load<Sprite>(fallback);
         }
 
         /// <summary>按形态取色。</summary>
@@ -183,6 +224,50 @@ namespace CloudEyrie
 
                 case Kind.FormSwitch:
                     SwitchBloom(worldPos, tint, k);
+
+                    // 切到灵合时多一圈法阵：另外两种形态只有光晕，玩家分不清
+                    // 「切到哪一态」；法阵是灵合独有的语言。
+                    if (form == CompanionForm.Merge)
+                    {
+                        MergeCircleFx(worldPos, tint, k);
+                    }
+
+                    break;
+
+                case Kind.JumpDust:
+                    DustPuff(worldPos, tint, 5, 26f, k, 1f);
+                    break;
+
+                case Kind.LandDust:
+                    DustPuff(worldPos, tint, 7, 40f, k, 0.35f);
+
+                    if (_wave != null)
+                    {
+                        Spawn(_wave, worldPos, Vector2.zero,
+                              Fade(Color.Lerp(tint, Color.white, 0.35f), 0.5f),
+                              life: 0.30f, size: 120f * k, spin: 0f,
+                              sizeEndRatio: 2.4f, alphaEnd: 0f);
+                    }
+
+                    if (_ringWhite != null)
+                    {
+                        Spawn(_ringWhite, worldPos, Vector2.zero, Fade(Color.white, 0.35f),
+                              life: 0.24f, size: 80f * k, spin: 0f,
+                              sizeEndRatio: 2.2f, alphaEnd: 0f);
+                    }
+
+                    break;
+
+                case Kind.DoubleJump:
+                    CloudJumpFx(worldPos, tint, k);
+                    break;
+
+                case Kind.Sparkle:
+                    SparkleFx(worldPos, tint, 3, k);
+                    break;
+
+                case Kind.MergeCircle:
+                    MergeCircleFx(worldPos, tint, k);
                     break;
 
                 case Kind.MergeBurst:
@@ -765,6 +850,89 @@ namespace CloudEyrie
                       spin: Random.Range(-80f, 80f),
                       sizeEndRatio: 0.4f, alphaEnd: 0f);
             }
+        }
+
+        // ============================================================ 角色动作特效
+        // 用交付层的实拍特效图（fx_tex），比程序化墨迹更细、更"有灰"。
+
+        /// <summary>一小团扬尘。up 越大越往上飘（起跳），越小越贴着地面（落地）。</summary>
+        private static void DustPuff(Vector3 pos, Color tint, int count, float spread,
+                                     float scale, float up)
+        {
+            if (_dust == null)
+            {
+                return;
+            }
+
+            Color c = Fade(Color.Lerp(tint, Color.white, 0.55f), 0.65f);
+
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 p = pos + new Vector3(Random.Range(-spread, spread) * scale,
+                                              Random.Range(0f, 8f) * scale, 0f);
+
+                Vector2 v = new Vector2(Random.Range(-35f, 35f) * scale,
+                                        Random.Range(10f, 55f) * up * scale);
+
+                Spawn(_dust, p, v, c,
+                      life: Random.Range(0.26f, 0.46f),
+                      size: Random.Range(50f, 95f) * scale,
+                      spin: Random.Range(-25f, 25f),
+                      sizeEndRatio: 1.7f, alphaEnd: 0f);
+            }
+        }
+
+        /// <summary>二段跳：云环从脚下荡开 + 几颗星芒往上飘。</summary>
+        private static void CloudJumpFx(Vector3 feet, Color tint, float scale)
+        {
+            if (_cloudRing != null)
+            {
+                Spawn(_cloudRing, feet, Vector2.zero,
+                      Fade(Color.Lerp(tint, Color.white, 0.35f), 0.9f),
+                      life: 0.38f, size: 130f * scale,
+                      spin: Random.Range(-18f, 18f),
+                      sizeEndRatio: 2.0f, alphaEnd: 0f, rim: true);
+            }
+
+            SparkleFx(feet, tint, 5, scale);
+        }
+
+        /// <summary>几颗小星芒，向上飘、同时收缩收锋。</summary>
+        private static void SparkleFx(Vector3 pos, Color tint, int count, float scale)
+        {
+            if (_sparkle == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                Vector3 p = at(pos, 46f * scale);
+                Vector2 v = Vector2.up * Random.Range(50f, 170f) * scale
+                            + Random.insideUnitCircle * 22f * scale;
+
+                Color c = Random.value < 0.45f ? Hot(tint, 0.75f) : tint;
+
+                Spawn(_sparkle, p, v, Fade(c, 0.95f),
+                      life: Random.Range(0.30f, 0.62f),
+                      size: Random.Range(26f, 52f) * scale,
+                      spin: Random.Range(-60f, 60f),
+                      sizeEndRatio: 0.45f, alphaEnd: 0f);
+            }
+        }
+
+        /// <summary>青色法阵：灵合的「场」语言。</summary>
+        private static void MergeCircleFx(Vector3 pos, Color tint, float scale)
+        {
+            if (_magicCircle == null)
+            {
+                return;
+            }
+
+            Spawn(_magicCircle, pos, Vector2.zero, Fade(tint, 0.7f),
+                  life: 0.55f, size: 150f * scale,
+                  spin: Random.Range(-12f, 12f),
+                  sizeEndRatio: 1.5f, alphaEnd: 0f, rim: true);
         }
 
         /// <summary>
