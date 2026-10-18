@@ -66,7 +66,10 @@ namespace CloudEyrie.EditorTools
         private const float SpringContentBottomPx = 444f;
 
         // 灵界屏障 / 条件门
-        private const float BarrierArtScale = 0.68f;
+        //
+        // ⚠️ 0.68 时立绘约 722 高，是玩家的三倍，站在门前像一座庙；设计稿的屏障/门只有 ~320 高。
+        // 0.42 → 约 446 高，仍是"高门"但不至于把整个画面占满。
+        private const float BarrierArtScale = 0.42f;
         private const float BarrierContentBottomPx = 488f;
 
         /// <summary>内容底边压进地面多少世界单位。</summary>
@@ -351,10 +354,23 @@ namespace CloudEyrie.EditorTools
 
                 if (art == null) { report.Add($"❌ {Path(gate.gameObject)}：建不出 Art"); continue; }
 
+                bool ok;
+
+                if (gate.gameObject.name.Contains("FireWall"))
+                {
+                    // 火墙不能再用那张**石质水门**的通用屏障图 —— 在火境里是一道
+                    // 蓝汪汪的石头拱门，跟"火墙"完全不是一个东西。
+                    // 用火柱立绘排成一排：既贴合主题，也直观表达"整面墙都在烧"。
+                    ok = WireFireWall(gate, art, report);
+                    report.Add(ok ? $"✅ {Path(gate.gameObject)} → 火墙（火柱排列）" : $"⚠️ {Path(gate.gameObject)}：火墙没接上");
+                    changed++;
+                    continue;
+                }
+
                 float centerY = BarrierContentBottomPx * BarrierArtScale - GroundSink;
 
-                bool ok = ApplySprite(art, BarrierSpritePath, PropsLayer, BarrierArtScale,
-                                      new Vector2(0f, centerY), Vector2.zero);
+                ok = ApplySprite(art, BarrierSpritePath, PropsLayer, BarrierArtScale,
+                                 new Vector2(0f, centerY), Vector2.zero);
                 ok &= LinkField(gate, "art", art, report, gate.gameObject);
 
                 report.Add(ok ? $"✅ {Path(gate.gameObject)} → 灵界屏障/条件门" : $"⚠️ {Path(gate.gameObject)}：条件门没接上");
@@ -362,6 +378,76 @@ namespace CloudEyrie.EditorTools
             }
 
             return changed;
+        }
+
+        /// <summary>
+        /// 火墙 = 一排火柱立绘。
+        ///
+        /// 通用屏障图是**石质水门**（蓝汪汪的瀑布门），放在火境里非常出戏；
+        /// 而火墙的语义就是"一整面火"，用已有的火柱图横向排开最直接，
+        /// 打开时 GroupGate 会把子节点的 renderer 一起淡出，不需要额外逻辑。
+        ///
+        /// 高度取 ~300（设计稿火墙 280），玩家跳不过去（跳跃 160），
+        /// 但不会像原来的 722 高石门那样顶天立地。
+        /// </summary>
+        private static bool WireFireWall(GroupGate gate, Transform art, List<string> report)
+        {
+            Sprite sprite = LoadSprite(FirePillarSprite, gate.gameObject, report);
+
+            if (sprite == null)
+            {
+                return false;
+            }
+
+            BoxCollider2D box = gate.GetComponent<BoxCollider2D>();
+
+            if (box == null)
+            {
+                report.Add($"❌ {Path(gate.gameObject)}：没有 BoxCollider2D");
+                return false;
+            }
+
+            // 幂等：清掉 Art 上/下上一轮接的图（通用屏障的那一张也在里面）
+            for (int i = art.childCount - 1; i >= 0; i--)
+            {
+                Object.DestroyImmediate(art.GetChild(i).gameObject);
+            }
+
+            SpriteRenderer artSr = art.GetComponent<SpriteRenderer>();
+
+            if (artSr != null)
+            {
+                Object.DestroyImmediate(artSr);
+            }
+
+            art.localPosition = Vector3.zero;
+            art.localScale = Vector3.one;
+
+            float targetH = 300f;
+            float scale = sprite.rect.height > 0.01f ? targetH / sprite.rect.height : 1f;
+            float flameW = sprite.rect.width * scale;
+            int count = Mathf.Max(3, Mathf.CeilToInt(box.size.x / Mathf.Max(1f, flameW)));
+            float step = box.size.x / count;
+            float bottom = box.offset.y - box.size.y * 0.5f;
+            float left = box.offset.x - box.size.x * 0.5f;
+
+            for (int i = 0; i < count; i++)
+            {
+                var go = new GameObject($"Flame_{i}");
+                go.transform.SetParent(art, false);
+                go.transform.localScale = new Vector3(scale, scale, 1f);
+                go.transform.localPosition = new Vector3(
+                    left + step * (i + 0.5f),
+                    bottom + targetH * 0.5f,
+                    0f);
+
+                var sr = go.AddComponent<SpriteRenderer>();
+                sr.sprite = sprite;
+                sr.sortingLayerName = HazardLayer;
+                sr.sortingOrder = 0;
+            }
+
+            return LinkField(gate, "art", art, report, gate.gameObject);
         }
 
         // ------------------------------------------------------------
@@ -452,8 +538,10 @@ namespace CloudEyrie.EditorTools
 
                 if (art == null) continue;
 
-                // 花比碰撞盒宽：按宽度拟合并放 1.35 倍，让它看起来是踩得上去的花
-                bool ok = ApplyArtSpec(art, box, new ArtSpec(BounceFlowerSprite, Anchor.Bottom, Fit.Width, 1.35f));
+                // 立绘铺满碰撞盒（1.0，不再放大）：弹跳花的碰撞盒由
+                // LevelMechanismAligner 缩到立绘本身的尺寸，放大 1.35 会让立绘
+                // 超出触发区，看起来像"踩在花上方的空气里被弹起"。
+                bool ok = ApplyArtSpec(art, box, new ArtSpec(BounceFlowerSprite, Anchor.Bottom, Fit.Width, 1.0f));
                 ok &= LinkField(flower, "art", art, report, flower.gameObject);
 
                 report.Add(ok ? $"✅ {Path(flower.gameObject)} → 弹跳花" : $"⚠️ {Path(flower.gameObject)}：弹跳花没接上");
@@ -552,7 +640,9 @@ namespace CloudEyrie.EditorTools
 
                 if (on == null || off == null) continue;
 
-                var spec = new ArtSpec(BrazierSprite, Anchor.Bottom, Fit.Height, 1.5f);
+                // 1.5 倍时火盆立绘约 165 高，和玩家差不多高；火盆应该是腰高的。
+                // 碰撞盒是 70×110，按 1.0 拟合后立绘正好落在盒子上。
+                var spec = new ArtSpec(BrazierSprite, Anchor.Bottom, Fit.Height, 1.0f);
 
                 bool ok = ApplyArtSpec(on, box, spec);
                 ok &= ApplyArtSpec(off, box, spec);

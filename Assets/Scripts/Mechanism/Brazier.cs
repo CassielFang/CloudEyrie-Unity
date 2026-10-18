@@ -26,6 +26,16 @@ namespace CloudEyrie
         [Tooltip("点燃时的提示。留空则不提示")]
         [SerializeField] private string hint = "火盆已点燃";
 
+        [Tooltip("同组里还有没点燃的火盆时的提示。留空则不提示")]
+        [SerializeField] private string remainingHint = "还有一座火盆未点燃";
+
+        [Tooltip("玩家靠近未点燃的火盆时，立绘脉冲放大的半径。0 = 不做靠近高亮")]
+        [SerializeField] private float highlightRadius = 260f;
+
+        [Tooltip("未点燃时的染色。美术只交付了「已点燃」一张图，必须靠压暗来区分状态，\n" +
+                 "否则玩家会以为两座都已经点着了（门却不开）。")]
+        [SerializeField] private Color unlitTint = new Color(0.30f, 0.30f, 0.38f, 1f);
+
         [Header("表现")]
         [Tooltip("未点燃时的立绘节点")]
         [SerializeField] private GameObject visualOff;
@@ -41,6 +51,31 @@ namespace CloudEyrie
         /// <summary>同一组的火盆都在这里登记，火墙据此判断。</summary>
         private static readonly Dictionary<string, List<Brazier>> Groups =
             new Dictionary<string, List<Brazier>>();
+
+        /// <summary>
+        /// 让某一组**还没点亮**的火盆脉冲高亮一段时间。
+        /// 门的提示用到它：文字告诉玩家"攻击火盆"，高亮告诉他们"是这两座"。
+        /// </summary>
+        public static void HighlightGroup(string id, float seconds)
+        {
+            if (string.IsNullOrEmpty(id) || !Groups.TryGetValue(id, out List<Brazier> list))
+            {
+                return;
+            }
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (list[i] != null)
+                {
+                    list[i].Highlight(seconds);
+                }
+            }
+        }
+
+        private QingheController _player;
+        private Vector3 _visualBaseScale;
+        private bool _visualScaleCached;
+        private float _highlightUntil;
 
         public string GroupId
         {
@@ -100,6 +135,56 @@ namespace CloudEyrie
                 // 受击即点燃。火盆不会被打死，所以不订阅死亡事件
                 dmg.OnDamaged = (self, info) => Light();
             }
+
+            _player = FindAnyObjectByType<QingheController>();
+
+            if (visualOff != null)
+            {
+                _visualBaseScale = visualOff.transform.localScale;
+                _visualScaleCached = true;
+            }
+        }
+
+        /// <summary>开始脉冲高亮（门的提示会调）。</summary>
+        public void Highlight(float seconds)
+        {
+            if (IsLit)
+            {
+                return;
+            }
+
+            _highlightUntil = Mathf.Max(_highlightUntil, Time.time + Mathf.Max(0f, seconds));
+        }
+
+        /// <summary>
+        /// 未点亮时做一点**可交互**的视觉暗示：
+        /// 玩家靠近时持续轻微脉冲；被门的提示点名时脉冲更久。
+        /// 这是"示能"（affordance）—— 不弹文字，也能看出它可以被打。
+        /// </summary>
+        private void Update()
+        {
+            if (visualOff == null || !_visualScaleCached)
+            {
+                return;
+            }
+
+            bool near = highlightRadius > 0.01f
+                        && _player != null
+                        && Vector2.Distance(_player.transform.position, transform.position) <= highlightRadius;
+
+            bool pulse = !IsLit && (near || Time.time < _highlightUntil);
+            float wave = Mathf.Sin(Time.time * 8f);
+            float k = pulse ? 1f + 0.06f * wave : 1f;
+            visualOff.transform.localScale = _visualBaseScale * k;
+
+            // 靠近时从不点燃的暗色往暖白提一点 —— 比单纯放大更容易被注意到
+            if (!IsLit)
+            {
+                Color tint = pulse
+                    ? Color.Lerp(unlitTint, Color.white, 0.30f + 0.12f * wave)
+                    : unlitTint;
+                ApplyTint(visualOff, tint);
+            }
         }
 
         /// <summary>点燃。重复调用无副作用（多段攻击同一帧命中两次也只亮一次）。</summary>
@@ -115,9 +200,15 @@ namespace CloudEyrie
 
             GameAudio.PlaySfx(SfxCue.Spirit);
 
-            if (!string.IsNullOrEmpty(hint))
+            // 点亮一座、同组还有别的没亮 —— 直接告诉玩家"还没完"，
+            // 否则很容易以为点燃一座就够了，然后站在门前反复撞。
+            // 同一条提示位只发一条：两条一起发的话 HUD 只会显示最后一条。
+            bool allLit = GroupAllLit(groupId);
+            string message = !allLit ? remainingHint : hint;
+
+            if (!string.IsNullOrEmpty(message))
             {
-                EventBus.Emit(GameEvents.HintRequested, new HintEvent { Text = hint });
+                EventBus.Emit(GameEvents.HintRequested, new HintEvent { Text = message, Seconds = 4f });
             }
 
             if (glow != null)
@@ -149,8 +240,30 @@ namespace CloudEyrie
 
         private void Refresh()
         {
-            if (visualOff != null) visualOff.SetActive(!IsLit);
-            if (visualOn != null) visualOn.SetActive(IsLit);
+            if (visualOff != null)
+            {
+                visualOff.SetActive(!IsLit);
+                ApplyTint(visualOff, IsLit ? Color.white : unlitTint);
+            }
+
+            if (visualOn != null)
+            {
+                visualOn.SetActive(IsLit);
+                ApplyTint(visualOn, Color.white);
+            }
+        }
+
+        private static void ApplyTint(GameObject visual, Color color)
+        {
+            if (visual == null)
+            {
+                return;
+            }
+
+            foreach (SpriteRenderer sr in visual.GetComponentsInChildren<SpriteRenderer>(true))
+            {
+                sr.color = color;
+            }
         }
 
         protected override void OnActivate(GameObject who)

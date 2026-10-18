@@ -46,6 +46,22 @@ namespace CloudEyrie
 
         [SerializeField] private float fadeDuration = 0.7f;
 
+        [Header("引导（分级）")]
+        [Tooltip("玩家在门前停留多久后给第一条提示 /秒")]
+        [SerializeField] private float hintDelay = 1.2f;
+
+        [Tooltip("之后每条提示的间隔 /秒")]
+        [SerializeField] private float hintInterval = 6f;
+
+        [Tooltip("分级提示：先说现象，再说动作，最后说规则。留空 = 不给提示。\n" +
+                 "只在玩家**被门挡住**（在感应区里且条件未满足）时才出现，不是全局定时弹窗。")]
+        [SerializeField] private string[] lockedHints = new string[0];
+
+        [Tooltip("给提示时把相关机关高亮多久 /秒（火盆会脉冲放大）")]
+        [SerializeField] private float hintHighlightSeconds = 2.5f;
+
+        private int _hintIndex;
+        private float _hintTimer;
         private bool _open;
         private float _alpha = 1f;
         private SpriteRenderer[] _renderers;
@@ -88,6 +104,9 @@ namespace CloudEyrie
             // 只在玩家靠近时检查 —— 组状态变了要立刻反应，但没必要每帧全图轮询
             if (!_playerInside)
             {
+                // 离开门时不重置 _hintIndex：同一道谜题已经提示到第几级就记住，
+                // 回头再来不会从"火墙挡住了去路"重新念一遍。
+                _hintTimer = 0f;
                 return;
             }
 
@@ -101,6 +120,7 @@ namespace CloudEyrie
                 if (done)
                 {
                     GameLog.I($"[GroupGate] 组 {groupId} 已完成，门打开");
+                    _hintIndex = lockedHints != null ? lockedHints.Length : 0;
                 }
             }
 
@@ -111,6 +131,49 @@ namespace CloudEyrie
                 _alpha = Mathf.MoveTowards(_alpha, target, Time.deltaTime / Mathf.Max(0.01f, fadeDuration));
                 ApplyAlpha(_alpha);
             }
+
+            if (!_open)
+            {
+                TickHint();
+            }
+        }
+
+        /// <summary>
+        /// 玩家被门挡住时逐级给提示。
+        ///
+        /// <b>为什么不按全局时间弹</b>：后台定时器会在玩家还没到门前时就把答案说了；
+        /// 这里以「玩家站在门前、门还是关的」为触发条件 —— 这正是"玩家卡住了"的信号。
+        /// 提示分三级：现象 → 该做什么 → 规则，每条给完把相关机关脉冲高亮一次。
+        /// </summary>
+        private void TickHint()
+        {
+            if (lockedHints == null || _hintIndex >= lockedHints.Length)
+            {
+                return;
+            }
+
+            _hintTimer += Time.deltaTime;
+            float wait = _hintIndex == 0 ? hintDelay : Mathf.Max(hintDelay, hintInterval);
+
+            if (_hintTimer < wait)
+            {
+                return;
+            }
+
+            string text = lockedHints[_hintIndex];
+
+            if (!string.IsNullOrEmpty(text))
+            {
+                // 引导要比普通拾取提示停留更久：玩家得抬头、看清、再决定做什么
+                EventBus.Emit(GameEvents.HintRequested, new HintEvent { Text = text, Seconds = 5f });
+                GameLog.I($"[GroupGate] 引导 {groupId}（第 {_hintIndex + 1} 级）：{text}");
+            }
+
+            // 火墙配的是火盆 —— 点名把没点亮的火盆脉冲一下，视线才会落到正确的东西上
+            Brazier.HighlightGroup(groupId, hintHighlightSeconds);
+
+            _hintIndex++;
+            _hintTimer = 0f;
         }
 
         private bool IsConditionMet()

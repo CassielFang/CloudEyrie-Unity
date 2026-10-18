@@ -82,6 +82,19 @@ namespace CloudEyrie
 
         private void Awake()
         {
+            // ⚠️ 平台位置完全由脚本在 FixedUpdate 里写 —— 刚体必须是 Kinematic，
+            // 而且**冻住旋转**。火境的浮石在场景里存成了 Dynamic，玩家一站上去
+            // 接触冲量就把它顶得飞速自转（视觉上平台整个翻起来）。
+            Rigidbody2D body = GetComponent<Rigidbody2D>();
+
+            if (body != null)
+            {
+                body.bodyType = RigidbodyType2D.Kinematic;
+                body.freezeRotation = true;
+                body.angularVelocity = 0f;
+                body.gravityScale = 0f;
+            }
+
             _origin = transform.position;
             _lastPosition = _origin;
             _clock = phase * period;

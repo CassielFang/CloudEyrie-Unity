@@ -15,7 +15,6 @@ namespace CloudEyrie.EditorTools
             new LayoutItem("Ground", 6234, -295, 935, 200),
             new LayoutItem("Ground", 7585, -295, 1247, 200),
             new LayoutItem("Portal", 187, -111, 145, 192),
-            new LayoutItem("Platform", 223, -151, 73, 112),
             new LayoutItem("Seed", 1247, -167, 73, 40),
             new LayoutItem("Platform", 1455, -135, 260, 32),
             new LayoutItem("Platform", 1818, -15, 260, 32),
@@ -36,7 +35,6 @@ namespace CloudEyrie.EditorTools
             new LayoutItem("Fragment", 6879, 105, 62, 40),
             new LayoutItem("Platform", 6702, 65, 260, 32),
             new LayoutItem("Portal", 8344, -111, 145, 192),
-            new LayoutItem("Portal", 8380, -151, 73, 112),
         };
 
         // Huo：SVG 1750 宽 → 世界 9600（sx=5.49）
@@ -71,7 +69,6 @@ namespace CloudEyrie.EditorTools
             new LayoutItem("Fragment", 7812, -15, 66, 40),
             new LayoutItem("Platform", 7680, -75, 329, 32),
             new LayoutItem("Portal", 9194, -111, 154, 192),
-            new LayoutItem("Portal", 9232, -151, 77, 112),
         };
 
         // Tu：SVG 1750 宽 → 世界 9600（sx=5.49）
@@ -84,7 +81,6 @@ namespace CloudEyrie.EditorTools
             new LayoutItem("Ground", 6693, -295, 878, 200),
             new LayoutItem("Ground", 8064, -295, 1536, 200),
             new LayoutItem("Portal", 170, -111, 154, 192),
-            new LayoutItem("RockWarning", 208, -151, 77, 112),
             new LayoutItem("Platform", 1262, -55, 197, 240),
             new LayoutItem("Platform", 1646, 105, 197, 400),
             new LayoutItem("Platform", 2030, -55, 197, 240),
@@ -107,7 +103,6 @@ namespace CloudEyrie.EditorTools
             new LayoutItem("Fragment", 7867, -15, 66, 40),
             new LayoutItem("Platform", 7735, -75, 329, 32),
             new LayoutItem("Portal", 9194, -111, 154, 192),
-            new LayoutItem("Portal", 9232, -151, 77, 112),
         };
 
         // Jin：SVG 1750 宽 → 世界 9600（sx=5.49）
@@ -120,9 +115,7 @@ namespace CloudEyrie.EditorTools
             new LayoutItem("Ground", 6693, -295, 878, 200),
             new LayoutItem("Ground", 8064, -295, 1536, 200),
             new LayoutItem("Portal", 170, -111, 154, 192),
-            new LayoutItem("Portal", 208, -151, 77, 112),
             new LayoutItem("SwordWheel", 1284, 9, 285, 208),
-            new LayoutItem("SwordWheel", 1404, -79, 44, 32),
             new LayoutItem("SwordWheel", 1723, 129, 285, 208),
             new LayoutItem("Platform", 2414, -215, 274, 32),
             new LayoutItem("Platform", 2414, 105, 274, 32),
@@ -142,7 +135,6 @@ namespace CloudEyrie.EditorTools
             new LayoutItem("Fragment", 7757, 25, 66, 40),
             new LayoutItem("Platform", 7625, -35, 329, 32),
             new LayoutItem("Portal", 9194, -111, 154, 192),
-            new LayoutItem("Portal", 9232, -151, 77, 112),
         };
 
         // Shui：SVG 1800 宽 → 世界 9600（sx=5.33）
@@ -155,14 +147,13 @@ namespace CloudEyrie.EditorTools
             new LayoutItem("Ground", 6400, -295, 960, 200),
             new LayoutItem("Ground", 7840, -295, 1760, 200),
             new LayoutItem("Portal", 165, -111, 149, 192),
-            new LayoutItem("SwordWheel", 203, -151, 75, 112),
-            new LayoutItem("Platform", 2080, -255, 1440, 48),
+            new LayoutItem("Water", 2080, -255, 1440, 48),
             new LayoutItem("Platform", 2240, -183, 235, 40),
             new LayoutItem("Platform", 2720, -183, 235, 40),
             new LayoutItem("Platform", 3147, -183, 235, 40),
             new LayoutItem("WaterClock", 3669, -147, 128, 96),
-            new LayoutItem("Platform", 3947, -195, 533, 108),
-            new LayoutItem("Platform", 3947, -75, 533, 60),
+            new LayoutItem("Water", 3947, -195, 533, 108),
+            new LayoutItem("Water", 3947, -75, 533, 60),
             new LayoutItem("Platform", 4160, -15, 213, 32),
             new LayoutItem("WaterCurtain", 5333, 225, 64, 520),
             new LayoutItem("Platform", 5397, -95, 320, 32),
@@ -179,7 +170,6 @@ namespace CloudEyrie.EditorTools
             new LayoutItem("Fragment", 8288, 25, 64, 40),
             new LayoutItem("Platform", 8160, -35, 320, 32),
             new LayoutItem("Portal", 9088, -103, 171, 208),
-            new LayoutItem("Portal", 9131, -147, 85, 120),
         };
 
     }

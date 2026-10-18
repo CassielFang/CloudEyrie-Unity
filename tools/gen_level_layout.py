@@ -73,7 +73,10 @@ CFG = {
         "#6ab8d8": "Portal",
     }),
     "Shui": (9600, {
-        "#2a3d4a": "Ground", "#6ab8d8": "Platform", "#4a8ab8": "Platform",
+        # ⚠️ #4a8ab8 是**水面**（溪流/水池，带 opacity），不是可站立平台 ——
+        #    它的形状是横贯整段的长条，当成 Platform 会生成一整块隐形实心地面，
+        #    玩家能踩着"水面"走过去。
+        "#2a3d4a": "Ground", "#6ab8d8": "Platform", "#4a8ab8": "Water",
         "#9ad8e8": "WaterCurtain", "#e8a8c8": "Bounce", "#e8785c": "FirePillar",
         "#d8b06a": "WaterClock", "#c8a86a": "WaterClock", "#d4dce8": "SwordWheel", "#c8503c": "Enemy",
         "#b8c4d4": "Enemy", "#7ec8e8": "Spring", "#ffd700": "Fragment",
@@ -91,10 +94,24 @@ def parse_svg(svg):
     """返回 [(kind, x, y, w, h)]，x/y 是**左上角**的世界坐标。"""
     out = []
 
+    # 已经出现过的椭圆/圆的圆心：同心的第二个图形是**装饰**（传送门内芯光晕、
+    # 剑轮轴心圆点），不是独立物件。
+    # 不排掉的话，传送门内芯会被当成第二个传送门/平台/剑轮（土境甚至会被
+    # 当成 RockWarning），重排时会去找一个不存在的对象。
+    seen_centers = []
+
     for m in re.finditer(r"<(rect|ellipse|circle|polygon)\b([^>]*)>", svg):
         tag, attrs = m.group(1), m.group(2)
         fill = attr(attrs, "fill").lower()
         stroke = attr(attrs, "stroke").lower()
+
+        if tag in ("ellipse", "circle"):
+            cx, cy = float(attr(attrs, "cx")), float(attr(attrs, "cy"))
+
+            if any(abs(cx - px) < 0.5 and abs(cy - py) < 0.5 for px, py in seen_centers):
+                continue
+
+            seen_centers.append((cx, cy))
 
         if fill == "none":
             # 空心图形靠形状 + 描边区分：椭圆 = 传送门；圆 = 剑轮 / 水钟（看描边色）
