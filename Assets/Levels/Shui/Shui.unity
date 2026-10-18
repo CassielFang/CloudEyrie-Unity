@@ -5516,6 +5516,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1234023426757781336, guid: 85a3cd2c50918e545a7b0ad34abe38d5, type: 3}
+      propertyPath: ranged
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 3780327413541010720, guid: 85a3cd2c50918e545a7b0ad34abe38d5, type: 3}
       propertyPath: m_Name
       value: Minion_C

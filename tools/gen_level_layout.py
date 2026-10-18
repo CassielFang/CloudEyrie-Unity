@@ -57,7 +57,8 @@ CFG = {
     "Huo": (9600, {
         "#5a3430": "Ground", "#8a8a9a": "Platform", "#e8785c": "FirePillar",
         "#ff9848": "Lava", "#6a5a4a": "Brazier", "#c8503c": "Enemy",
-        "#b8c4d4": "Enemy", "#7ec8e8": "Spring", "#d8b06a": "Portal",
+        # 设计稿用浅蓝小圆单独标「弓手」：和红色近战是两种敌人，不能合并成一个 kind
+        "#b8c4d4": "EnemyRanged", "#7ec8e8": "Spring", "#d8b06a": "Portal",
         "#ffd700": "Fragment",
     }),
     "Tu": (9600, {
@@ -68,7 +69,7 @@ CFG = {
     }),
     "Jin": (9600, {
         "#3a3f4a": "Ground", "#8ab8d8": "Platform", "#c8a86a": "SwordStele",
-        "#d4dce8": "SwordWheel", "#b8c4d4": "Enemy", "#c8503c": "Enemy",
+        "#d4dce8": "SwordWheel", "#b8c4d4": "EnemyRanged", "#c8503c": "Enemy",
         "#7ec8e8": "Spring", "#ffd700": "Fragment", "#d8b06a": "Portal",
         "#6ab8d8": "Portal",
     }),
@@ -79,7 +80,7 @@ CFG = {
         "#2a3d4a": "Ground", "#6ab8d8": "Platform", "#4a8ab8": "Water",
         "#9ad8e8": "WaterCurtain", "#e8a8c8": "Bounce", "#e8785c": "FirePillar",
         "#d8b06a": "WaterClock", "#c8a86a": "WaterClock", "#d4dce8": "SwordWheel", "#c8503c": "Enemy",
-        "#b8c4d4": "Enemy", "#7ec8e8": "Spring", "#ffd700": "Fragment",
+        "#b8c4d4": "EnemyRanged", "#7ec8e8": "Spring", "#ffd700": "Fragment",
         "#d4c4a8": "Portal",
     }),
 }
