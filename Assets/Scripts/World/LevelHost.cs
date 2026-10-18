@@ -75,10 +75,27 @@ namespace CloudEyrie
             {
                 Debug.LogError("[LevelHost] Host 场景缺少相机或玩家 —— 关卡无法定位。");
             }
+
+            // 灵炁归零 = 倒地：回最近踩过的存档点。设计稿写的是「归零目前无后果」，
+            // 那条在 GameEvents 里发出来很久了，一直没人消费。
+            EventBus.On<object>(GameEvents.SpiritEnergyDepleted, OnSpiritDepleted);
+        }
+
+        private void OnSpiritDepleted(object _)
+        {
+            if (_swapping)
+            {
+                return;
+            }
+
+            GameLog.I("[LevelHost] 灵炁归零，回最近存档点");
+            RestartCurrent();
         }
 
         private void OnDestroy()
         {
+            EventBus.Off<object>(GameEvents.SpiritEnergyDepleted, OnSpiritDepleted);
+
             if (Instance == this)
             {
                 Instance = null;
