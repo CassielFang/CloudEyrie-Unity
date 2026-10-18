@@ -42,6 +42,26 @@ namespace CloudEyrie
 
         private bool _fallRestarting;
 
+        /// <summary>
+        /// 本段的重生点（由 <see cref="SegmentVolume"/> 在玩家进入新段落时写入）。
+        ///
+        /// 设计稿的掉落惩罚是「落坑/碰岩浆**回到本段起点**，不回存档点」——
+        /// 整关重开会让玩家把已经打过的段再打一遍，挫败感大得多。
+        /// 没有记录时（例如刚进场就掉下去）退回原来的「重开本关」。
+        /// </summary>
+        private Vector3? _segmentRespawn;
+
+        /// <summary>记下当前段落的进入点。空值表示清除（换关时用）。</summary>
+        public void SetSegmentRespawn(Vector3 worldPos)
+        {
+            _segmentRespawn = worldPos;
+        }
+
+        public void ClearSegmentRespawn()
+        {
+            _segmentRespawn = null;
+        }
+
         public LevelDefinition Definition
         {
             get { return _def; }
@@ -90,9 +110,48 @@ namespace CloudEyrie
                 return;
             }
 
+            // 有段落重生点就回段首（设计稿的规则），没有才整关重开
+            if (_segmentRespawn.HasValue)
+            {
+                GameLog.I($"[Level] 玩家坠出关卡（y={_player.transform.position.y:F0}），回到本段起点");
+                RespawnAtSegment();
+                return;
+            }
+
             _fallRestarting = true;
             GameLog.I($"[Level] 玩家坠出关卡（y={_player.transform.position.y:F0}），重开本关");
             LevelHost.Instance?.RestartCurrent();
+        }
+
+        /// <summary>把玩家搬回段首并清掉速度，不重载场景（不回存档点、不重置机关）。</summary>
+        private void RespawnAtSegment()
+        {
+            if (!_segmentRespawn.HasValue || _player == null)
+            {
+                return;
+            }
+
+            _fallRestarting = true;
+
+            Rigidbody2D body = _player.GetComponent<Rigidbody2D>();
+
+            if (body != null)
+            {
+                body.linearVelocity = Vector2.zero;
+                body.position = _segmentRespawn.Value;
+            }
+
+            _player.transform.position = _segmentRespawn.Value;
+
+            // 下一帧再解锁，避免同一帧里连续判定
+            StartCoroutine(ReleaseFallFlag());
+        }
+
+        private System.Collections.IEnumerator ReleaseFallFlag()
+        {
+            yield return null;
+            yield return null;
+            _fallRestarting = false;
         }
 
         /// <summary>

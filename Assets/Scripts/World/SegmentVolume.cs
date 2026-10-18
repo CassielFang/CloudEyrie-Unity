@@ -57,6 +57,29 @@ namespace CloudEyrie
             }
 
             runtime.Fire(cueId);
+
+            // 同时记成「本段重生点」：掉坑/碰岩浆回到这里，而不是整关重开
+            // （设计稿的掉落惩罚规则；见 LevelRuntime.CheckFallenOut）。
+            runtime.SetSegmentRespawn(RespawnPoint());
+        }
+
+        /// <summary>
+        /// 重生点取体积的**上沿中心**再抬一点：直接取中心会把玩家塞进地面里，
+        /// 取上沿则落在触发区顶面上方，与正常站位一致。
+        /// </summary>
+        private Vector3 RespawnPoint()
+        {
+            Collider2D col = GetComponent<Collider2D>();
+
+            if (col == null)
+            {
+                return transform.position;
+            }
+
+            Bounds b = col.bounds;
+            float playerHalf = 60f;
+
+            return new Vector3(b.center.x, b.max.y + playerHalf, transform.position.z);
         }
 
         /// <summary>本关的 LevelRuntime —— 它一般在场景根上，一个场景只有一个。</summary>
