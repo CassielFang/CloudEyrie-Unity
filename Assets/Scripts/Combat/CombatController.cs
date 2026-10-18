@@ -427,13 +427,14 @@ namespace CloudEyrie
             {
                 _blockHeld = true;
                 _blockElapsed = 0f;
-                PlayViewClip("青禾-格挡");
+                if (View != null) View.PlayHold("青禾-格挡");
                 GameAudio.PlaySfx(SfxCue.Block);
             }
 
             if (InputSystem.WasReleased(GameAction.Block))
             {
                 _blockHeld = false;
+                if (View != null) View.ClearHold();
             }
 
             // 蓄力计时（实体形态按住攻击键）

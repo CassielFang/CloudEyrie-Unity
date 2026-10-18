@@ -69,6 +69,9 @@ namespace CloudEyrie
         /// <summary>一次性动作播完之前，不要被自动选择打断</summary>
         private bool _oneShot;
 
+        /// <summary>按住类动作（格挡）的片段名；null = 没有保持</summary>
+        private string _holdClip;
+
         private void Awake()
         {
             _player = GetComponent<SequencePlayer>();
@@ -127,6 +130,14 @@ namespace CloudEyrie
         {
             if (_oneShot)
             {
+                return;
+            }
+
+            // 保持类动作（格挡）优先于自动选择：按住期间一直播这一条，
+            // 松手由 ClearHold() 交还给移动状态判断。
+            if (_holdClip != null)
+            {
+                Play(_holdClip, true);
                 return;
             }
 
@@ -197,6 +208,7 @@ namespace CloudEyrie
                 return;
             }
 
+            _holdClip = null;          // 出招打断保持（例如格挡中被击中）
             _oneShot = true;
             _current = clip;
 
@@ -209,6 +221,28 @@ namespace CloudEyrie
                     onComplete();
                 }
             });
+        }
+
+        /// <summary>
+        /// 进入「保持」状态：一直循环播这条，直到 <see cref="ClearHold"/>。
+        /// 格挡这类按住才成立的动作用它 —— 用 PlayOneShot 会播一遍就回待机，
+        /// 表现成「挡了一下就把剑放下」。
+        /// </summary>
+        public void PlayHold(string clip)
+        {
+            if (string.IsNullOrEmpty(clip))
+            {
+                return;
+            }
+
+            _oneShot = false;
+            _holdClip = clip;
+        }
+
+        /// <summary>退出保持，交还给按速度/形态的自动选择。</summary>
+        public void ClearHold()
+        {
+            _holdClip = null;
         }
 
         /// <summary>给战斗层读的当前片段名（调试用）</summary>
