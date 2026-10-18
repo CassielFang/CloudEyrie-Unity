@@ -396,6 +396,14 @@ namespace CloudEyrie
         /// </summary>
         private void TryFitSpineArt()
         {
+            // 换成帧序列之后，Art 上是 SpriteRenderer + SequencePlayer：
+            // 它由 SpriteSequenceView 自己摆，别按骨骼那套「量包围盒再缩」再来一遍。
+            if (_artNode != null && _artNode.GetComponent<SpriteSequenceView>() != null)
+            {
+                _spineFitDone = true;
+                return;
+            }
+
             if (_spineFitDone || _artNode == null || _collider == null)
             {
                 return;
@@ -560,6 +568,13 @@ namespace CloudEyrie
         private void FitArt()
         {
             Transform node = SpriteArtNode();
+
+            // 序列帧立绘自己算尺寸（SpriteSequenceView.FitToCollider）：
+            // 这里按的是「整张画布的包围盒」，而序列帧的格子 384、人物只占 232 —— 再缩会小一圈。
+            if (node != null && node.GetComponent<SpriteSequenceView>() != null)
+            {
+                return;
+            }
 
             if (node == null || _collider == null)
             {
