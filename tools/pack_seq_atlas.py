@@ -192,12 +192,32 @@ def main():
     ap.add_argument("--recenter-x", action="store_true",
                     help="逐帧按包围盒居中（走路/奔跑原地循环用，抵消横向漂移）")
     ap.add_argument("--flip", action="store_true", help="水平镜像（统一朝向）")
+    ap.add_argument("--min-edge", type=int, default=0,
+                    help="剔除距画布边缘小于该值的帧（模型偶发把剑甩出画的第一帧）")
     a = ap.parse_args()
 
     raw = load_frames(a.mp4)
     if a.flip:
         raw = [cv2.flip(f, 1) for f in raw]
     keyed = [key_background(f) for f in raw]
+
+    if a.min_edge > 0:
+        kept = []
+        dropped = 0
+        for f in keyed:
+            bb = content_bbox(f)
+            if bb is None:
+                dropped += 1
+                continue
+            h0, w0 = f.shape[:2]
+            margin = min(bb[0], bb[1], w0 - bb[2], h0 - bb[3])
+            if margin < a.min_edge:
+                dropped += 1
+                continue
+            kept.append(f)
+        if kept:
+            print(f"  出画帧剔除：{dropped} 帧（留白 < {a.min_edge}px）")
+            keyed = kept
 
     if a.loop:
         keep = best_loop_cut(keyed)
