@@ -119,3 +119,10 @@ InitTestScene*.unity*
 # tools/ 下可再生成的产物：跑脚本就能重出，不必入库
 /tools/_mined/
 /tools/overlay_*.png
+
+# 交付层美术母版（中文目录、@2x 与 (n) 变体）：程序从不加载，引擎层已另有副本
+# 引擎实际用的是 Assets/Resources/ 与 Assets/Levels/<关>/Resources/，那两处才入库
+/美术素材/
+
+# AI 助手生成物：Unity MCP 包每次开工程都会重写，不该进版本库
+/.claude/
