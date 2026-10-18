@@ -427,6 +427,7 @@ namespace CloudEyrie
             {
                 _blockHeld = true;
                 _blockElapsed = 0f;
+                PlayViewClip("青禾-格挡");
                 GameAudio.PlaySfx(SfxCue.Block);
             }
 
@@ -585,6 +586,7 @@ namespace CloudEyrie
 
             _comboIndex = 0;
             _comboTimer = 0f;
+            PlayViewClip("青禾-重击");
             BeginAttack(mult, combat.HeavyKnockback);
             GameLog.V($"[Combat] 蓄力重击 {(isFull ? "满蓄" : "半蓄")} (x{mult})");
         }
