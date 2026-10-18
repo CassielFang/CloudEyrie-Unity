@@ -2136,6 +2136,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &749265721
 Rigidbody2D:
   serializedVersion: 5
@@ -2690,6 +2695,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &978642332
 Rigidbody2D:
   serializedVersion: 5
@@ -3132,6 +3142,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &1300661027
 Rigidbody2D:
   serializedVersion: 5
@@ -3364,6 +3379,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &1348722471
 Rigidbody2D:
   serializedVersion: 5
