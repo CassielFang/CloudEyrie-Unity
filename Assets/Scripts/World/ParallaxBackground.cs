@@ -142,11 +142,24 @@ namespace CloudEyrie
         [Tooltip("自动平移速度：每秒额外漂移的世界单位；Boss 战场用，探索段设 0")]
         public float autoPanSpeed;
 
+        /// <summary>
+        /// 自动平移的**硬上限**（世界单位）。
+        ///
+        /// <see cref="autoPanSpeed"/> 是「推进」——单方向累加；只靠几何算出来的
+        /// 安全余量可能有好几千单位（长卷比需要的宽），玩家在开场站着不动时
+        /// 背景会一直慢慢往一边滑，看起来就是「飘走」。这里给一个观感上的上限：
+        /// 推这么远就停住，既保留开场那一下缓慢推进，又不会真的滑出画面。
+        /// </summary>
+        public float autoPanLimit = 120f;
+
         [Tooltip("视口宽度（世界单位）。留 0 则由相机的正交尺寸自动推算")]
         public float viewWidthOverride;
 
         /// <summary>相机累计位移，由 <see cref="CameraFollow"/> 每帧写入</summary>
         private float _cameraX;
+
+        /// <summary>相机当前的 y。背景跟着它整层平移（不做纵向视差），保证上下跟随时不露边</summary>
+        private float _cameraY;
 
         private float _pan;
         private readonly List<Transform> _built = new List<Transform>();
@@ -173,6 +186,16 @@ namespace CloudEyrie
         public void SetCameraX(float x)
         {
             _cameraX = x;
+        }
+
+        /// <summary>
+        /// 相机 y。背景层跟着整层平移（纵向不做视差）：
+        /// 纵向视差会让画面底部在相机下潜时露出图层以外的空白，而背景长卷
+        /// 只比视口高一点点，没有余量。固定相对屏幕 = 永远不飘走、不露边。
+        /// </summary>
+        public void SetCameraY(float y)
+        {
+            _cameraY = y;
         }
 
         public float ViewWidth
@@ -256,6 +279,10 @@ namespace CloudEyrie
             _camMin = camMin;
             _camMax = camMax;
 
+            // 换关时把开场推进量清零。不清的话上一关攒下的 _pan 会带进下一关，
+            // 新关一开场背景就已经偏出去一截。
+            _pan = 0f;
+
             Build();
 
             Debug.Log($"[Parallax] 换主题「{theme.name}」：{_specs.Length} 层 / {scenery.Length} 组景物，" +
@@ -311,7 +338,7 @@ namespace CloudEyrie
         private float MaxPan()
         {
             float travel = Mathf.Max(0f, _camMax - _camMin);
-            float limit = float.PositiveInfinity;
+            float limit = autoPanLimit;
 
             for (int i = 0; i < _built.Count; i++)
             {
@@ -323,15 +350,23 @@ namespace CloudEyrie
                 }
 
                 SpriteRenderer sr = _built[i].GetComponent<SpriteRenderer>();
+
                 float actualW = sr != null && sr.sprite != null
                     ? sr.sprite.bounds.size.x * _built[i].localScale.x
                     : LayerWidth(spec);
 
-                float room = (actualW - _viewW + spec.factor * travel) / (2f * (1f - spec.factor));
+                // 图层比「刚好铺满相机行程」多出来的宽度，才是能左右推的余量。
+                // 余量按 2 边分、再按 (1−factor) 放大成相机侧的位移。
+                //
+                // ⚠️ 这里原来写成 `+ factor × travel`，符号反了：把**需要**的宽度
+                // 当成了**多余**的宽度，算出来的可推距离比实际余量还大，
+                // 于是背景会推到左边缘露出空白（表现就是「飘走」）。
+                float extra = actualW - LayerWidth(spec);
+                float room = extra > 0f ? extra / (2f * (1f - spec.factor)) : 0f;
                 limit = Mathf.Min(limit, room);
             }
 
-            return limit;
+            return Mathf.Max(0f, limit);
         }
 
         /// <summary>某层此刻的漂移位移：按 <c>driftPeriod</c> 来回摆，有界。</summary>
@@ -383,7 +418,7 @@ namespace CloudEyrie
                           + DriftOffset(spec);
 
                 Vector3 p = _built[i].localPosition;
-                _built[i].localPosition = new Vector3(x, spec.yOffset, p.z);
+                _built[i].localPosition = new Vector3(x, spec.yOffset + _cameraY, p.z);
             }
 
             // 散布景物：以**关卡坐标**为基准（BaseX），相机一动就按 (1-factor) 让位。
@@ -393,7 +428,7 @@ namespace CloudEyrie
                 if (s.Node != null)
                 {
                     s.Node.localPosition = new Vector3(
-                        s.BaseX + _cameraX * (1f - s.Factor), s.CenterY, 0f);
+                        s.BaseX + _cameraX * (1f - s.Factor), s.CenterY + _cameraY, 0f);
                 }
             }
         }

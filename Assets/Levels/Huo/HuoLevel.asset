@@ -21,6 +21,8 @@ MonoBehaviour:
   defaultSpawnMarker: Spawn_Default
   levelLeft: 0
   levelRight: 9600
+  levelBottom: -900
+  levelTop: 600
   theme: {fileID: 11400000, guid: 1190696a9388ece43a400e3bcf639631, type: 2}
   segments:
   - id: opening

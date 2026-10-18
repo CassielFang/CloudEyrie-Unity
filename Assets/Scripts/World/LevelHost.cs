@@ -257,6 +257,14 @@ namespace CloudEyrie
             }
 
             Scene scene = SceneManager.GetSceneByName(def.sceneName);
+
+            // 换到**另一关**时清掉存档点 —— 否则上一关灵泉的 checkpointId 会带进来，
+            // 新关还没踩到灵泉就死亡，会被送回一个本关不存在（或不该到）的落点。
+            if (!string.IsNullOrEmpty(CurrentSceneName) && CurrentSceneName != def.sceneName)
+            {
+                CheckpointId = null;
+            }
+
             Current = def;
             CurrentSceneName = def.sceneName;
 
@@ -264,9 +272,15 @@ namespace CloudEyrie
             PlacePlayerAndCamera(scene, def, entryMarkerId);
 
             // 6) 换背景主题
+            //
+            // ⚠️ 这里必须传**相机行程**（关卡两端各让出半个视口），不是关卡两端。
+            // 背景层的宽度与基准位置都是按行程反推的；传关卡两端会让 `_camMin`
+            // 比真实值小半屏，图层整体偏出去一截，而且和 SetBounds 里已经设好的
+            // 行程不一致 —— 表现是换关瞬间背景跳一下、关卡两端露空。
             if (background != null)
             {
-                background.ApplyTheme(def.theme, def.levelLeft, def.levelRight);
+                float halfView = cameraFollow != null ? cameraFollow.ViewWidth * 0.5f : 0f;
+                background.ApplyTheme(def.theme, def.levelLeft + halfView, def.levelRight - halfView);
             }
 
             // 7) 把宿主件注入关卡里的执行者，并让它跑第一条编排
@@ -351,6 +365,10 @@ namespace CloudEyrie
 
             // 纵向边界：两者相等（默认）就等于关掉纵向跟随，保持旧行为
             cameraFollow.SetVerticalBounds(def.levelBottom, def.levelTop);
+
+            // 立刻把相机纵向对到常规构图。换关/坠落重开时不能保留上一处的 y：
+            // 开场 cue 会把相机锁住，锁在一个从坑底带上来的高度上。
+            cameraFollow.SnapVerticalToRest();
         }
 
         // ============================================================

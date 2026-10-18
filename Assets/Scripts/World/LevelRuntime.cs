@@ -30,6 +30,18 @@ namespace CloudEyrie
         private float _nextEnemyCheck;
         private bool _enemiesClearedFired;
 
+        /// <summary>
+        /// 坠落保险丝：低于这个 y 就判定为「掉出关卡」。
+        ///
+        /// 设计稿的坑并不是每个都有 Hazard 安全网（有些坑底下什么都没有），
+        /// 而工程里没有全局 kill plane —— 掉进这种坑会**一直往下掉**，
+        /// 相机跟到纵向边界后角色就彻底看不见了。
+        /// 这里的阈值在所有岩浆/坠落区（约 -820 ~ -930）之下。
+        /// </summary>
+        [SerializeField] private float fallKillY = -1000f;
+
+        private bool _fallRestarting;
+
         public LevelDefinition Definition
         {
             get { return _def; }
@@ -64,6 +76,23 @@ namespace CloudEyrie
 
             FireByTrigger(CueTrigger.OnPlayerX);
             CheckAllEnemiesCleared();
+            CheckFallenOut();
+        }
+
+        /// <summary>
+        /// 掉出关卡时重开本关（回最近存档点）。只触发一次 ——
+        /// 换关协程是异步的，不设标志会在压黑那几帧里反复调 RestartCurrent。
+        /// </summary>
+        private void CheckFallenOut()
+        {
+            if (_fallRestarting || _player == null || _player.transform.position.y > fallKillY)
+            {
+                return;
+            }
+
+            _fallRestarting = true;
+            GameLog.I($"[Level] 玩家坠出关卡（y={_player.transform.position.y:F0}），重开本关");
+            LevelHost.Instance?.RestartCurrent();
         }
 
         /// <summary>
