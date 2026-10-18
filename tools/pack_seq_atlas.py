@@ -105,8 +105,10 @@ def key_background(bgr):
 
 
 def content_bbox(rgba):
+    # 阈值不能贴 8：边缘那圈 alpha≈20 的抗锯齿像素会把包围盒撑到整张画布，
+    # 量出来的「有没有出画」就永远是满帧。
     a = rgba[:, :, 3]
-    ys, xs = np.where(a > 8)
+    ys, xs = np.where(a > 40)
     if len(xs) == 0:
         return None
     return int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1
