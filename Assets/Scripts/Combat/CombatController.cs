@@ -860,6 +860,7 @@ namespace CloudEyrie
                     Debug.Log("[Combat] 完美格挡！");
                     InkFx.Burst(guardAt, InkFx.Kind.PerfectBlock, CompanionForm.Entity,
                                 new Vector2(_ctx != null ? _ctx.Facing : 1f, 0f), BodyScaleK);
+                    PlayViewClip("青禾-完美格挡");
                     return new PlayerDamageResult { SpiritCost = 0f, PerfectBlocked = true };
                 }
 
@@ -871,6 +872,9 @@ namespace CloudEyrie
                 return new PlayerDamageResult { SpiritCost = reduced, PerfectBlocked = false };
             }
 
+            // 没挡住的命中：播受击。放在这里而不是敌人 AI 里 ——
+            // 「挨了一下」这件事只有这一处知道，敌人侧还包括被格挡/被弹开的情况。
+            PlayViewClip("青禾-受击");
             return new PlayerDamageResult { SpiritCost = amount, PerfectBlocked = false };
         }
 
