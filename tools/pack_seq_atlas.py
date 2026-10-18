@@ -55,27 +55,47 @@ def load_frames(mp4):
 
 
 def key_background(bgr):
-    """白底 → alpha。只在“与画布边缘连通”的白色区域挖掉，
-    角色内部的高光（近白但被线条围住）保留。"""
-    h, w = bgr.shape[:2]
-    seed = np.all(bgr >= WHITE_TOL, axis=2).astype(np.uint8) * 255
+    """白底 → alpha，按**每帧自己的边缘色**估背景。
 
-    # 从边缘的白色像素泛洪。背景通常是一整块，一次就填完；
-    # 若边缘还有没填到的白点（被角色切断的角落），最多再补 8 次。
+    ⚠️ 这版是踩了两次坑之后重写的。生成视频的背景**不是恒定 255**：
+    实测同一段里首帧角上 248，后半段掉到 234~237（模型把纸白越画越灰）。
+    固定阈值 246 的结果是：
+    - 前几帧勉强抠掉，中段整帧判定不出背景 → 灰底方板；
+    - 边缘种子落在 237 的区域时，泛洪会**灌进角色**，整帧变全透明。
+
+    现在的做法：
+    1. 取 1px 边框的中位数当这一帧的背景色（相机固定、背景是平的，这个估计很稳）；
+    2. 只把「与该色距离 ≤ 容差 且 与边框连通」的像素判为背景；
+    3. 若判定出的背景面积异常（<2% 或 >85%），退回「与边框色差」的纯阈值判断，
+       宁可留一点点底也不要整帧消失。
+    """
+    h, w = bgr.shape[:2]
+    ring = np.concatenate([bgr[0, :], bgr[h - 1, :], bgr[:, 0], bgr[:, w - 1]])
+    bg_color = np.median(ring, axis=0)
+
+    diff = np.abs(bgr.astype(np.int16) - bg_color.astype(np.int16))
+    near = (diff.max(axis=2) <= FLOOD_TOL).astype(np.uint8) * 255
+
     mask = np.zeros((h + 2, w + 2), np.uint8)
-    border = ([(x, 0) for x in range(w)] + [(x, h - 1) for x in range(w)] +
-              [(0, y) for y in range(h)] + [(w - 1, y) for y in range(h)])
-    for _ in range(8):
-        todo = next(((x, y) for (x, y) in border if seed[y, x] == 255), None)
-        if todo is None:
-            break
-        cv2.floodFill(seed, mask, todo, 128,
+    seeds = [(x, y) for (x, y) in [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]
+             if near[y, x]]
+    if not seeds:
+        for x in range(w):
+            if near[0, x]:
+                seeds = [(x, 0)]
+                break
+    for (x, y) in seeds:
+        cv2.floodFill(near, mask, (x, y), 128,
                       loDiff=FLOOD_TOL, upDiff=FLOOD_TOL, flags=8)
 
-    background = (seed == 128)
-    alpha = np.where(background, 0, 255).astype(np.uint8)
+    background = (near == 128)
+    filled = float(background.mean())
 
-    # 边缘 1px 羽化，避免硬锯齿
+    if filled < 0.02 or filled > 0.85:
+        background = diff.max(axis=2) <= FLOOD_TOL
+        filled = float(background.mean())
+
+    alpha = np.where(background, 0, 255).astype(np.uint8)
     alpha = cv2.GaussianBlur(alpha, (3, 3), 0.6)
     alpha[background & (alpha < 24)] = 0
 
