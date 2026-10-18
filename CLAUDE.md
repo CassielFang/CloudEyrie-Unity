@@ -110,6 +110,8 @@ QingheController        只做：读输入快照 → 物理 → 着地判定 →
 | 工具 | 什么时候用 |
 |---|---|
 | **CloudEyrie/校验当前场景** | **改完关卡/场景后、提交前跑一次**。抓 `Default` 层漏网的碰撞体（对谁都碰不到，零报错）、关键组件重复、空 sprite |
+| **CloudEyrie/关卡工具/按设计稿重排机关** | 预演 / 应用两档，当前场景 / 全部关卡两种范围。按 `LevelLayoutData` 挪敌人/碎片/筒台等根节点（不碰 Art 子节点），并删掉与移动平台重叠的静态平台碰撞体 |
+| **CloudEyrie/关卡工具/按设计稿重建地面碰撞** | 设计稿数据一改就重跑（全部关卡）。只重建 `GroundSegments` / `PlatformColliders` 两类碰撞体 |
 | **CloudEyrie/工程设置/注册层名与排序层** | 自动跑（域重载时）。把 `WORLD/PLAYER/…` 与 11 个排序层写进 `TagManager.asset` |
 | **CloudEyrieTextureImporter** | 自动。对**任意层级**的 `Resources/` 与 `Assets/Art/` 设 PPU=1 |
 
