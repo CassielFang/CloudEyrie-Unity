@@ -3174,6 +3174,11 @@ MonoBehaviour:
   magneticSpeed: 80
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &799005295
 Rigidbody2D:
   serializedVersion: 5
@@ -4280,6 +4285,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &1254546011
 Rigidbody2D:
   serializedVersion: 5
@@ -5319,6 +5329,55 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &1761257632
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1761257634}
+  - component: {fileID: 1761257633}
+  m_Layer: 0
+  m_Name: WaterLevel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1761257633
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1761257632}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9d430e1ce2d54d4391f5898247dec93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.WaterLevel
+  baseLevelY: -195
+  raisedHeight: 120
+  riseDuration: 2
+  holdDuration: 30
+  lowerDuration: 3
+--- !u!4 &1761257634
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1761257632}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1856612167
 GameObject:
   m_ObjectHideFlags: 0
@@ -5880,3 +5939,4 @@ SceneRoots:
   - {fileID: 296028338}
   - {fileID: 1989022788}
   - {fileID: 950748584}
+  - {fileID: 1761257634}

@@ -78,6 +78,8 @@ namespace CloudEyrie
         private Vector2 _lastPosition;
         private float _clock;
 
+        /// <summary>全局水位（水境才有；其它境为 null，不影响运动）</summary>
+        private WaterLevel _water;
         /// <summary>MagneticRide 的状态：0=待机 1=去程 2=悬停 3=回程。</summary>
         private int _rideState;
         private float _rideTimer;
@@ -143,6 +145,19 @@ namespace CloudEyrie
                 default:
                     next = _origin;
                     break;
+            }
+
+            // 水境：整块平台随全局水位升降。
+            // ⚠️ 不能用 WaterFollower 挂在上面 —— 本类的 FixedUpdate 每帧按
+            // _origin 绝对定位，会把外部改的 y 覆盖掉。所以偏移必须在这里加。
+            if (_water == null)
+            {
+                _water = WaterLevel.Instance;
+            }
+
+            if (_water != null && _water.Offset != 0f)
+            {
+                next.y += _water.Offset;
             }
 
             // 显式搬运：平台走多少，站在它上面的人就走多少。
