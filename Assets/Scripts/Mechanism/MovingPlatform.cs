@@ -173,6 +173,12 @@ namespace CloudEyrie
         /// <summary>浮回原位耗时</summary>
         [SerializeField] private float recoverDuration = 1.0f;
 
+        /// <summary>
+        /// 下沉深度。**和 amplitude 分开**：浮台的起伏幅度通常只有几十像素（火境实测 36），
+        /// 而"沉没"要沉到玩家够不着，两者不是一个量级。留 0 则退回 amplitude。
+        /// </summary>
+        [SerializeField] private float sinkDepth;
+
         /// <summary>0 静止 / 1 等人站稳 / 2 下沉 / 3 沉底 / 4 上浮</summary>
         private int _sinkState;
 
@@ -270,7 +276,9 @@ namespace CloudEyrie
                     break;
             }
 
-            return _origin + new Vector2(0f, -amplitude * Mathf.SmoothStep(0f, 1f, t));
+            float depth = sinkDepth > 0f ? sinkDepth : amplitude;
+
+            return _origin + new Vector2(0f, -depth * Mathf.SmoothStep(0f, 1f, t));
         }
 
         private void CarryRiders(Vector2 delta)        {
