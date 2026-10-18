@@ -103,6 +103,42 @@ namespace CloudEyrie
         private FormContext _ctx;
         private CompanionForm _currentForm = CompanionForm.Entity;
 
+        // ---- 表现层：帧序列 ----
+        // 战斗只管时序与判定，动作由 SpriteSequenceView 播。这里缓存一次引用，
+        // 没有视图时安静跳过（不要每帧 GetComponent）。
+        private SpriteSequenceView _view;
+        private bool _viewSearched;
+
+        private static readonly string[] LightClips =
+        {
+            "青禾-轻击一", "青禾-轻击二", "青禾-轻击三",
+        };
+
+        private SpriteSequenceView View
+        {
+            get
+            {
+                if (!_viewSearched)
+                {
+                    _viewSearched = true;
+                    _view = GetComponentInChildren<SpriteSequenceView>();
+                }
+
+                return _view;
+            }
+        }
+
+        /// <summary>播一次性动作；没有视图就什么都不做（逻辑不依赖表现）。</summary>
+        private void PlayViewClip(string clipName, float timeScale = 1f)
+        {
+            SpriteSequenceView v = View;
+
+            if (v != null)
+            {
+                v.PlayOneShot(clipName, timeScale);
+            }
+        }
+
         // ---- 输入状态 ----
         private bool _attackHeld;
         private float _chargeTime;
@@ -517,6 +553,8 @@ namespace CloudEyrie
             }
 
             _comboTimer = combat.ComboWindow;
+
+            PlayViewClip(LightClips[_comboIndex - 1]);
 
             float mult = combat.ComboDamageMult[_comboIndex - 1];
             float knockback = _comboIndex == 3 ? combat.ComboKnockback : 0f;
