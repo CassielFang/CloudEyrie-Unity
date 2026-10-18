@@ -19,16 +19,33 @@ namespace CloudEyrie
     [RequireComponent(typeof(SkeletonAnimation))]
     public class SpineCharacterView : MonoBehaviour
     {
-        [Tooltip("起播的动画名。青禾目前只有 idle_breath")]
+        [Tooltip("待机动画")]
         [SerializeField] private string idleAnimation = "idle_breath";
+
+        [Tooltip("在地面移动时的动画")]
+        [SerializeField] private string runAnimation = "run";
+
+        [Tooltip("上升 / 起跳时的动画")]
+        [SerializeField] private string jumpAnimation = "jump";
+
+        [Tooltip("下落时的动画")]
+        [SerializeField] private string fallAnimation = "fall";
+
+        [Tooltip("速度超过它才算『在走』（世界单位/秒）")]
+        [SerializeField] private float moveThreshold = 12f;
 
         [SerializeField] private bool loop = true;
 
         private SkeletonAnimation _spine;
+        private QingheController _player;
+        private Rigidbody2D _body;
+        private string _current;
 
         private void Start()
         {
             _spine = GetComponent<SkeletonAnimation>();
+            _player = GetComponentInParent<QingheController>();
+            _body = _player != null ? _player.GetComponent<Rigidbody2D>() : null;
 
             if (_spine == null)
             {
@@ -43,15 +60,64 @@ namespace CloudEyrie
                 return;
             }
 
-            if (string.IsNullOrEmpty(idleAnimation))
+            Play(idleAnimation, loop);
+
+            GameLog.I($"[SpineCharacterView] 起播 {idleAnimation}（loop={loop}）");
+        }
+
+        private void Update()
+        {
+            if (_spine == null || _player == null || _body == null)
             {
                 return;
             }
 
-            _spine.loop = loop;
-            _spine.AnimationName = idleAnimation;
+            FormContext ctx = _player.Context;
 
-            GameLog.I($"[SpineCharacterView] 起播 {idleAnimation}（loop={loop}）");
+            if (ctx == null)
+            {
+                return;
+            }
+
+            // 跑/跳/落的骨骼动作只属于实体形态。灵雾是飞行、灵合是悬浮，
+            // 让它们播"两条腿在跑"会非常违和 —— 那两个形态靠 FormAura / 拖尾表达动感。
+            if (_player.CurrentForm != CompanionForm.Entity)
+            {
+                Play(idleAnimation, true);
+                return;
+            }
+
+            string want;
+
+            if (ctx.Grounded)
+            {
+                want = Mathf.Abs(_body.linearVelocity.x) > moveThreshold ? runAnimation : idleAnimation;
+            }
+            else if (_body.linearVelocity.y > 1f)
+            {
+                want = jumpAnimation;
+            }
+            else
+            {
+                want = fallAnimation;
+            }
+
+            // 只有循环的动画（跑 / 落 / 待机）循环；起跳是一次性的
+            bool wantLoop = want != jumpAnimation;
+            Play(want, wantLoop);
+        }
+
+        /// <summary>切动画。同名不重播 —— 每帧 SetAnimation 会把动画一直卡在第一帧。</summary>
+        private void Play(string name, bool shouldLoop)
+        {
+            if (string.IsNullOrEmpty(name) || name == _current)
+            {
+                return;
+            }
+
+            _current = name;
+            _spine.loop = shouldLoop;
+            _spine.AnimationName = name;
         }
     }
 }

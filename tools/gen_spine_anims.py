@@ -42,8 +42,15 @@ import argparse
 import io
 import json
 import math
+import re
 import sys
 from pathlib import Path
+
+# Windows 控制台默认 GBK：验算里的警告符号会直接抛 UnicodeEncodeError
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 SKELETON = "Assets/Art/Spine/Qinghe/青禾1.json"
 MANIFEST = "Assets/Art/Spine/Qinghe/青禾1.gen-anims.json"
@@ -69,34 +76,75 @@ SKELETON_SCALE = 0.2025
 # 可调参数 —— 手感都在这儿，改完重跑即可
 # 单位为「缩放后单位」，参照腿长 115、身高约 232。
 # ============================================================
+# ⚠️ 2026-10-17 第二轮：**目标偏移全部收小，并加了「基础抬升」**
+#
+# 上一版的问题（实测）：四肢像折断/卡直。原因不是 IK 本身，而是**目标点超出了骨链长度**：
+#   - 左腿链 555.8 原始单位，setup 目标距 549.8（98.9%）—— 再往前后摆 ±158 就必然拉直；
+#   - 右腿链 461.3，setup 目标距 470.6（**102%**）—— 一开始就够不着，永远是一根直棍；
+#   - 右臂链 292.1，setup 目标距 296.6（101.5%）—— 同样。
+# 于是腿/手在走到某个位置时会「啪」地锁死，看起来像折断。
+#
+# 现在的做法：
+#   1. 每个肢体给一个**基础抬升**（base），把目标拉近一点，留出弯曲余量；
+#   2. 摆幅按各自链长分别给（左右腿长度本来就不同：555.8 vs 461.3）；
+#   3. 生成完用 setup 骨架**逐帧验算目标距离 / 链长**，超过 99.5% 直接打印警告。
+#      （见 validate() —— 这类问题在截图里几乎看不出来，只有数字不会说谎。）
 RUN = {
-    "duration": 0.60,      # 一个完整步态周期（两步）的秒数 → 约 3.3 步/秒
-    "samples": 16,         # 每周期采样帧数（密集线性）
-    "stride_x": 32.0,      # 脚的前后摆幅（±）≈ 腿长的 28%，慢跑步幅
-    "lift_y": 26.0,        # 摆动相的抬脚高度
-    "stance_ratio": 0.5,   # 支撑相占比（跑步可降到 0.4 制造腾空）
-    "bob_y": 9.0,          # 躯干上下起伏（每周期两次）
-    "arm_swing_x": 26.0,   # 手臂前后摆幅
-    "arm_lift_y": 8.0,     # 手臂上下微动
-    "head_bob": 0.35,      # 头部跟随躯干起伏的比例（<1 = 滞后缓冲）
+    "duration": 0.56,      # 一个完整步态周期（两步）
+    "samples": 20,
+    "stance_ratio": 0.58,
+
+    # 脚目标：x 前后摆幅 / y 摆动相抬升 / base 基础抬升（留弯曲余量）
+    # 右腿骨链已用 k6.scale=1.205 补到和左腿一样长，所以两边用同一组参数。
+    "leg_l": {"stride": 12.0, "lift": 16.0, "base": 10.0},
+    "leg_r": {"stride": 12.0, "lift": 16.0, "base": 10.0},
+
+    # 手目标：前后摆幅 / 上下微动 / 基础抬升 / 基础横向内收
+    # 右手持剑 → 摆幅小、手往身体内侧收（不内收会为了留 IK 余量把手上抬，
+    # 结果整把剑横着举出去）；左手自由 → 摆幅大。
+    "arm_l_swing": 10.0,
+    "arm_r_swing": 3.0,
+    "arm_lift": 4.0,
+    "arm_l": {"base": -2.0, "base_x": 0.0},
+    # 持剑手只轻微内收。收太多（-8）时肘部折成锐角，看起来像折断。
+    "arm_r": {"base": 8.0, "base_x": -2.0},
+
+    "lean_x": 5.0,          # 上半身前倾（世界单位）：长袍角色靠这个才有"在跑"的感觉
+    "bob_y": 6.0,           # 躯干上下起伏（每周期两次）
+    "head_bob": 0.4,        # 头部跟随躯干起伏的比例（<1 = 滞后缓冲）
+
+    "cloth_amp": 6.0,       # 头发/衣摆的二次摆动幅度（度；末梢会按链深放大）
+    "cloth_cycles": 2,      # 二次摆动在一个步态周期里摆几次
 }
 
 JUMP = {
-    "duration": 0.28,      # 起跳（上升段）的时长
-    "samples": 8,
-    "crouch_y": -22.0,     # 起跳前下蹲（躯干）
-    "rise_y": 18.0,        # 离地后躯干上提
-    "leg_tuck": 40.0,      # 收腿（双脚上提）
-    "arm_up_y": 32.0,      # 手臂上扬
+    "duration": 0.30,
+    "samples": 10,
+    "crouch_y": -24.0,     # 起跳前下蹲（躯干）
+    "rise_y": 16.0,        # 离地后躯干上提
+    "leg_base_l": 4.0,
+    "leg_base_r": 6.0,
+    "crouch_leg_up": 4.0,  # 下蹲时脚目标略收（膝微弯）
+    "tuck_up": 34.0,       # 离地收腿：目标往髋部收，膝盖自然弯
+    "arm_base_l": 4.0,
+    "arm_base_r": 6.0,
+    "arm_back": 12.0,      # 下蹲时手往后
+    "arm_up": 48.0,        # 起跳时手往上（目标靠近肩 → 肘弯；长袖要抬够才看得出来）
 }
 
 FALL = {
-    "duration": 0.45,
+    "duration": 0.50,
     "samples": 10,
-    "leg_spread": 24.0,    # 双腿前后分开
-    "leg_drop": -18.0,     # 腿略下垂
-    "arm_up_y": 42.0,      # 双臂上举（下坠姿态）
-    "bob_y": 5.0,          # 轻微飘动
+    "leg_base_l": 4.0,
+    "leg_base_r": 6.0,
+    "leg_up": 18.0,        # 腿略收（弯曲）
+    "leg_spread_l": 10.0,
+    "leg_spread_r": 8.0,
+    "arm_base_l": 4.0,
+    "arm_base_r": 6.0,
+    "arm_up": 40.0,        # 双手上举
+    "arm_spread": 12.0,
+    "bob_y": 4.0,
 }
 
 
@@ -154,7 +202,11 @@ def foot_cycle(phase, stride, lift, stance_ratio):
 
 
 def sample_run(p):
-    """走/跑循环。返回 {骨骼名: [(t, {字段}), ...]}。"""
+    """走/跑循环。返回 {骨骼名: {字段: [关键帧]}}。
+
+    腿和手臂都驱动 IK 目标；左右参数分别给（两条腿的骨链长度不同）。
+    手臂与**对侧腿**同相（左臂跟右腿），这是自然摆臂的关键。
+    """
     n = p["samples"]
     dur = p["duration"]
     tracks = {}
@@ -162,29 +214,33 @@ def sample_run(p):
     def add(bone, field, keys):
         tracks.setdefault(bone, {}).setdefault(field, []).extend(keys)
 
-    # 采样 0..n（含两端），保证首尾同姿态 → 循环无缝
+    leg_l, leg_r = p["leg_l"], p["leg_r"]
+
     for i in range(n + 1):
         phase = i / n
         t = phase * dur
 
         # ---- 腿：左右相差半个周期 ----
-        lx, ly = foot_cycle(phase, p["stride_x"], p["lift_y"], p["stance_ratio"])
-        rx, ry = foot_cycle((phase + 0.5) % 1.0, p["stride_x"], p["lift_y"], p["stance_ratio"])
-        add("leg-l", "translate", [kf(t, x=lx, y=ly)])
-        add("leg-r1", "translate", [kf(t, x=rx, y=ry)])
+        lx, ly = foot_cycle(phase, leg_l["stride"], leg_l["lift"], p["stance_ratio"])
+        rx, ry = foot_cycle((phase + 0.5) % 1.0, leg_r["stride"], leg_r["lift"], p["stance_ratio"])
+        add("leg-l", "translate", [kf(t, x=lx, y=leg_l["base"] + ly)])
+        add("leg-r1", "translate", [kf(t, x=rx, y=leg_r["base"] + ry)])
 
-        # ---- 手臂：与同侧腿反相（左臂跟右腿），这是自然摆臂的关键 ----
-        ax = -rx / p["stride_x"] * p["arm_swing_x"]
-        ay = abs(math.sin(math.pi * 2 * phase)) * p["arm_lift_y"]
+        # 躯干：每周期起伏两次（每步一次），并略微前倾
+        bob = -p["bob_y"] * math.cos(math.pi * 4 * phase)
+
+        # ---- 手臂：与对侧腿同相；持剑的右手摆幅小得多 ----
+        # ⚠️ 手目标要**跟着躯干一起**做前倾 + 起伏。否则躯干一动，
+        # 手到肩的距离就变，IK 会把持剑的手越推越远，剑就横着甩出去了。
+        ax = p["lean_x"] + p["arm_l"]["base_x"] - rx / max(1e-3, leg_r["stride"]) * p["arm_l_swing"]
+        ay = bob + p["arm_l"]["base"] + abs(math.sin(math.pi * 2 * phase)) * p["arm_lift"]
         add("arm-l1", "translate", [kf(t, x=ax, y=ay)])
 
-        bx = -lx / p["stride_x"] * p["arm_swing_x"]
-        by = abs(math.cos(math.pi * 2 * phase)) * p["arm_lift_y"]
+        bx = p["lean_x"] + p["arm_r"]["base_x"] - lx / max(1e-3, leg_l["stride"]) * p["arm_r_swing"]
+        by = bob + p["arm_r"]["base"] + abs(math.cos(math.pi * 2 * phase)) * p["arm_lift"]
         add("arm-r", "translate", [kf(t, x=bx, y=by)])
 
-        # ---- 躯干：每周期起伏两次（每步一次） ----
-        bob = -p["bob_y"] * math.cos(math.pi * 4 * phase)
-        add("zx", "translate", [kf(t, y=bob)])
+        add("zx", "translate", [kf(t, x=p["lean_x"], y=bob)])
 
         # ---- 头：跟着躯干动，但幅度打折（滞后缓冲，否则像僵尸） ----
         add("bz", "translate", [kf(t, y=-bob * p["head_bob"])])
@@ -193,7 +249,11 @@ def sample_run(p):
 
 
 def sample_jump(p):
-    """起跳：下蹲蓄力 → 蹬伸 → 离地收腿。非循环。"""
+    """起跳：下蹲蓄力 → 蹬伸 → 离地收腿。非循环。
+
+    收腿是**把 IK 目标往髋部收**（y 为正），膝盖因此自然弯曲；
+    旧版把目标往下压（负值）会直接超出骨链长度，腿锁成一根直棍。
+    """
     n = p["samples"]
     dur = p["duration"]
     tracks = {}
@@ -206,27 +266,31 @@ def sample_jump(p):
         if u < 0.3:
             k = u / 0.3
             torso = p["crouch_y"] * k
-            legs = -p["leg_tuck"] * 0.35 * k
-            arms = -k * 20.0
+            leg_up = p["crouch_leg_up"] * k
+            arm_x = -p["arm_back"] * k
+            arm_y = 0.0
         else:
             k = (u - 0.3) / 0.7
             ease = 1.0 - (1.0 - k) ** 2          # ease-out
             torso = p["crouch_y"] * (1.0 - ease) + p["rise_y"] * ease
-            legs = -p["leg_tuck"] * ease
-            arms = -20.0 + p["arm_up_y"] * ease
+            leg_up = p["crouch_leg_up"] * (1.0 - ease) + p["tuck_up"] * ease
+            arm_x = -p["arm_back"] * (1.0 - ease)
+            arm_y = p["arm_up"] * ease
 
-        tracks.setdefault("zx", {}).setdefault("translate", []).append(kf(t, y=torso))
-        tracks.setdefault("bz", {}).setdefault("translate", []).append(kf(t, y=-torso * 0.3))
-        tracks.setdefault("leg-l", {}).setdefault("translate", []).append(kf(t, y=legs))
-        tracks.setdefault("leg-r1", {}).setdefault("translate", []).append(kf(t, y=legs * 0.85))
-        tracks.setdefault("arm-l1", {}).setdefault("translate", []).append(kf(t, y=arms))
-        tracks.setdefault("arm-r", {}).setdefault("translate", []).append(kf(t, y=arms * 0.9))
+        add_track(tracks, "zx", "translate", kf(t, y=torso))
+        add_track(tracks, "bz", "translate", kf(t, y=-torso * 0.3))
+        add_track(tracks, "leg-l", "translate", kf(t, y=p["leg_base_l"] + leg_up))
+        add_track(tracks, "leg-r1", "translate", kf(t, y=p["leg_base_r"] + leg_up * 0.9))
+        add_track(tracks, "arm-l1", "translate",
+                  kf(t, x=arm_x, y=p["arm_base_l"] + arm_y))
+        add_track(tracks, "arm-r", "translate",
+                  kf(t, x=arm_x * 0.9, y=p["arm_base_r"] + arm_y * 0.9))
 
     return tracks
 
 
 def sample_fall(p):
-    """下落：双腿前后张开、双臂上举，带轻微飘动。可循环。"""
+    """下落：双腿微张、略收，双臂上举，带轻微飘动。可循环。"""
     n = p["samples"]
     dur = p["duration"]
     tracks = {}
@@ -236,18 +300,69 @@ def sample_fall(p):
         t = phase * dur
         bob = math.sin(math.pi * 2 * phase) * p["bob_y"]
 
-        tracks.setdefault("zx", {}).setdefault("translate", []).append(kf(t, y=bob))
-        tracks.setdefault("bz", {}).setdefault("translate", []).append(kf(t, y=-bob * 0.4))
-        tracks.setdefault("leg-l", {}).setdefault("translate", []).append(
-            kf(t, x=p["leg_spread"], y=p["leg_drop"]))
-        tracks.setdefault("leg-r1", {}).setdefault("translate", []).append(
-            kf(t, x=-p["leg_spread"], y=p["leg_drop"] * 0.7))
-        tracks.setdefault("arm-l1", {}).setdefault("translate", []).append(
-            kf(t, y=p["arm_up_y"] + bob * 0.5))
-        tracks.setdefault("arm-r", {}).setdefault("translate", []).append(
-            kf(t, y=p["arm_up_y"] * 0.92 + bob * 0.5))
+        add_track(tracks, "zx", "translate", kf(t, y=bob))
+        add_track(tracks, "bz", "translate", kf(t, y=-bob * 0.4))
+        add_track(tracks, "leg-l", "translate",
+                  kf(t, x=p["leg_spread_l"], y=p["leg_base_l"] + p["leg_up"] + bob * 0.2))
+        add_track(tracks, "leg-r1", "translate",
+                  kf(t, x=-p["leg_spread_r"], y=p["leg_base_r"] + p["leg_up"] * 0.8 + bob * 0.2))
+        add_track(tracks, "arm-l1", "translate",
+                  kf(t, x=p["arm_spread"], y=p["arm_base_l"] + p["arm_up"] + bob * 0.4))
+        add_track(tracks, "arm-r", "translate",
+                  kf(t, x=-p["arm_spread"], y=p["arm_base_r"] + p["arm_up"] * 0.9 + bob * 0.4))
 
     return tracks
+
+
+def add_track(tracks, bone, field, key):
+    tracks.setdefault(bone, {}).setdefault(field, []).append(key)
+
+
+def add_secondary_sway(tracks, skeleton, cycles, amp):
+    """
+    给头发/衣摆的骨骼加一点**二次摆动**。
+
+    这些是 idle_breath 里已经在转的 `t*` / `yb*` 链（角度很小，约 4°）。
+    跑动时如果它们完全不动，角色看起来像一块硬纸板 —— 腿又被长袍挡住，
+    画面里几乎看不到"在动"。
+    """
+    parent = {b["name"]: b.get("parent") for b in skeleton["bones"]}
+    names = [b["name"] for b in skeleton["bones"] if re.match(r"^(yb|t)\d+$", b["name"])]
+    times = [k.get("time", 0.0) for k in tracks.get("zx", {}).get("translate", [])]
+
+    if not times:
+        return
+
+    dur = times[-1]
+
+    if dur <= 1e-6:
+        return
+
+    def chain_depth(n):
+        d = 0
+        while parent.get(n):
+            d += 1
+            n = parent[n]
+        return d
+
+    max_depth = max(chain_depth(n) for n in names) if names else 1
+
+    for idx, name in enumerate(names):
+        # 越靠末梢（链越深）摆得越大：发尾/袍角才是"飘"的，发根跟着头走
+        depth_k = 0.45 + 0.85 * chain_depth(name) / max(1, max_depth)
+        off = idx * 0.37
+        keys = []
+
+        for t in times:
+            ang = amp * depth_k * math.sin(math.pi * 2 * cycles * (t / dur) + off)
+            key = {"time": round(t, 4)}
+
+            if abs(ang) > 1e-6:
+                key["angle"] = round(ang, 2)
+
+            keys.append(key)
+
+        tracks.setdefault(name, {})["rotate"] = keys
 
 
 GENERATORS = {
@@ -255,6 +370,115 @@ GENERATORS = {
     "jump": (JUMP, sample_jump),
     "fall": (FALL, sample_fall),
 }
+
+
+# ============================================================
+# IK 目标余量验算
+# ============================================================
+
+# IK 约束 → 驱动的骨链 / 目标骨骼（与 青禾1.json 的 "ik" 段一致）
+LIMBS = {
+    "leg-l1": ("leg-l", ["k3", "k4"]),
+    "leg-r1": ("leg-r1", ["k6", "k7"]),
+    "arm-l1": ("arm-l1", ["xk4", "xk5"]),
+    "arm-r": ("arm-r", ["xk7", "xk8"]),
+}
+
+
+def _bone_world(bones, name):
+    """按 Spine 的父级旋转累积，算一根骨骼的世界位置（原始单位）。"""
+    chain = []
+    n = name
+    while n:
+        chain.append(bones[n])
+        n = bones[n].get("parent")
+    chain.reverse()
+
+    x = y = rot = 0.0
+    sx = sy = 1.0
+
+    for b in chain:
+        # 父级累积缩放会缩放子骨骼的局部偏移
+        lx, ly = b.get("x", 0.0) * sx, b.get("y", 0.0) * sy
+        r = math.radians(rot)
+        x += lx * math.cos(r) - ly * math.sin(r)
+        y += lx * math.sin(r) + ly * math.cos(r)
+        rot += b.get("rotation", 0.0)
+        sx *= b.get("scaleX", 1.0)
+        sy *= b.get("scaleY", 1.0)
+
+    return x, y, rot, sx, sy
+
+
+def _has_ancestor(bones, name, ancestor):
+    n = bones[name].get("parent")
+    while n:
+        if n == ancestor:
+            return True
+        n = bones[n].get("parent")
+    return False
+
+
+def validate(name, tracks, skeleton):
+    """
+    逐帧验算「IK 目标到骨链根的距离 / 骨链长度」。
+
+    ≥100% = 骨链够不着目标 → IK 会锁成一条直线，视觉上就是**折断**。
+    这里是硬性数字检查：截图里几乎看不出来，只有这个数能提前发现。
+    """
+    bones = {b["name"]: b for b in skeleton["bones"]}
+    warnings = []
+    parts = []
+
+    for limb, (target, chain) in LIMBS.items():
+        # 链长 = 两段骨骼**实际的**世界距离 + 末段长度 × 世界缩放。
+        # 不能简单把 data.length 相加 —— 骨骼可以带 scale（青禾的右腿就是靠 k6 放大
+        # 补到和左腿一样长），缩放不会写回 data.length。
+        a = _bone_world(bones, chain[0])
+        c = _bone_world(bones, chain[1])
+        l1 = math.hypot(c[0] - a[0], c[1] - a[1]) * SKELETON_SCALE
+        l2 = bones[chain[1]].get("length", 0.0) * c[3] * SKELETON_SCALE
+        chain_len = l1 + l2
+
+        root_x = a[0] * SKELETON_SCALE
+        root_y = a[1] * SKELETON_SCALE
+
+        # 目标骨骼是 root 的子骨骼；它的位置就是 setup 值
+        tb = bones[target]
+        target_x = tb.get("x", 0.0) * SKELETON_SCALE
+        target_y = tb.get("y", 0.0) * SKELETON_SCALE
+
+        # 目标骨骼的平移轨道（缺省 = 0）
+        trans = tracks.get(target, {}).get("translate", [])
+        zx = tracks.get("zx", {}).get("translate", [])
+        zx_applies = _has_ancestor(bones, chain[0], "zx")
+
+        limit = 0.0
+
+        for i in range(max(len(trans), len(zx))):
+            dx = trans[i].get("x", 0.0) if i < len(trans) else 0.0
+            dy = trans[i].get("y", 0.0) if i < len(trans) else 0.0
+
+            hx, hy = root_x, root_y
+            if zx_applies and i < len(zx):
+                hx += zx[i].get("x", 0.0)
+                hy += zx[i].get("y", 0.0)
+
+            d = math.hypot((target_x + dx) - hx, (target_y + dy) - hy)
+            if chain_len > 1e-6:
+                limit = max(limit, d / chain_len)
+
+        parts.append(f"{limb} {limit * 100:5.1f}%")
+
+        if limit >= 0.995:
+            warnings.append(f"{name}: {limb} 目标距/链长 = {limit * 100:.1f}% —— 会锁直/折断")
+
+    print(f"  IK 余量 {name}: " + "  ".join(parts))
+
+    for w in warnings:
+        print(f"  ⚠️ {w}")
+
+    return not warnings
 
 
 # ============================================================
@@ -376,7 +600,9 @@ def to_raw(tracks):
         out[bone] = {}
         for field, keys in fields.items():
             out[bone][field] = [
-                {kk: (round(vv * k, 2) if kk in ("x", "y", "angle") else vv)
+                # ⚠️ 只缩放**位移**。Spine 的 SkeletonDataAsset.scale 不影响旋转角度 ——
+                # 把 angle 也乘 1/scale 会让头发/衣摆转出 5 倍，直接是灾难。
+                {kk: (round(vv * k, 2) if kk in ("x", "y") else vv)
                  for kk, vv in key.items()}
                 for key in keys
             ]
@@ -460,11 +686,28 @@ def main() -> int:
         print(f"[错误] 不认识这些动画：{sorted(unknown)}", file=sys.stderr)
         return 2
 
+    skeleton = json.loads(raw)
+
     new_entries = []
+    all_ok = True
+
     for name in sorted(target):
         params, fn = GENERATORS[name]
-        anim = build_animation(fn(params))
+        tracks = fn(params)
+
+        if name == "run":
+            add_secondary_sway(tracks, skeleton, params["cloth_cycles"], params["cloth_amp"])
+        else:
+            # 起跳/下落时头发与长袍要甩得更明显
+            add_secondary_sway(tracks, skeleton, 1, 8.0)
+
+        all_ok &= validate(name, tracks, skeleton)
+        anim = build_animation(tracks)
         new_entries.append((name, dump_compact(anim)))
+
+    if not all_ok:
+        print("\n⚠️ 有肢体的目标超出骨链长度 —— 实机上会看到『锁直 / 折断』。"
+              "先调小对应 stride/lift，或加大 base。", file=sys.stderr)
 
     all_entries = kept + new_entries
 
