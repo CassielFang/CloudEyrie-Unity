@@ -470,6 +470,9 @@ namespace CloudEyrie
         /// <summary>冲刺拖尾的上一次状态（用来取上升沿）</summary>
         private bool _wasDashing;
 
+        /// <summary>帧序列立绘（惰性查找；没有视图的功能不受影响）</summary>
+        private SpriteSequenceView _sequenceView;
+
         /// <summary>上一帧的着地状态（用来取落地的那一瞬）</summary>
         private bool _wasGrounded;
 
@@ -730,6 +733,17 @@ namespace CloudEyrie
                 InkFx.Burst(FxChestWorld(), InkFx.Kind.Dash, _currentForm,
                             new Vector2(_ctx.Facing >= 0f ? 1f : -1f, 0f),
                             BodyScaleRatio);
+
+                // 动作跟着同一条上升沿走：拖尾、音效、立绘三者同时发生。
+                if (_sequenceView == null)
+                {
+                    _sequenceView = GetComponentInChildren<SpriteSequenceView>();
+                }
+
+                if (_sequenceView != null)
+                {
+                    _sequenceView.PlayOneShot("青禾-踏云闪");
+                }
             }
 
             _wasDashing = _ctx.IsDashing;
@@ -892,6 +906,40 @@ namespace CloudEyrie
 
             ApplyFormPhysics();
             ApplyFormTint();
+            PlayFormTransition(e);
+        }
+
+        /// <summary>
+        /// 形态切换的动作：按**进入的形态**选片段。
+        /// 化雾 = 实体→灵雾，凝形 = 灵雾→实体，入合 = 任意→灵合。
+        /// 灵合直接退回实体/灵雾时没有专属片段，用凝形代（观感上也是"收起来"）。
+        /// </summary>
+        private void PlayFormTransition(CompanionFormChangedEvent e)
+        {
+            if (_sequenceView == null)
+            {
+                _sequenceView = GetComponentInChildren<SpriteSequenceView>();
+            }
+
+            if (_sequenceView == null)
+            {
+                return;
+            }
+
+            switch (e.Current)
+            {
+                case CompanionForm.Mist:
+                    _sequenceView.PlayOneShot("青禾-化雾");
+                    break;
+
+                case CompanionForm.Merge:
+                    _sequenceView.PlayOneShot("青禾-入合");
+                    break;
+
+                default:
+                    _sequenceView.PlayOneShot("青禾-凝形");
+                    break;
+            }
         }
 
         /// <summary>形态切换时调整物理（重力开关）。</summary>
