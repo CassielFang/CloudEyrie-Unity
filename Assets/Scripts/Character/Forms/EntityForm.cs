@@ -25,12 +25,31 @@ namespace CloudEyrie
 
         private int _jumpCount;
         private float _dashTimer;
+        private float _coyoteTimer;
+        private float _jumpBufferTimer;
+        private bool _jumpCutApplied;
 
         public void Update(float dt, FormContext ctx)
         {
             Rigidbody2D rigidBody = ctx.Rigidbody;
             MovementParams move = ctx.Move;
             Vector2 velocity = rigidBody.linearVelocity;
+
+            // ---- 跳跃手感计时 ----
+            // 土狼时间：离地后一小段时间内仍算「能起跳」。
+            _coyoteTimer = ctx.Grounded
+                ? move.CoyoteTime
+                : Mathf.Max(0f, _coyoteTimer - dt);
+
+            // 跳跃预输入：按下那一帧记下来，落地时还在窗口内就立刻起跳。
+            if (ctx.Input.Jump)
+            {
+                _jumpBufferTimer = move.JumpBufferTime;
+            }
+            else
+            {
+                _jumpBufferTimer = Mathf.Max(0f, _jumpBufferTimer - dt);
+            }
 
             // 冲刺（踏云闪：需已起跳）
             if (ctx.Input.Dash && !ctx.IsAttacking && !ctx.IsBlocking
@@ -62,36 +81,63 @@ namespace CloudEyrie
                 }
             }
 
-            // 跳跃（二段跳）
-            if (ctx.Input.Jump && !ctx.IsDashing && !ctx.IsAttacking && !ctx.IsBlocking)
+            // 跳跃（一段 + 云跃式二段）
+            //
+            // 手感三件套：
+            //   土狼时间 —— 刚离地也能跳；
+            //   跳跃预输入 —— 落地前按下，落地当帧跳；
+            //   可变高度 —— 上升中松开跳跃键，直接砍掉一部分竖直速度。
+            bool canFirst = _jumpCount == 0 && (_coyoteTimer > 0f || ctx.Grounded);
+            bool canSecond = _jumpCount > 0 && _jumpCount < move.MaxJumpCount;
+            bool cloudLeaped = false;
+
+            if (_jumpBufferTimer > 0f && (canFirst || canSecond)
+                && !ctx.IsDashing && !ctx.IsAttacking && !ctx.IsBlocking)
             {
-                if (_jumpCount < move.MaxJumpCount)
+                if (_jumpCount == 0)
                 {
-                    if (_jumpCount == 0)
+                    // 一段跳：**叠加**。踩在上升气流 / 平台上时能借上力，是有意的。
+                    velocity.y += move.JumpSpeed;
+                    ctx.Jumped = true;
+                }
+                else
+                {
+                    // 二段跳 = **云跃**：竖直速度是固定值（与按下时机无关），
+                    // 同时按住方向键会获得一次水平加速 —— 它是一个有方向的空中位移，
+                    // 而不是"弱化版的一段跳"。
+                    velocity.y = move.JumpSpeed * move.SecondJumpMult;
+
+                    float h = 0f;
+                    if (ctx.Input.Left) h -= 1f;
+                    if (ctx.Input.Right) h += 1f;
+
+                    if (Mathf.Abs(h) > 0.01f)
                     {
-                        // 一段跳：**叠加**。踩在上升气流 / 平台上时能借上力，是有意的。
-                        velocity.y += move.JumpSpeed;
-                    }
-                    else
-                    {
-                        // 二段跳：**直接设定**，不是叠加。
-                        //
-                        // 原来是 `+= JumpSpeed * SecondJumpMult`，两个毛病：
-                        //   1) 下落中按二段时，向上的速度要先把下落速度抵掉才净上升多少 ——
-                        //      起跳时机一变，跳起来的高度就跟着变，手感不可控；
-                        //   2) 二段能把一段的余速叠上去，比一段还高。
-                        // 设定成一段速度的一个固定比例（0.6）之后，二段高度是**常数**，
-                        // 跟按下去的时机无关。
-                        velocity.y = move.JumpSpeed * move.SecondJumpMult;
+                        velocity.x = h * move.MoveSpeed
+                                     * Mathf.Max(1f, move.SecondJumpHorizontalBoost);
+                        ctx.Facing = Mathf.Sign(h);
                     }
 
-                    _jumpCount += 1;
-
-                    // 见类注释 1
-                    ctx.Grounded = false;
+                    cloudLeaped = true;
+                    ctx.DoubleJumped = true;
                 }
 
+                _jumpCount += 1;
+
+                // 见类注释 1
+                ctx.Grounded = false;
+                _coyoteTimer = 0f;
+                _jumpBufferTimer = 0f;
+                _jumpCutApplied = false;
                 ctx.Input.Jump = false;
+            }
+
+            // 可变跳跃高度：只对玩家自己起跳生效（jumpCount > 0）。
+            // 弹跳花/上升气流是直接给速度的，不该被"松手"砍掉。
+            if (!_jumpCutApplied && _jumpCount > 0 && velocity.y > 0f && !ctx.Input.JumpHeld)
+            {
+                velocity.y *= Mathf.Clamp01(move.JumpCutMultiplier);
+                _jumpCutApplied = true;
             }
 
             // 水平移动
@@ -110,7 +156,8 @@ namespace CloudEyrie
                     ctx.Facing = -1f;
                 }
 
-                if (h != 0f)
+                // 云跃本帧已经给了更大的水平速度，别在这里又被普通移动覆盖掉
+                if (h != 0f && !cloudLeaped)
                 {
                     velocity.x = h * move.MoveSpeed;
                 }
@@ -153,6 +200,20 @@ namespace CloudEyrie
             if (ctx.Grounded)
             {
                 _jumpCount = 0;
+            }
+
+            // 上升/下落用不同重力倍率：上升更飘、下落更利落。
+            // 只对玩家自己起跳生效 —— 弹跳花/上升气流是直接给速度的，
+            // 改它们的重力会让已经调好的弹跳高度全部变样。
+            if (!ctx.Grounded && !ctx.IsDashing && _jumpCount > 0)
+            {
+                rigidBody.gravityScale = velocity.y > 0f
+                    ? Mathf.Max(0.05f, move.RiseGravityScale)
+                    : Mathf.Max(0.05f, move.FallGravityScale);
+            }
+            else if (!ctx.IsDashing)
+            {
+                rigidBody.gravityScale = 1f;
             }
 
             rigidBody.linearVelocity = velocity;

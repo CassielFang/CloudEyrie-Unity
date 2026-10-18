@@ -17,6 +17,9 @@ namespace CloudEyrie
         public bool Down;
         public bool Jump;
         public bool Dash;
+
+        /// <summary>跳跃键是否**按住**（不是按下那一帧）。用来做可变跳跃高度。</summary>
+        public bool JumpHeld;
     }
 
     /// <summary>移动参数（由 <see cref="QingheController"/> 的 Inspector 字段填充，注入各形态状态类）。</summary>
@@ -33,6 +36,25 @@ namespace CloudEyrie
         public float DashDuration;
         public float MistFlySpeed;
         public float MergeMoveSpeed;
+
+        // ---- 跳跃手感 ----
+        /// <summary>离开地面后仍可起跳的宽限 /秒</summary>
+        public float CoyoteTime;
+
+        /// <summary>落地前按下跳跃的预输入窗口 /秒</summary>
+        public float JumpBufferTime;
+
+        /// <summary>上升中松开跳跃时，竖直速度乘以这个系数（可变跳跃高度）</summary>
+        public float JumpCutMultiplier;
+
+        /// <summary>上升段的额外重力倍率（小于 1 = 上升更飘）</summary>
+        public float RiseGravityScale;
+
+        /// <summary>下落段的额外重力倍率（大于 1 = 落得更利落）</summary>
+        public float FallGravityScale;
+
+        /// <summary>二段跳时，按住方向键给的水平速度倍率（0 = 不给水平加速）</summary>
+        public float SecondJumpHorizontalBoost;
     }
 
     /// <summary>
@@ -58,6 +80,15 @@ namespace CloudEyrie
 
         /// <summary>输入快照</summary>
         public MoveInput Input;
+
+        /// <summary>本帧刚起跳（一段）。表现层读完即清。</summary>
+        [System.NonSerialized] public bool Jumped;
+
+        /// <summary>
+        /// 本帧刚用掉二段跳（由 <see cref="EntityForm"/> 写，QingheController 读完即清）。
+        /// 表现层/特效据此播「云跃」；玩法逻辑不要拿它做判断。
+        /// </summary>
+        [System.NonSerialized] public bool DoubleJumped;
 
         public readonly Rigidbody2D Rigidbody;
         public readonly MovementParams Move;

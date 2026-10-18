@@ -39,6 +39,25 @@ namespace CloudEyrie
 
         [SerializeField] private int maxJumpCount = 2;
 
+        [Header("跳跃手感")]
+        [Tooltip("离开地面后仍允许起跳的宽限 /秒（土狼时间）")]
+        [SerializeField] private float coyoteTime = 0.10f;
+
+        [Tooltip("落地前按下跳跃的预输入窗口 /秒（跳跃缓冲）")]
+        [SerializeField] private float jumpBufferTime = 0.12f;
+
+        [Tooltip("上升中松开跳跃键时，竖直速度乘以这个系数（可变跳跃高度）")]
+        [SerializeField] private float jumpCutMultiplier = 0.45f;
+
+        [Tooltip("上升段的额外重力倍率（<1 = 上升更飘、更好看）")]
+        [SerializeField] private float riseGravityScale = 0.9f;
+
+        [Tooltip("下落段的额外重力倍率（>1 = 落地更利落）")]
+        [SerializeField] private float fallGravityScale = 1.35f;
+
+        [Tooltip("二段跳时按住方向键给的水平速度倍率（0 = 不给水平加速）")]
+        [SerializeField] private float secondJumpHorizontalBoost = 1.25f;
+
         [Header("踏云闪")]
         [SerializeField] private float dashSpeed = 960f;        // Cocos 30 m/s
         [SerializeField] private float dashDuration = 0.15f;
@@ -265,9 +284,16 @@ namespace CloudEyrie
                 DashDuration = dashDuration,
                 MistFlySpeed = mistFlySpeed,
                 MergeMoveSpeed = mergeMoveSpeed,
+                CoyoteTime = coyoteTime,
+                JumpBufferTime = jumpBufferTime,
+                JumpCutMultiplier = jumpCutMultiplier,
+                RiseGravityScale = riseGravityScale,
+                FallGravityScale = fallGravityScale,
+                SecondJumpHorizontalBoost = secondJumpHorizontalBoost,
             };
 
             _ctx = new FormContext(_rigidBody, move);
+            _wasGrounded = _ctx.Grounded;
 
             // 形态状态机 + 战斗控制器（同节点）
             _companionStateMachine = GetComponent<CompanionStateMachine>();
@@ -435,6 +461,21 @@ namespace CloudEyrie
 
         /// <summary>冲刺拖尾的上一次状态（用来取上升沿）</summary>
         private bool _wasDashing;
+
+        /// <summary>上一帧的着地状态（用来取落地的那一瞬）</summary>
+        private bool _wasGrounded;
+
+        /// <summary>脚底的世界坐标（起跳/落地特效落点）。</summary>
+        private Vector3 FxFeetWorld()
+        {
+            if (_collider != null)
+            {
+                Bounds b = _collider.bounds;
+                return new Vector3(b.center.x, b.min.y, 0f);
+            }
+
+            return transform.position;
+        }
 
         /// <summary>胸口的世界坐标（特效落点）。见 <see cref="ChestOffset"/>。</summary>
         private Vector3 FxChestWorld()
@@ -605,6 +646,7 @@ namespace CloudEyrie
                 // 清空快照：否则恢复操作的那一帧会读到演出前残留的按下状态
                 inp.Left = inp.Right = inp.Up = inp.Down = false;
                 inp.Jump = inp.Dash = false;
+                inp.JumpHeld = false;
                 _ctx.Input = inp;
                 return;
             }
@@ -614,6 +656,7 @@ namespace CloudEyrie
             inp.Up = InputSystem.IsDown(GameAction.MoveUp);
             inp.Down = InputSystem.IsDown(GameAction.MoveDown);
             inp.Jump = InputSystem.WasPressed(GameAction.Jump);
+            inp.JumpHeld = InputSystem.IsDown(GameAction.Jump);
             inp.Dash = InputSystem.WasPressed(GameAction.Dash);
             // 开场过场：脚本接管方向（见 ScriptedMoveX 的说明）。
             // 放在填写之后、使用之前，玩家在过场里按方向键也不会打乱编排。
@@ -622,6 +665,7 @@ namespace CloudEyrie
                 inp.Left = ScriptedMoveX < 0f;
                 inp.Right = ScriptedMoveX > 0f;
                 inp.Jump = false;
+                inp.JumpHeld = false;
                 inp.Dash = false;
             }
 
@@ -636,6 +680,29 @@ namespace CloudEyrie
 
             // 委托形态逻辑（移动 + 持续消耗 + 强制切雾）
             _companionStateMachine.Tick(Time.deltaTime, _ctx);
+
+            // ---- 动作特效（跳 / 云跃 / 落地）----
+            if (_ctx.Jumped)
+            {
+                _ctx.Jumped = false;
+                InkFx.Burst(FxFeetWorld(), InkFx.Kind.JumpDust, _currentForm,
+                            Vector2.zero, BodyScaleRatio);
+            }
+
+            if (_ctx.DoubleJumped)
+            {
+                _ctx.DoubleJumped = false;
+                InkFx.Burst(FxFeetWorld(), InkFx.Kind.DoubleJump, _currentForm,
+                            Vector2.zero, BodyScaleRatio);
+            }
+
+            if (!_wasGrounded && _ctx.Grounded)
+            {
+                InkFx.Burst(FxFeetWorld(), InkFx.Kind.LandDust, _currentForm,
+                            Vector2.zero, BodyScaleRatio);
+            }
+
+            _wasGrounded = _ctx.Grounded;
 
             // 冲刺拖尾：盯 IsDashing 的**上升沿**统一发，两种形态共用一条。
             //
