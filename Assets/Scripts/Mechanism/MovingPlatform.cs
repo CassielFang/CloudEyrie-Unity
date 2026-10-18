@@ -17,6 +17,12 @@ namespace CloudEyrie
 
         /// <summary>金境「磁力平台」：站上去才开始沿轨迹走，走到底悬停一会儿再复位。</summary>
         MagneticRide,
+
+        /// <summary>
+        /// 火境「沉浮浮石」：没人站时静止；站上 1.5 秒后开始下沉，0.8 秒沉没，
+        /// 停留一会儿再浮回原位。设计稿的数值就是这么定的，与 BobVertical 的匀速往复不同。
+        /// </summary>
+        SinkOnStand,
     }
 
     /// <summary>
@@ -130,6 +136,10 @@ namespace CloudEyrie
                     next = MagneticPosition(dt);
                     break;
 
+                case MotionKind.SinkOnStand:
+                    next = SinkPosition(dt);
+                    break;
+
                 default:
                     next = _origin;
                     break;
@@ -149,8 +159,121 @@ namespace CloudEyrie
             _lastPosition = next;
         }
 
-        private void CarryRiders(Vector2 delta)
+        // ---- 沉浮浮石 ----
+
+        /// <summary>站上去之后多久开始下沉（设计稿 1.5s）</summary>
+        [SerializeField] private float sinkDelay = 1.5f;
+
+        /// <summary>下沉耗时（设计稿 0.8s）</summary>
+        [SerializeField] private float sinkDuration = 0.8f;
+
+        /// <summary>沉底停留多久再浮回</summary>
+        [SerializeField] private float submergedHold = 1.2f;
+
+        /// <summary>浮回原位耗时</summary>
+        [SerializeField] private float recoverDuration = 1.0f;
+
+        /// <summary>0 静止 / 1 等人站稳 / 2 下沉 / 3 沉底 / 4 上浮</summary>
+        private int _sinkState;
+
+        private float _sinkTimer;
+
+        /// <summary>
+        /// 沉浮浮石：没人站时保持原位；有人站着累计到 <see cref="sinkDelay"/> 才开始下沉。
+        /// 人中途跳走就取消计时 —— 否则会出现"平台自己慢慢沉下去"的莫名其妙感。
+        /// </summary>
+        private Vector2 SinkPosition(float dt)
         {
+            bool standing = _riders.Count > 0;
+
+            switch (_sinkState)
+            {
+                case 0:
+                    if (standing)
+                    {
+                        _sinkState = 1;
+                        _sinkTimer = 0f;
+                    }
+
+                    break;
+
+                case 1:
+                    if (!standing)
+                    {
+                        _sinkState = 0;
+                        _sinkTimer = 0f;
+                        break;
+                    }
+
+                    _sinkTimer += dt;
+
+                    if (_sinkTimer >= sinkDelay)
+                    {
+                        _sinkState = 2;
+                        _sinkTimer = 0f;
+                    }
+
+                    break;
+
+                case 2:
+                    _sinkTimer += dt;
+
+                    if (_sinkTimer >= sinkDuration)
+                    {
+                        _sinkState = 3;
+                        _sinkTimer = 0f;
+                    }
+
+                    break;
+
+                case 3:
+                    _sinkTimer += dt;
+
+                    if (_sinkTimer >= submergedHold)
+                    {
+                        _sinkState = 4;
+                        _sinkTimer = 0f;
+                    }
+
+                    break;
+
+                case 4:
+                    _sinkTimer += dt;
+
+                    if (_sinkTimer >= recoverDuration)
+                    {
+                        _sinkState = 0;
+                        _sinkTimer = 0f;
+                    }
+
+                    break;
+            }
+
+            float t;
+
+            switch (_sinkState)
+            {
+                case 2:
+                    t = Mathf.Clamp01(_sinkTimer / Mathf.Max(0.01f, sinkDuration));
+                    break;
+
+                case 3:
+                    t = 1f;
+                    break;
+
+                case 4:
+                    t = 1f - Mathf.Clamp01(_sinkTimer / Mathf.Max(0.01f, recoverDuration));
+                    break;
+
+                default:
+                    t = 0f;
+                    break;
+            }
+
+            return _origin + new Vector2(0f, -amplitude * Mathf.SmoothStep(0f, 1f, t));
+        }
+
+        private void CarryRiders(Vector2 delta)        {
             // 集合可能在本帧的物理回调里被改过，先拷一份再遍历
             _riders.RemoveWhere(r => r == null);
 
