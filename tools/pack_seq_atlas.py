@@ -289,6 +289,9 @@ def main():
                     help="剔除距画布边缘小于该值的帧（模型偶发把剑甩出画的第一帧）")
     ap.add_argument("--settle", action="store_true",
                     help="一次性动作：片尾裁到与首帧最像的那帧，便于接回待机")
+    ap.add_argument("--loop-repeat", type=int, default=1,
+                    help="循环片段保留几个周期。走路/奔跑要 2（左右各一步），"
+                         "只留 1 个周期会看着一直伸同一只脚")
     ap.add_argument("--loop-period", type=int, default=0,
                     help="循环类的预期周期（source 帧数，16fps）。0 = 不裁")
     ap.add_argument("--auto-height", action="store_true",
@@ -325,6 +328,9 @@ def main():
         # 「循环类」片段：先找稳定步态的起点与周期，只留一个完整周期。
         # 之前的做法是「砍掉与首帧最像的尾巴」，但首帧是站姿，循环起来每圈都会闪一下。
         start, length = best_loop_window(keyed, a.loop_period)
+
+        if a.loop_repeat > 1 and length > 0:
+            length = min(length * a.loop_repeat, len(keyed) - start)
         if 0 < length < len(keyed):
             print(f"  步态窗口：从第 {start} 帧起取 {length} 帧（共 {len(keyed)}）")
             keyed = keyed[start:start + length]

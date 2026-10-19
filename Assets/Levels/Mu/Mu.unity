@@ -532,6 +532,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1035195616487912575, guid: 82db5c7f6a5c4734eb00cd6599f26105, type: 3}
+      propertyPath: bounceVelocity
+      value: 448
+      objectReference: {fileID: 0}
     - target: {fileID: 2558206201976215331, guid: 82db5c7f6a5c4734eb00cd6599f26105, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -1363,6 +1367,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1035195616487912575, guid: 82db5c7f6a5c4734eb00cd6599f26105, type: 3}
+      propertyPath: bounceVelocity
+      value: 448
+      objectReference: {fileID: 0}
     - target: {fileID: 2558206201976215331, guid: 82db5c7f6a5c4734eb00cd6599f26105, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -4850,6 +4858,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1035195616487912575, guid: 82db5c7f6a5c4734eb00cd6599f26105, type: 3}
+      propertyPath: bounceVelocity
+      value: 448
+      objectReference: {fileID: 0}
     - target: {fileID: 2558206201976215331, guid: 82db5c7f6a5c4734eb00cd6599f26105, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -4935,6 +4947,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1035195616487912575, guid: 82db5c7f6a5c4734eb00cd6599f26105, type: 3}
+      propertyPath: bounceVelocity
+      value: 448
+      objectReference: {fileID: 0}
     - target: {fileID: 2558206201976215331, guid: 82db5c7f6a5c4734eb00cd6599f26105, type: 3}
       propertyPath: m_Sprite
       value: 

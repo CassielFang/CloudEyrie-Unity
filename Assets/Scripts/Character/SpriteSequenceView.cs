@@ -160,6 +160,18 @@ namespace CloudEyrie
                 return;
             }
 
+            // 空中：起跳由 CheckGroundTransitions 以**一次性**动作触发，这里只负责下落循环。
+            // 上升阶段起跳动作播完后保持最后一帧（不再重播），落差由落地的过渡吃掉。
+            if (owner != null && owner.Context != null && !owner.Context.Grounded)
+            {
+                if (_body != null && _body.linearVelocity.y < -8f)
+                {
+                    Play(fallClip, true);
+                }
+
+                return;
+            }
+
             Play(ChooseClip(), true);
         }
 
@@ -183,6 +195,11 @@ namespace CloudEyrie
                 // 落地时先清掉落地瞬间的保持状态（比如空中一直按着格挡）
                 _holdClip = null;
                 PlayOneShot(landClip);
+            }
+            else if (!grounded && _wasGrounded && !string.IsNullOrEmpty(jumpClip))
+            {
+                // 起跳：一次性播完就停在最后一帧，等下落循环接手
+                PlayOneShot(jumpClip);
             }
 
             _wasGrounded = grounded;
@@ -259,19 +276,7 @@ namespace CloudEyrie
                 return idleClip;
             }
 
-            Vector2 v = _body.linearVelocity;
-
-            if (v.y > 8f)
-            {
-                return jumpClip;
-            }
-
-            if (v.y < -8f)
-            {
-                return fallClip;
-            }
-
-            float speed = Mathf.Abs(v.x);
+            float speed = Mathf.Abs(_body.linearVelocity.x);
 
             if (speed >= runThreshold)
             {
