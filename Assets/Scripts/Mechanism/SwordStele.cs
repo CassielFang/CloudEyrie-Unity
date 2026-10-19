@@ -116,7 +116,7 @@ namespace CloudEyrie
 
             var sr = go.AddComponent<SpriteRenderer>();
             sr.sprite = BuildDigitSprite(order);
-            sr.sortingOrder = SortingOrders.Props + 5;
+            sr.sortingOrder = SortingOrders.LevelProp + 5;
             sr.color = new Color32(255, 236, 190, 255);
             go.transform.localScale = new Vector3(28f, 28f, 1f);
             go.transform.localPosition = new Vector3(0f, 150f, 0f);
