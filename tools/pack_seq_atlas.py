@@ -104,6 +104,81 @@ def key_background(bgr):
     return rgba
 
 
+def best_loop_window(frames, expect=0):
+    """在循环类片段里裁出**一个步态周期**。
+
+    ⚠️ 为什么要裁：这些片子都从站立基准帧起步，第 0 帧是站着，接着才迈步。
+    整段循环时每圈都会闪回站姿。
+
+    ⚠️ 为什么不能纯自动：一开始按"相隔 L 帧差异最小"搜索，结果永远收敛到很小的 L
+    （相邻帧本来就最像）——实测把待机 80 帧压成 9 帧、格挡 43 帧压成 5 帧，动作全丢了。
+    所以必须给定**预期周期**（source 帧数，16fps），只在它 ±25% 范围内找最优点。
+    """
+    import numpy as _np
+
+    n = len(frames)
+    if n < 8:
+        return 0, n
+
+    start = max(0, int(n * 0.15))          # 跳过从站姿起步的过渡段
+
+    if expect <= 0:
+        return 0, n                        # 没给预期就不裁，至少不会把动作剪碎
+
+    vecs = []
+    for f in frames:
+        g = cv2.cvtColor(f, cv2.COLOR_BGRA2BGR)
+        g = cv2.resize(g, (32, 32), interpolation=cv2.INTER_AREA)
+        vecs.append(g.astype(_np.float32) / 255.0)
+
+    lo = max(2, int(expect * 0.75))
+    hi = max(lo + 1, int(expect * 1.25))
+
+    best_l, best_d = expect, None
+    for lag in range(lo, hi + 1):
+        if start + lag >= n:
+            break
+        d = 0.0
+        cnt = 0
+        for i in range(start, n - lag):
+            d += float(_np.abs(vecs[i] - vecs[i + lag]).mean())
+            cnt += 1
+        if cnt == 0:
+            continue
+        d /= cnt
+        if best_d is None or d < best_d:
+            best_d, best_l = d, lag
+
+    best_l = min(best_l, n - start)
+    return start, best_l
+
+
+def settle_cut(frames, window=14):
+    """一次性动作的收势裁切：在尾部找与**首帧（站姿）**最像的一帧，裁到那里。
+
+    一次性动作不需要循环，但要能接回待机/行走：结尾如果停在"挥完还举着剑"的姿势，
+    切回去会硬跳。这里让片尾尽量回到与开头一致的姿态。
+    """
+    import numpy as _np
+
+    n = len(frames)
+    if n < window + 3:
+        return n
+
+    def vec(f):
+        g = cv2.cvtColor(f, cv2.COLOR_BGRA2BGR)
+        return cv2.resize(g, (32, 32), interpolation=cv2.INTER_AREA).astype(_np.float32) / 255.0
+
+    v0 = vec(frames[0])
+    best_i, best_d = n, None
+    for i in range(n - window, n):
+        d = float(_np.abs(vec(frames[i]) - v0).mean())
+        if best_d is None or d < best_d:
+            best_d, best_i = d, i
+
+    return best_i
+
+
 def content_bbox(rgba):
     """主体包围盒。
 
@@ -212,6 +287,10 @@ def main():
     ap.add_argument("--flip", action="store_true", help="水平镜像（统一朝向）")
     ap.add_argument("--min-edge", type=int, default=0,
                     help="剔除距画布边缘小于该值的帧（模型偶发把剑甩出画的第一帧）")
+    ap.add_argument("--settle", action="store_true",
+                    help="一次性动作：片尾裁到与首帧最像的那帧，便于接回待机")
+    ap.add_argument("--loop-period", type=int, default=0,
+                    help="循环类的预期周期（source 帧数，16fps）。0 = 不裁")
     ap.add_argument("--auto-height", action="store_true",
                     help="按本片实测的人物身高归一化缩放（跨动作尺寸一致）")
     ap.add_argument("--duration", type=float, default=0.0,
@@ -243,9 +322,18 @@ def main():
             keyed = kept
 
     if a.loop:
-        keep = best_loop_cut(keyed)
-        print(f"  循环裁帧：{len(keyed)} → {keep}")
-        keyed = keyed[:keep]
+        # 「循环类」片段：先找稳定步态的起点与周期，只留一个完整周期。
+        # 之前的做法是「砍掉与首帧最像的尾巴」，但首帧是站姿，循环起来每圈都会闪一下。
+        start, length = best_loop_window(keyed, a.loop_period)
+        if 0 < length < len(keyed):
+            print(f"  步态窗口：从第 {start} 帧起取 {length} 帧（共 {len(keyed)}）")
+            keyed = keyed[start:start + length]
+
+    if a.settle:
+        keep = settle_cut(keyed)
+        if 0 < keep < len(keyed):
+            print(f"  收势裁切：{len(keyed)} → {keep}")
+            keyed = keyed[:keep]
 
     scale = (a.char_height / a.ref_height) if a.ref_height else 1.0
 

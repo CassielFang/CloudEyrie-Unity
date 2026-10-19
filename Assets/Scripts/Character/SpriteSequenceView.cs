@@ -62,6 +62,20 @@ namespace CloudEyrie
         private SequencePlayer _player;
         private Rigidbody2D _body;
         private BoxCollider2D _collider;
+        private SpriteRenderer _renderer;
+
+        /// <summary>切片段时的交叉淡化时长（秒）。0 = 硬切</summary>
+        [SerializeField] private float crossfadeSeconds = 0.1f;
+
+        /// <summary>落地时的过渡片段；留空则不插</summary>
+        [SerializeField] private string landClip = "青禾-落地";
+
+        /// <summary>正在淡出的旧画面。切片段时把上一帧复制一份留在这里，淡掉。</summary>
+        private readonly System.Collections.Generic.List<SpriteRenderer> _ghosts =
+            new System.Collections.Generic.List<SpriteRenderer>();
+
+        /// <summary>上一帧是否着地 —— 用来取「落地」那一下</summary>
+        private bool _wasGrounded = true;
 
         /// <summary>当前正在播的片段名；null = 还没有播过</summary>
         private string _current;
@@ -75,6 +89,7 @@ namespace CloudEyrie
         private void Awake()
         {
             _player = GetComponent<SequencePlayer>();
+            _renderer = GetComponent<SpriteRenderer>();
 
             if (owner == null)
             {
@@ -128,6 +143,10 @@ namespace CloudEyrie
 
         private void Update()
         {
+            FadeGhosts();
+
+            CheckLanding();
+
             if (_oneShot)
             {
                 return;
@@ -142,6 +161,82 @@ namespace CloudEyrie
             }
 
             Play(ChooseClip(), true);
+        }
+
+        /// <summary>
+        /// 落地的一瞬插一段「落地」。
+        ///
+        /// 这是用户提的「跳跃结束之后怎么衔接」的正面解：光靠 jitter 的速度阈值切回待机，
+        /// 会从"空中姿势"直接跳到"站着"，落差大。落地动作有屈膝缓冲，正好把落差吃掉。
+        /// </summary>
+        private void CheckLanding()
+        {
+            if (owner == null || owner.Context == null)
+            {
+                return;
+            }
+
+            bool grounded = owner.Context.Grounded;
+
+            if (grounded && !_wasGrounded && !string.IsNullOrEmpty(landClip))
+            {
+                // 落地时先清掉落地瞬间的保持状态（比如空中一直按着格挡）
+                _holdClip = null;
+                PlayOneShot(landClip);
+            }
+
+            _wasGrounded = grounded;
+        }
+
+        /// <summary>把上一帧复制成一份"残影"，淡出后销毁。</summary>
+        private void SpawnGhost()
+        {
+            if (_renderer == null || _renderer.sprite == null || crossfadeSeconds <= 0f)
+            {
+                return;
+            }
+
+            var go = new GameObject("FxCrossfade");
+            go.transform.SetParent(transform.parent, false);
+            go.transform.localPosition = transform.localPosition;
+            go.transform.localScale = transform.localScale;
+            go.transform.localRotation = transform.localRotation;
+            go.transform.SetParent(transform.parent, true);
+
+            SpriteRenderer ghost = go.AddComponent<SpriteRenderer>();
+            ghost.sprite = _renderer.sprite;
+            ghost.color = _renderer.color;
+            ghost.sortingLayerName = _renderer.sortingLayerName;
+            ghost.sortingOrder = _renderer.sortingOrder - 1;
+
+            _ghosts.Add(ghost);
+        }
+
+        private void FadeGhosts()
+        {
+            for (int i = _ghosts.Count - 1; i >= 0; i--)
+            {
+                SpriteRenderer g = _ghosts[i];
+
+                if (g == null)
+                {
+                    _ghosts.RemoveAt(i);
+                    continue;
+                }
+
+                Color c = g.color;
+                c.a -= Time.deltaTime / Mathf.Max(0.01f, crossfadeSeconds);
+
+                if (c.a <= 0f)
+                {
+                    Destroy(g.gameObject);
+                    _ghosts.RemoveAt(i);
+                }
+                else
+                {
+                    g.color = c;
+                }
+            }
         }
 
         private string ChooseClip()
@@ -193,6 +288,7 @@ namespace CloudEyrie
                 return;
             }
 
+            SpawnGhost();
             _current = clip;
             _player.Play(clip, loop);
         }
@@ -210,6 +306,7 @@ namespace CloudEyrie
 
             _holdClip = null;          // 出招打断保持（例如格挡中被击中）
             _oneShot = true;
+            SpawnGhost();
             _current = clip;
 
             _player.Play(clip, false, 0, -1, timeScale, () =>
