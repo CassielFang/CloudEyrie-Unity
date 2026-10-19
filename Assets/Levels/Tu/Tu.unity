@@ -450,7 +450,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2833825252324250893, guid: 97adc5eba25433246b2c8a5e188161cb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -135
+      value: -215
       objectReference: {fileID: 0}
     - target: {fileID: 2833825252324250893, guid: 97adc5eba25433246b2c8a5e188161cb, type: 3}
       propertyPath: m_LocalPosition.z
@@ -549,6 +549,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &137317052
 Rigidbody2D:
   serializedVersion: 5
@@ -3004,6 +3009,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &852931083
 Rigidbody2D:
   serializedVersion: 5
@@ -3281,6 +3291,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &885114454
 Rigidbody2D:
   serializedVersion: 5
@@ -3517,6 +3532,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &991581239
 Rigidbody2D:
   serializedVersion: 5
@@ -3949,6 +3969,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &1085776688
 Rigidbody2D:
   serializedVersion: 5
@@ -4215,7 +4240,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2833825252324250893, guid: 97adc5eba25433246b2c8a5e188161cb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -65
+      value: -225
       objectReference: {fileID: 0}
     - target: {fileID: 2833825252324250893, guid: 97adc5eba25433246b2c8a5e188161cb, type: 3}
       propertyPath: m_LocalPosition.z
@@ -4314,6 +4339,11 @@ MonoBehaviour:
   magneticSpeed: 96
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
+  sinkDelay: 1.5
+  sinkDuration: 0.8
+  submergedHold: 1.2
+  recoverDuration: 1
+  sinkDepth: 0
 --- !u!50 &1225958704
 Rigidbody2D:
   serializedVersion: 5
