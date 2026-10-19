@@ -104,14 +104,12 @@ namespace CloudEyrie
                     size = new Vector2(70f, 900f);   // 兜底，别让火焰消失
                 }
 
-                // 火焰不该被纵向拉长（拉长会变成一条糊掉的色带）。
-                // 做法是**竖直拼接**若干段同样的火焰，像一摞火苗：
-                // 每段等比缩放（宽度对齐碰撞盒），从地面往上一段段叠。
+                // 新版火柱素材本身就是**整根带基座的火柱**（交付层原图做首帧生成），
+                // 所以不再竖直拼接——拼接会叠出好几层基座。等比缩放到柱宽即可。
                 float targetW = size.x * widthScale;
-                float targetH = size.y * heightScale;
                 float kx = targetW / canvas.x;
                 float segH = canvas.y * kx;
-                int segments = Mathf.Max(1, Mathf.CeilToInt(targetH / Mathf.Max(1f, segH)));
+                int segments = 1;
 
                 float centerY = transform.position.y + offset.y * sy;
                 float bottomY = centerY - size.y * sy * 0.5f;
