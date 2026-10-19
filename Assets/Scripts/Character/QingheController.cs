@@ -910,35 +910,28 @@ namespace CloudEyrie
         }
 
         /// <summary>
-        /// 形态切换的动作：按**进入的形态**选片段。
-        /// 化雾 = 实体→灵雾，凝形 = 灵雾→实体，入合 = 任意→灵合。
-        /// 灵合直接退回实体/灵雾时没有专属片段，用凝形代（观感上也是"收起来"）。
+        /// 形态切换的表现。
+        ///
+        /// <b>为什么不用帧序列</b>：化雾 / 凝形 / 入合本质是**雾气与光效**，不是人物动作。
+        /// 之前让模型去画，结果是雾散出画、alpha 太低量不准、打包时还被当成空帧剔掉
+        /// （化雾 33 帧只剩 18）。这类效果本来就该由 <see cref="InkFx"/> 的
+        /// FormSwitch / Sparkle 承担，人物只管站着变形。
         /// </summary>
         private void PlayFormTransition(CompanionFormChangedEvent e)
         {
+            InkFx.Burst(FxChestWorld(), InkFx.Kind.FormSwitch, e.Current,
+                        new Vector2(_ctx != null && _ctx.Facing < 0f ? -1f : 1f, 0f),
+                        BodyScaleRatio);
+
             if (_sequenceView == null)
             {
                 _sequenceView = GetComponentInChildren<SpriteSequenceView>();
             }
 
-            if (_sequenceView == null)
+            if (_sequenceView != null)
             {
-                return;
-            }
-
-            switch (e.Current)
-            {
-                case CompanionForm.Mist:
-                    _sequenceView.PlayOneShot("青禾-化雾");
-                    break;
-
-                case CompanionForm.Merge:
-                    _sequenceView.PlayOneShot("青禾-入合");
-                    break;
-
-                default:
-                    _sequenceView.PlayOneShot("青禾-凝形");
-                    break;
+                // 切形态时把一次性的出招打断掉，回到"按形态选片段"
+                _sequenceView.ClearHold();
             }
         }
 

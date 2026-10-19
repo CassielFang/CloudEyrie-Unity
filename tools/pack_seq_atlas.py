@@ -105,12 +105,30 @@ def key_background(bgr):
 
 
 def content_bbox(rgba):
-    # 阈值不能贴 8：边缘那圈 alpha≈20 的抗锯齿像素会把包围盒撑到整张画布，
-    # 量出来的「有没有出画」就永远是满帧。
+    """主体包围盒。
+
+    阈值必须**很高**：抠图后人物边缘外面还留着一圈很淡的背景残留（alpha 几十），
+    用 >40 会把包围盒撑大 20~30%。人物越矮被撑得越夸张 —— 宽景基准帧的片段
+    因此被算成"比常规片矮 25%"，缩放补偿完全失效。
+    这里只认 alpha > 200（近乎不透明）且每行/列至少 5 个这样的像素。
+    """
     a = rgba[:, :, 3]
-    ys, xs = np.where(a > 40)
-    if len(xs) == 0:
+    solid = a > 200
+    cols = solid.sum(axis=0)
+    rows = solid.sum(axis=1)
+    xs = np.where(cols >= 5)[0]
+    ys = np.where(rows >= 5)[0]
+
+    if len(xs) == 0 or len(ys) == 0:
+        # 化雾 / 入合 / 灵炁爆发这几条，人物会散成低 alpha 的雾，严格判据量不到东西。
+        # 退回宽松阈值，否则这些帧会被当成"空帧"整段剔掉。
+        soft = a > 40
+        xs = np.where(soft.sum(axis=0) >= 3)[0]
+        ys = np.where(soft.sum(axis=1) >= 3)[0]
+
+    if len(xs) == 0 or len(ys) == 0:
         return None
+
     return int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1
 
 
@@ -194,6 +212,11 @@ def main():
     ap.add_argument("--flip", action="store_true", help="水平镜像（统一朝向）")
     ap.add_argument("--min-edge", type=int, default=0,
                     help="剔除距画布边缘小于该值的帧（模型偶发把剑甩出画的第一帧）")
+    ap.add_argument("--auto-height", action="store_true",
+                    help="按本片实测的人物身高归一化缩放（跨动作尺寸一致）")
+    ap.add_argument("--duration", type=float, default=0.0,
+                    help="这条片子该播多少秒。>0 时按 frames/duration 反算 fps，"
+                         "不再用固定 fps —— 动作快慢由动作本身决定")
     a = ap.parse_args()
 
     raw = load_frames(a.mp4)
@@ -225,10 +248,32 @@ def main():
         keyed = keyed[:keep]
 
     scale = (a.char_height / a.ref_height) if a.ref_height else 1.0
+
+    # 跨动作尺寸一致：模型每条片子画的人物高矮不同，用固定 ref-height 会一大一小。
+    # 取本片**所有帧包围盒高度的中位数**当基准 —— 中位数比首帧稳（首帧有时被模型拉宽），
+    # 也比最大值稳（跳跃/挥剑的瞬间会短暂变高）。
+    boxes = [b for b in (content_bbox(f) for f in keyed) if b]
+
+    if a.auto_height and boxes:
+        # 基准取**第 0 帧**的身高。
+        # 实测：第 0 帧是模型对输入基准帧的复现（站姿、剑垂身侧），而第 1、2 帧模型会
+        # 自己放大一点 —— 用前三帧中位数会把整体缩小约 27%，跨动作看就是一跳一变。
+        med_h = float(boxes[0][3] - boxes[0][1])
+        scale = a.char_height / max(1.0, med_h)
+        print(f"  首帧身高 {med_h:.0f}px → 缩放 {scale:.3f}")
+
     canvas = (a.canvas, a.canvas)
     feet_y = a.feet_y if a.feet_y is not None else a.canvas - 24
 
-    first_bbox = content_bbox(keyed[0])
+    # 锚点：前几帧包围盒的「水平中心 + 底边」中位数。
+    # 只取首帧会被那一帧的膨胀/收缩带偏；取全部帧又会让跳跃类整段被拉平。
+    head = boxes[:min(3, len(boxes))]
+    if head:
+        anchor_x_src = sorted((b[0] + b[2]) / 2 for b in head)[len(head) // 2]
+        anchor_y_src = sorted(b[3] for b in head)[len(head) // 2]
+        first_bbox = (anchor_x_src, anchor_y_src)
+    else:
+        first_bbox = None
     cells = []
     for i, f in enumerate(keyed):
         anchor_x = canvas[0] // 2
@@ -244,11 +289,19 @@ def main():
             else:
                 cell = np.zeros((canvas[1], canvas[0], 4), np.uint8)
         else:
-            pivot = (((first_bbox[0] + first_bbox[2]) / 2), first_bbox[3]) if first_bbox else None
+            pivot = first_bbox if first_bbox else None
             cell = compose(f, scale, canvas, (anchor_x, feet_y), pivot_bbox=pivot)
         cells.append(cell)
 
     pages, entries, grid = pack_pages(cells, a.canvas)
+
+    # 速度：给了 duration 就反算 fps。16fps 是生成端的原生帧率，不是"这条动作该多快"——
+    # 行走 77 帧按 16fps 播是 4.8 秒一个循环，而正常步频约 1 秒。
+    fps = a.fps
+
+    if a.duration > 0.0 and cells:
+        fps = len(cells) / a.duration
+        print(f"  时长 {a.duration:.2f}s → fps {fps:.1f}")
 
     os.makedirs(a.out, exist_ok=True)
     page_names = []
@@ -263,7 +316,7 @@ def main():
         "canvas": [a.canvas, a.canvas],
         "scale": a.scale,
         "sourceCanvas": [int(round(a.canvas / a.scale)), int(round(a.canvas / a.scale))],
-        "fps": a.fps,
+        "fps": fps,
         "frames": len(cells),
         "loop": "trim",
         "anchor": "bottom-center",

@@ -127,11 +127,18 @@ namespace CloudEyrie
         private void Awake()
         {
             _qinghe = GetComponent<QingheController>();
-            _bleed = Resources.Load<Sprite>("fx/ink_bleed");
-            _dot = Resources.Load<Sprite>("fx/ink_dot");
-            _speck = Resources.Load<Sprite>("fx/ink_speck");
-            _ringFar = Resources.Load<Sprite>("fx/glow_ring_far");
-            _ringNear = Resources.Load<Sprite>("fx/glow_ring_near");
+
+            // 改用交付层的实拍特效（fx_tex）：程序生成的墨点/晕染边缘太"塑料"，
+            // 放大到环绕件这个尺寸后尤其明显。语义一一对应：
+            //   ink_bleed → fx_smoke（晕染/烟团）
+            //   ink_dot   → fx_glow（柔光點）
+            //   ink_speck → fx_sparkle（星芒）
+            //   半环      → fx_ring_white（交付库没有半环，用整环代替，牺牲前后分层）
+            _bleed = LoadFx("fx_tex/fx_smoke", "fx/ink_bleed");
+            _dot = LoadFx("fx_tex/fx_glow", "fx/ink_dot");
+            _speck = LoadFx("fx_tex/fx_sparkle", "fx/ink_speck");
+            _ringFar = LoadFx("fx_tex/fx_ring_white", "fx/glow_ring_far");
+            _ringNear = LoadFx("fx_tex/fx_ring_white", "fx/glow_ring_near");
             _loaded = true;
 
             // ⚠️ **整体缩放必须自己接上**。
@@ -154,9 +161,15 @@ namespace CloudEyrie
             }
         }
 
-        private void OnEnable()
+        /// <summary>优先读交付层贴图，缺失才回落程序生成的占位图。</summary>
+        private static Sprite LoadFx(string primary, string fallback)
         {
-            if (!_subscribed)
+            Sprite s = Resources.Load<Sprite>(primary);
+            return s != null ? s : Resources.Load<Sprite>(fallback);
+        }
+
+        private void OnEnable()
+        {            if (!_subscribed)
             {
                 _subscribed = true;
                 EventBus.On<CompanionFormChangedEvent>(GameEvents.CompanionFormChanged, OnFormChanged);
