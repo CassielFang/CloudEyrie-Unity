@@ -37,8 +37,8 @@ namespace CloudEyrie
         /// <summary>未点亮时的印记颜色（压暗，看得出"还没拿到"）。</summary>
         private static readonly Color DimSeal = new Color32(70, 82, 92, 200);
 
-        private const float DotSize = 26f;
-        private const float DotGap = 8f;
+        private const float DotSize = 34f;
+        private const float DotGap = 10f;
 
         private Text _fragmentText;
         private Image[] _sealDots;
@@ -82,7 +82,7 @@ namespace CloudEyrie
             root.sizeDelta = new Vector2(420f, 90f);
 
             // 碎片计数
-            _fragmentText = UiDraw.MakeText(root, "Fragments", "", 26,
+            _fragmentText = UiDraw.MakeText(root, "Fragments", "", 34,
                 new Color32(238, 244, 248, 255), 2f);
 
             RectTransform frt = _fragmentText.rectTransform;
@@ -112,7 +112,7 @@ namespace CloudEyrie
                 _sealDots[i] = dot;
 
                 Text label = UiDraw.MakeText(root, $"SealLabel_{Seals[i].name}",
-                    Seals[i].name, 16, new Color32(228, 236, 244, 220), 1.5f);
+                    Seals[i].name, 20, new Color32(228, 236, 244, 220), 1.5f);
 
                 RectTransform lrt = label.rectTransform;
                 lrt.anchorMin = lrt.anchorMax = new Vector2(1f, 1f);

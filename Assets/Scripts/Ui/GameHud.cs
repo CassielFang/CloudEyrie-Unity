@@ -121,7 +121,7 @@ namespace CloudEyrie
         /// <summary>提示文字离灵炁条顶端多高（世界/设计像素）</summary>
         private const float HintY = 24f;
 
-        private const int HintSize = 30;
+        private const int HintSize = 40;
 
         private Text _hint;
         private float _hintRemaining;
@@ -160,16 +160,31 @@ namespace CloudEyrie
         private void BuildHint(Transform root)
         {
             RectTransform n = UiDraw.MakeNode(root, "Hint");
-            n.anchorMin = n.anchorMax = Vector2.zero;
-            n.pivot = new Vector2(0f, 0f);
-            n.anchoredPosition = new Vector2(GroupX, GroupBottom + GroupH + HintY);
 
-            // 屏幕左下角的浅色山水上压深色字读不出来，所以给一点描边
+            // 屏幕**正下方居中**：原来贴在左下角，和左下角的灵炁条挤在一起，
+            // 又小又偏，实际游戏里几乎注意不到。
+            n.anchorMin = new Vector2(0.5f, 0f);
+            n.anchorMax = new Vector2(0.5f, 0f);
+            n.pivot = new Vector2(0.5f, 0f);
+            n.anchoredPosition = new Vector2(0f, 148f);
+            n.sizeDelta = new Vector2(1400f, HintSize * 2.2f);
+
+            // 半透明深色衬底：提示字在浅色山水上容易糊掉，靠描边不够
+            Image band = UiDraw.MakeRect(n, "Band", new Color32(18, 22, 26, 150),
+                                         1400f, HintSize * 2.0f);
+
+            RectTransform brt = band.rectTransform;
+            brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0.5f);
+            brt.pivot = new Vector2(0.5f, 0.5f);
+            brt.anchoredPosition = Vector2.zero;
+
             _hint = UiDraw.MakeText(n, "Label", "", HintSize, HintColor,
                                     ScreenStage.ThinOutline);
-            _hint.rectTransform.sizeDelta = new Vector2(900f, HintSize * 1.6f);
-            _hint.alignment = TextAnchor.MiddleLeft;
-            _hint.rectTransform.pivot = new Vector2(0f, 0.5f);
+            _hint.rectTransform.sizeDelta = new Vector2(1360f, HintSize * 1.8f);
+            _hint.rectTransform.anchorMin = _hint.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            _hint.rectTransform.pivot = new Vector2(0.5f, 0.5f);
+            _hint.rectTransform.anchoredPosition = Vector2.zero;
+            _hint.alignment = TextAnchor.MiddleCenter;
             _hint.text = string.Empty;
         }
 

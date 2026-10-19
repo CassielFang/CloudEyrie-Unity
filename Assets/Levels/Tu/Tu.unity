@@ -5448,7 +5448,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.Collectible
   kind: 0
-  fragmentId: 
+  fragmentId: tu_05
   element: 0
   hint: "\u62FE\u5F97\u788E\u7247"
   floatAmplitude: 10

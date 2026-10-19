@@ -166,7 +166,7 @@ namespace CloudEyrie
             {
                 string text = kind == CollectibleKind.Seal
                     ? $"{hint}·{ElementName(element)}"
-                    : hint;
+                    : $"{hint}（{PlayerProgress.FragmentCount}/10）";
 
                 EventBus.Emit(GameEvents.HintRequested, new HintEvent { Text = text });
             }
