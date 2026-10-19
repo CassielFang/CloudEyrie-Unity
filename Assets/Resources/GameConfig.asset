@@ -80,7 +80,7 @@ MonoBehaviour:
     SightRange: 140
     VerticalTolerance: 70
     DiscoverDuration: 0.45
-    AttackRange: 72
+    AttackRange: 96
     AttackStartup: 0.3
     AttackDuration: 0.55
     AttackCooldown: 2.16

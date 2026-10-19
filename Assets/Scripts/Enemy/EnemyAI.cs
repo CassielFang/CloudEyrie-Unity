@@ -919,7 +919,9 @@ namespace CloudEyrie
 
             if (!Ranged)
             {
-                return baseTol;
+                // 近战也要给一点余量：玩家站在稍高一点的小台阶上（高差 70~110）时，
+                // 原来的 70 会让小怪一直贴着转圈却不攻击（实测反馈"非要贴身才打"）。
+                return Mathf.Max(baseTol, 110f);
             }
 
             // 射程内的高差容忍随距离放大，但仍有限度，避免"隔着整张地图锁定"

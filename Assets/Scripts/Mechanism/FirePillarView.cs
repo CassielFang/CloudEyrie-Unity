@@ -104,10 +104,12 @@ namespace CloudEyrie
                     size = new Vector2(70f, 900f);   // 兜底，别让火焰消失
                 }
 
-                // 新版火柱素材本身就是**整根带基座的火柱**（交付层原图做首帧生成），
-                // 所以不再竖直拼接——拼接会叠出好几层基座。等比缩放到柱宽即可。
+                // 按**高度**铺满柱子（宽度跟着比例走）。
+                // 之前按宽度算：柱宽只有 70，火焰被缩成 63px 高的一小团 ——
+                // 而这根火柱在关卡里是要顶到画面顶上的。宽度限制在这里是错的。
                 float targetW = size.x * widthScale;
-                float kx = targetW / canvas.x;
+                float targetH = size.y * heightScale;
+                float kx = targetH / canvas.y;
                 float segH = canvas.y * kx;
                 int segments = 1;
 
