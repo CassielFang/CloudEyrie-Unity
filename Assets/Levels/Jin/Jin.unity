@@ -343,7 +343,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 404cb6c4e1d662f4c891ab3ddc56f301, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.SwordStele
-  order: 2
+  order: 1
   groupId: jin_03
   requireMergeForm: 1
   resonateRadius: 120
@@ -1856,6 +1856,7 @@ MonoBehaviour:
   - "\u5207\u7075\u5408\u6001\u9760\u8FD1\u5251\u7891\u5171\u9E23\uFF0C\u6309\u7891\u4E0A\u7684\u6570\u5B57\u987A\u5E8F"
   - "\u987A\u5E8F\u662F \u58F9 \u2192 \u8D30 \u2192 \u53C1\uFF1B\u70B9\u9519\u4F1A\u5168\u90E8\u7184\u706D"
   hintHighlightSeconds: 2.5
+  hintRadius: 420
 --- !u!61 &731690359
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3235,7 +3236,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 404cb6c4e1d662f4c891ab3ddc56f301, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.SwordStele
-  order: 1
+  order: 3
   groupId: jin_03
   requireMergeForm: 1
   resonateRadius: 120
@@ -3839,7 +3840,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 404cb6c4e1d662f4c891ab3ddc56f301, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.SwordStele
-  order: 3
+  order: 2
   groupId: jin_03
   requireMergeForm: 1
   resonateRadius: 120

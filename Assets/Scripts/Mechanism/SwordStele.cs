@@ -88,6 +88,7 @@ namespace CloudEyrie
             }
 
             st.Steles.Add(this);
+            BuildOrderGlyph();
             Refresh();
         }
 
@@ -99,7 +100,77 @@ namespace CloudEyrie
             }
         }
 
-        private void Update()
+        /// <summary>离玩家多近开始给提示</summary>
+        private void BuildOrderGlyph()
+        {
+            // 场景里三座剑碑的 orderGlyph 全是空的 —— 而提示说"按碑上的数字顺序"，
+            // 玩家看不到任何数字，这个谜题等于无解（实测反馈"根本不知道怎么操作"）。
+            // 所以这里在碑顶补一个运行时画的数字。
+            if (orderGlyph != null && orderGlyph.sprite != null)
+            {
+                return;
+            }
+
+            var go = new GameObject("OrderGlyph");
+            go.transform.SetParent(transform, false);
+
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = BuildDigitSprite(order);
+            sr.sortingOrder = SortingOrders.Props + 5;
+            sr.color = new Color32(255, 236, 190, 255);
+            go.transform.localScale = new Vector3(28f, 28f, 1f);
+            go.transform.localPosition = new Vector3(0f, 150f, 0f);
+        }
+
+        /// <summary>3×5 点阵数字，画成 32×32 的贴图（运行时生成，不依赖美术资源）</summary>
+        private static Sprite BuildDigitSprite(int digit)
+        {
+            string[] glyph = digit switch
+            {
+                1 => new[] { "010", "110", "010", "010", "111" },
+                2 => new[] { "111", "001", "111", "100", "111" },
+                _ => new[] { "111", "001", "111", "001", "111" },
+            };
+
+            const int size = 32;
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            var px = new Color32[size * size];
+
+            for (int i = 0; i < px.Length; i++)
+            {
+                px[i] = new Color32(255, 255, 255, 0);
+            }
+
+            const int cell = 5;
+            int ox = (size - 3 * cell) / 2;
+            int oy = (size - 5 * cell) / 2;
+
+            for (int row = 0; row < 5; row++)
+            {
+                for (int col = 0; col < 3; col++)
+                {
+                    if (glyph[4 - row][col] != '1')
+                    {
+                        continue;
+                    }
+
+                    for (int y = 0; y < cell; y++)
+                    {
+                        for (int x = 0; x < cell; x++)
+                        {
+                            px[(oy + row * cell + y) * size + ox + col * cell + x] =
+                                new Color32(255, 255, 255, 255);
+                        }
+                    }
+                }
+            }
+
+            tex.SetPixels32(px);
+            tex.Apply();
+            return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 1f);
+        }
+
+        private void OnTriggerStay2D(Collider2D other)
         {
             if (IsLit)
             {
