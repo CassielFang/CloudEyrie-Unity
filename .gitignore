@@ -126,3 +126,7 @@ InitTestScene*.unity*
 
 # AI 助手生成物：Unity MCP 包每次开工程都会重写，不该进版本库
 /.claude/
+
+# Unity 性能测试跑完留下的产物
+/Assets/Resources/PerformanceTestRun*.json*
+/Assets/packages-merged-link*
