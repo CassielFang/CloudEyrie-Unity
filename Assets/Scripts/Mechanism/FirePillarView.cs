@@ -76,6 +76,58 @@ namespace CloudEyrie
         private readonly System.Collections.Generic.List<SpriteRenderer> _segments =
             new System.Collections.Generic.List<SpriteRenderer>();
 
+        /// <summary>
+        /// 精灵**内容**底边在画布里的位置（0 = 贴画布底、1 = 顶）。只扫一次。
+        ///
+        /// 逐列扫描 alpha：火焰底部是实心的，扫到的最高"空行"就是内容起点。
+        /// 用精灵自己的 textureRect 扫描，所以对合图（atlas）同样成立。
+        /// </summary>
+        private static float ContentBottomFraction(SpriteRenderer sr)
+        {
+            if (sr == null || sr.sprite == null || sr.sprite.texture == null)
+            {
+                return 0f;
+            }
+
+            try
+            {
+                Sprite sp = sr.sprite;
+                Rect r = sp.textureRect;
+                Texture2D tex = sp.texture;
+                Color32[] px = tex.GetPixels32();
+                int texW = tex.width;
+
+                int bottom = -1;
+
+                for (int y = 0; y < (int)r.height && bottom < 0; y++)
+                {
+                    int py = (int)r.y + y;
+
+                    for (int x = 0; x < (int)r.width; x++)
+                    {
+                        int index = py * texW + (int)r.x + x;
+
+                        if (index >= 0 && index < px.Length && px[index].a > 16)
+                        {
+                            bottom = y;
+                            break;
+                        }
+                    }
+                }
+
+                if (bottom < 0 || r.height <= 0f)
+                {
+                    return 0f;
+                }
+
+                return bottom / r.height;
+            }
+            catch
+            {
+                return 0f;
+            }
+        }
+
         private void Update()
         {
             if (_art == null)
@@ -113,12 +165,17 @@ namespace CloudEyrie
                 float segH = canvas.y * kx;
                 int segments = 1;
 
+                // 底边对齐：对齐的必须是**火焰内容的底边**，不是画布底边。
+                // 生成时画布底部留了空白（火焰没有顶到画布最下沿），
+                // 按画布对齐就会整根悬空一截（实测反馈"火焰离地了"）。
                 float centerY = transform.position.y + offset.y * sy;
                 float bottomY = centerY - size.y * sy * 0.5f;
-                float x = transform.position.x + offset.x * _box.transform.lossyScale.x;
+
+                float contentBottom = ContentBottomFraction(_artRenderer);
 
                 _art.localScale = new Vector3(kx, kx, 1f);
-                _art.position = new Vector3(x, bottomY + segH * 0.5f, 0f);
+                _art.position = new Vector3(transform.position.x + offset.x * _box.transform.lossyScale.x,
+                                            bottomY + segH * 0.5f - contentBottom * segH, 0f);
 
                 for (int i = 1; i < segments; i++)
                 {
@@ -135,9 +192,10 @@ namespace CloudEyrie
                     segPlayer.Play(clipName, true);
 
                     seg.transform.localScale = new Vector3(kx, kx, 1f);
-                    seg.transform.position = new Vector3(x, bottomY + segH * (i + 0.5f), 0f);
+                    seg.transform.position = new Vector3(_art.position.x, bottomY + segH * (i + 0.5f), 0f);
                     _segments.Add(segSr);
                 }
+            }
 
                 _canvasReady = true;
             }
