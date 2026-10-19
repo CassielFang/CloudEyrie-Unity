@@ -36,6 +36,9 @@ namespace CloudEyrie
         [Tooltip("推到位时的提示")]
         [SerializeField] private string hint = "玄石归位";
 
+        /// <summary>靠近提示只发一次</summary>
+        private bool _approachHinted;
+
         [Header("凹槽")]
         [Tooltip("凹槽中心。石头进入这个半径就算到位")]
         [SerializeField] private Transform slot;
@@ -76,6 +79,16 @@ namespace CloudEyrie
             if (IsSeated || _player == null)
             {
                 return;
+            }
+
+            // 第一次靠近就说明"这东西能推"。
+            // 原来的 hint 是「玄石归位」——那是**推到位之后**的结果，玩家在推之前什么都不知道。
+            if (!_approachHinted &&
+                Mathf.Abs(_player.transform.position.x - transform.position.x) <= 220f)
+            {
+                _approachHinted = true;
+                EventBus.Emit(GameEvents.HintRequested,
+                              new HintEvent { Text = "靠近这块玄石，按方向键可以推动它", Seconds = 4f });
             }
 
             Vector2 dir = PlayerPushDirection();

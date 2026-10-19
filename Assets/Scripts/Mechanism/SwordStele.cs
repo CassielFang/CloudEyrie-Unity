@@ -170,7 +170,20 @@ namespace CloudEyrie
             return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 1f);
         }
 
-        private void OnTriggerStay2D(Collider2D other)
+        /// <summary>
+        /// 每帧自己判距离来共鸣。
+        ///
+        /// 原先是 <c>OnTriggerStay2D</c> —— 依赖剑碑的碰撞体是 trigger 并且玩家真的碰到它。
+        /// 但剑碑的碰撞体是实心 WORLD（玩家会被它挡住），于是这个回调**一次都不会触发**，
+        /// 三座碑永远点不亮、剑气门永远是死局（实测：玩家用灵合贴到碑上，三座 lit 仍为 False）。
+        /// 改成自己算距离，不依赖碰撞体配置。
+        /// </summary>
+        private void Update()
+        {
+            TryResonate();
+        }
+
+        private void TryResonate()
         {
             if (IsLit)
             {
