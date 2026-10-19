@@ -59,6 +59,12 @@ namespace CloudEyrie
         /// <summary>攻击命中允许的目标位移余量（攻击范围 × 此倍数）</summary>
         private const float AttackReachMult = 1.25f;
 
+        /// <summary>远程型保持的距离 = 射程 × 这个比例</summary>
+        private const float RangedKeepRatio = 0.72f;
+
+        /// <summary>后退速度相对追击速度的比例</summary>
+        private const float RangedBackoffSpeedRatio = 0.8f;
+
         /// <summary>受击闪色持续时间 /秒</summary>
         private const float HitFlashDuration = 0.12f;
 
@@ -155,6 +161,9 @@ namespace CloudEyrie
         // 攻击
         private float _attackElapsed;
         private bool _attackHitDone;
+
+        /// <summary>这次拉弓是否已经放出去过箭（防止动画回调与兜底计时重复放）</summary>
+        private bool _arrowReleased;
         private float _cooldownRemaining;
 
         // 受击硬直
@@ -432,6 +441,26 @@ namespace CloudEyrie
             EnemyConfig config = GameConfig.Current.Enemy;
             _facing = dirX;
 
+            // 远程型要**保持距离**。
+            //
+            // 之前它和近战共用同一套追击逻辑：一路贴到玩家脸上再放箭，
+            // 箭从零距离射出来，玩家既看不到也躲不掉（实测反馈"总是贴身、躲不掉"）。
+            // 现在：太近了就后退，进了射程就停下拉弓。
+            if (Ranged)
+            {
+                float dist = HorizontalDistanceToTarget();
+                float keep = config.RangedAttackRange * RangedKeepRatio;
+
+                if (dist < keep)
+                {
+                    // 后退。朝向仍然对着玩家（要射的方向），但移动方向相反
+                    _facing = dirX;
+                    SetVelocityX(-dirX * config.ChaseSpeed * RangedBackoffSpeedRatio);
+                    _lostTargetRemaining = 0f;
+                    return;
+                }
+            }
+
             if (IsTargetInAttackRange())
             {
                 _lostTargetRemaining = 0f;
@@ -442,7 +471,7 @@ namespace CloudEyrie
                 }
                 else
                 {
-                    // 攻击冷却中，贴脸等待
+                    // 攻击冷却中，远程型停在原地等，不要贴上来
                     SetVelocityX(0f);
                 }
 
@@ -489,8 +518,7 @@ namespace CloudEyrie
 
             SetVelocityX(0f);
 
-            // 远程型的「出招」由动画驱动：MinionVisual 在**放箭那一帧**回调 ReleaseArrow()，
-            // 所以这里不再按时长自己生成箭 —— 否则箭和拉弓动画对不上。
+            // 近战：前摇到点就打一下
             if (!Ranged && !_attackHitDone && _attackElapsed >= config.AttackStartup)
             {
                 _attackHitDone = true;
@@ -504,6 +532,17 @@ namespace CloudEyrie
                 {
                     GameLog.V("[EnemyAI] 攻击落空（目标已离开范围）");
                 }
+            }
+
+            // 远程：**兜底放箭**。
+            //
+            // 原本只靠 MinionVisual 在"放箭那一帧"回调 ReleaseArrow()；
+            // 一旦立绘没挂上/动画没跑到那一帧，箭就永远不生成 —— 玩家莫名掉灵炁却看不到箭。
+            // 这里按前摇时间兜底一次，保证"只要它拉弓，就一定有一支看得见的箭飞出来"。
+            if (Ranged && !_arrowReleased && _attackElapsed >= config.AttackStartup)
+            {
+                _arrowReleased = true;
+                ShootArrow();
             }
 
             // 远程攻击要等拉弓动画走完，时长比近战长得多（配置里单列）
@@ -574,6 +613,7 @@ namespace CloudEyrie
             SetState(EnemyState.Attack);
             _attackElapsed = 0f;
             _attackHitDone = false;
+            _arrowReleased = false;
 
             // ⚠️ 冷却是在 Update 里逐帧递减的，**攻击期间也在走**。
             // 近战动画只有 0.55 秒，所以「时长 < 冷却」时周期自然是冷却；
@@ -725,6 +765,7 @@ namespace CloudEyrie
             }
 
             _hitFlashRemaining = HitFlashDuration;
+            _arrowReleased = true;
             ShootArrow();
         }
 
