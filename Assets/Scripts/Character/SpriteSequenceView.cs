@@ -49,7 +49,7 @@ namespace CloudEyrie
         [Tooltip("低于这个水平速度算站立")]
         [SerializeField] private float walkThreshold = 12f;
         [Tooltip("高于这个水平速度切奔跑")]
-        [SerializeField] private float runThreshold = 110f;
+        [SerializeField] private float runThreshold = 200f;
 
         [Header("尺寸与落地")]
         [Tooltip("格子边长（manifest 的 canvas）。打包脚本默认 384")]

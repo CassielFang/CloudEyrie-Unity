@@ -545,10 +545,12 @@ MonoBehaviour:
   mistClip: "\u9752\u79BE-\u7075\u96FE\u98DE\u884C"
   mergeClip: "\u9752\u79BE-\u7075\u5408\u60AC\u6D6E"
   walkThreshold: 12
-  runThreshold: 110
+  runThreshold: 200
   cellSize: 384
   charHeightInCell: 232
   feetMargin: 24
+  crossfadeSeconds: 0.1
+  landClip: "\u9752\u79BE-\u843D\u5730"
 --- !u!114 &602103932
 MonoBehaviour:
   m_ObjectHideFlags: 0
