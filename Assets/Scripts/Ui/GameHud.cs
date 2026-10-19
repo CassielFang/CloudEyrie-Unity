@@ -125,6 +125,9 @@ namespace CloudEyrie
 
         private Text _hint;
         private float _hintRemaining;
+
+        /// <summary>提示的半透明衬底；没有提示时隐藏</summary>
+        private Image _hintBand;
         private bool _hintSubscribed;
 
         private void OnEnable()
@@ -154,6 +157,13 @@ namespace CloudEyrie
 
             _hint.text = e.Text;
             _hintRemaining = e.Seconds > 0f ? e.Seconds : HintSeconds;
+            _hint.color = HintColor;
+
+            // 衬底只在有提示时出现 —— 常驻会在屏幕上留一条灰带（实测踩过）
+            if (_hintBand != null)
+            {
+                _hintBand.enabled = true;
+            }
         }
 
         /// <summary>建那条提示文本（挂在灵炁条整组上方）。</summary>
@@ -172,6 +182,8 @@ namespace CloudEyrie
             // 半透明深色衬底：提示字在浅色山水上容易糊掉，靠描边不够
             Image band = UiDraw.MakeRect(n, "Band", new Color32(18, 22, 26, 150),
                                          1400f, HintSize * 2.0f);
+            _hintBand = band;
+            band.enabled = false;
 
             RectTransform brt = band.rectTransform;
             brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0.5f);
@@ -311,6 +323,11 @@ namespace CloudEyrie
                 if (_hintRemaining <= 0f)
                 {
                     _hint.text = string.Empty;
+
+                    if (_hintBand != null)
+                    {
+                        _hintBand.enabled = false;
+                    }
                 }
             }
         }
