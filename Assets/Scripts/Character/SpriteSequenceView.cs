@@ -160,6 +160,15 @@ namespace CloudEyrie
                 return;
             }
 
+            // 灵雾 / 灵合没有"跳"这回事 —— 它们本来就是无重力悬浮。
+            // 之前的顺序错了：先判"是否在空中"再判形态，于是灵雾态一按上/下移动就被当成跳跃，
+            // 播了实体形态的起跳/下落。形态判断必须排在最前。
+            if (owner != null && owner.CurrentForm != CompanionForm.Entity)
+            {
+                Play(ChooseClip(), true);
+                return;
+            }
+
             // 空中：起跳由 CheckGroundTransitions 以**一次性**动作触发，这里只负责下落循环。
             // 上升阶段起跳动作播完后保持最后一帧（不再重播），落差由落地的过渡吃掉。
             if (owner != null && owner.Context != null && !owner.Context.Grounded)

@@ -44,6 +44,12 @@ namespace CloudEyrie
         private Vector3 _origin;
         private float _phase;
 
+        /// <summary>目标显示尺寸（世界单位）。设计稿的碎片大约 40~50。</summary>
+        private const float TargetSize = 46f;
+
+        private SpriteRenderer _renderer;
+        private Vector3 _baseScale = Vector3.one;
+
         private void Reset()
         {
             Collider2D col = GetComponent<Collider2D>();
@@ -61,6 +67,8 @@ namespace CloudEyrie
             _origin = transform.position;
             _phase = Random.value * Mathf.PI * 2f;
 
+            AttachArt();
+
             // 这一周目已经拿过就直接不出现 —— 避免"看到了却捡不起来"
             if (AlreadyCollected())
             {
@@ -68,13 +76,60 @@ namespace CloudEyrie
             }
         }
 
+        /// <summary>
+        /// 碎片的世界表现。
+        ///
+        /// 之前场景里的收集品**没有精灵**（SpriteRenderer 的 sprite 为空、组件还没启用），
+        /// 于是玩家完全看不见它们 —— 设计稿要的"可收集碎片"等于不存在。
+        /// 这里按需挂上交付层的「光碎片」贴图，并按目标尺寸归一化，
+        /// 再叠一个呼吸缩放，让小东西在场景里"亮"起来。
+        /// </summary>
+        private void AttachArt()
+        {
+            _renderer = GetComponent<SpriteRenderer>();
+
+            if (_renderer == null)
+            {
+                _renderer = gameObject.AddComponent<SpriteRenderer>();
+            }
+
+            if (_renderer.sprite == null && kind == CollectibleKind.Fragment)
+            {
+                Sprite s = Resources.Load<Sprite>("collectible/fragment");
+
+                if (s != null)
+                {
+                    _renderer.sprite = s;
+                }
+            }
+
+            _renderer.enabled = _renderer.sprite != null;
+
+            if (_renderer.sprite != null)
+            {
+                float h = _renderer.sprite.bounds.size.y;
+
+                if (h > 0.01f)
+                {
+                    float k = TargetSize / h;
+                    _baseScale = new Vector3(k, k, 1f);
+                    transform.localScale = _baseScale;
+                }
+            }
+        }
+
         private void Update()
         {
-            // 原地上下浮动。用 position 而不是 localPosition：收集品都是场景根的散件
-            float y = Mathf.Sin(Time.time / Mathf.Max(0.01f, floatPeriod) * Mathf.PI * 2f + _phase)
-                      * floatAmplitude;
+            // 原地上下浮动 + 呼吸缩放。用 position 而不是 localPosition：收集品都是场景根的散件
+            float t = Time.time / Mathf.Max(0.01f, floatPeriod) * Mathf.PI * 2f + _phase;
 
-            transform.position = _origin + new Vector3(0f, y, 0f);
+            transform.position = _origin + new Vector3(0f, Mathf.Sin(t) * floatAmplitude, 0f);
+
+            if (_baseScale != Vector3.one)
+            {
+                float pulse = 1f + Mathf.Sin(t * 0.8f) * 0.06f;
+                transform.localScale = _baseScale * pulse;
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D other)
