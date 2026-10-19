@@ -243,7 +243,8 @@ namespace CloudEyrie
             yield return null;
 
             // 2) 复位协议（见 ResetProtocol 的注释，顺序有理由）
-            ResetProtocol.BeforeLevelUnload();
+            //    换关**不清收集进度**：碎片与印记要跨五境累计
+            ResetProtocol.BeforeLevelUnload(clearProgress: false);
 
             if (!skipLoad)
             {

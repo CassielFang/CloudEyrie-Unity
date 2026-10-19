@@ -31,7 +31,13 @@ namespace CloudEyrie
         /// <summary>
         /// 卸载旧关卡**之前**调用。顺序有理由，别调换。
         /// </summary>
-        public static void BeforeLevelUnload()
+        /// <param name="clearProgress">
+        /// 是否清掉碎片/印记这类**跨关进度**。
+        /// 换关时必须是 <c>false</c>——设计上 10 枚碎片散在五境，走一关清一次等于永远收不满
+        /// （实测反馈：木境收 2 枚，到火境归零）。
+        /// 回标题 / 回结局这类「开始新的一周目」才清。
+        /// </param>
+        public static void BeforeLevelUnload(bool clearProgress = true)
         {
             // 1) 时钟必须第一个放回去。
             //    两个理由：后面任何靠 Time.deltaTime 的收尾动作（若 timeScale 还是 0）都不会跑；
@@ -44,10 +50,12 @@ namespace CloudEyrie
             //    旧敌人对象不会被 GC，且灵炁永久停在「战斗中」那档恢复（1/秒）。
             SpiritEnergySystem.ResetAll();
 
-            // 3) 收集进度。碎片与印记也是静态的（要活过场景卸载），
-            //    同样必须在离开关卡时清掉 —— 否则从标题重新开始会带着上一次的收集。
-            //    ⚠️ 与灵炁值是同一类问题，别只清一半。
-            PlayerProgress.ResetAll();
+            // 3) 收集进度。碎片与印记也是静态的（要活过场景卸载）。
+            //    只在「开始新的一周目」时清；换关必须保留，否则五境十枚碎片永远收不满。
+            if (clearProgress)
+            {
+                PlayerProgress.ResetAll();
+            }
 
             // 4) 输入层。沿用 GameManager.OnSceneLoaded 已有的做法，
             //    清掉当帧消费标记与改键捕获态，免得新关第一帧读到旧输入。
