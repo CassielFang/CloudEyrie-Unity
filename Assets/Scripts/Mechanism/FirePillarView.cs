@@ -72,6 +72,10 @@ namespace CloudEyrie
         private SpriteRenderer _artRenderer;
         private bool _canvasReady;
 
+        /// <summary>拼接段（只用来同步显隐）</summary>
+        private readonly System.Collections.Generic.List<SpriteRenderer> _segments =
+            new System.Collections.Generic.List<SpriteRenderer>();
+
         private void Update()
         {
             if (_art == null)
@@ -100,20 +104,40 @@ namespace CloudEyrie
                     size = new Vector2(70f, 900f);   // 兜底，别让火焰消失
                 }
 
+                // 火焰不该被纵向拉长（拉长会变成一条糊掉的色带）。
+                // 做法是**竖直拼接**若干段同样的火焰，像一摞火苗：
+                // 每段等比缩放（宽度对齐碰撞盒），从地面往上一段段叠。
                 float targetW = size.x * widthScale;
                 float targetH = size.y * heightScale;
-
-                // 火柱是 70×900 的细高条，等比缩放会被宽度限制成很小一团。
-                // 火焰本身是流体，纵向拉伸不会露馅，所以两轴分别缩放。
                 float kx = targetW / canvas.x;
-                float ky = targetH / canvas.y;
-                _art.localScale = new Vector3(kx, ky, 1f);
+                float segH = canvas.y * kx;
+                int segments = Mathf.Max(1, Mathf.CeilToInt(targetH / Mathf.Max(1f, segH)));
 
-                // 底边对齐碰撞盒底边：中心 = 根节点 + 本地 offset（换算到世界）
                 float centerY = transform.position.y + offset.y * sy;
                 float bottomY = centerY - size.y * sy * 0.5f;
-                _art.position = new Vector3(transform.position.x + offset.x * _box.transform.lossyScale.x,
-                                            bottomY + canvas.y * ky * 0.5f, 0f);
+                float x = transform.position.x + offset.x * _box.transform.lossyScale.x;
+
+                _art.localScale = new Vector3(kx, kx, 1f);
+                _art.position = new Vector3(x, bottomY + segH * 0.5f, 0f);
+
+                for (int i = 1; i < segments; i++)
+                {
+                    var seg = new GameObject("FlameSeg" + i);
+                    seg.transform.SetParent(transform, false);
+                    var segSr = seg.AddComponent<SpriteRenderer>();
+                    segSr.sortingLayerName = sortingLayer;
+                    segSr.sortingOrder = sortingOrder - i;   // 越上面越靠后，层次感
+                    segSr.color = new Color32(255, 255, 255, (byte)Mathf.Max(90, 255 - i * 40));
+
+                    var segPlayer = seg.AddComponent<SequencePlayer>();
+                    segPlayer.basePath = "video_fx";
+                    segPlayer.pixelsPerUnit = 1f;
+                    segPlayer.Play(clipName, true);
+
+                    seg.transform.localScale = new Vector3(kx, kx, 1f);
+                    seg.transform.position = new Vector3(x, bottomY + segH * (i + 0.5f), 0f);
+                    _segments.Add(segSr);
+                }
 
                 _canvasReady = true;
             }
@@ -121,7 +145,16 @@ namespace CloudEyrie
             // 喷发时才显火：碰撞盒开 = 正在喷
             if (_artRenderer != null && _box != null)
             {
-                _artRenderer.enabled = _box.enabled;
+                bool on = _box.enabled;
+                _artRenderer.enabled = on;
+
+                for (int i = 0; i < _segments.Count; i++)
+                {
+                    if (_segments[i] != null)
+                    {
+                        _segments[i].enabled = on;
+                    }
+                }
             }
         }
     }
