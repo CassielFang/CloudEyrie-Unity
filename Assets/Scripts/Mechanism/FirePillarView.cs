@@ -195,7 +195,6 @@ namespace CloudEyrie
                     seg.transform.position = new Vector3(_art.position.x, bottomY + segH * (i + 0.5f), 0f);
                     _segments.Add(segSr);
                 }
-            }
 
                 _canvasReady = true;
             }
