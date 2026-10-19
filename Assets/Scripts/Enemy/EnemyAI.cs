@@ -164,6 +164,9 @@ namespace CloudEyrie
 
         /// <summary>这次拉弓是否已经放出去过箭（防止动画回调与兜底计时重复放）</summary>
         private bool _arrowReleased;
+
+        /// <summary>补找目标的计时（目标可能后生成）</summary>
+        private float _retryTargetTimer;
         private float _cooldownRemaining;
 
         // 受击硬直
@@ -310,6 +313,28 @@ namespace CloudEyrie
         private void Update()
         {
             float dt = Time.deltaTime;
+
+            // ⚠️ 目标可能是**后生成**的（关卡把玩家和敌人分开建，玩家往往更晚）。
+            // Awake 里只找一次的话，target 会永远是 null ——
+            // 表现就是所有小怪都在原地巡逻、既不追也不打（实测：四只小怪 hor=Infinity、sight=False）。
+            // 所以这里按固定间隔补找。
+            if (target == null)
+            {
+                _retryTargetTimer -= dt;
+
+                if (_retryTargetTimer <= 0f)
+                {
+                    _retryTargetTimer = 0.5f;
+                    QingheController qinghe = FindAnyObjectByType<QingheController>();
+
+                    if (qinghe != null)
+                    {
+                        target = qinghe.transform;
+                        _targetCombat = qinghe.GetComponent<CombatController>();
+                        _targetCollider = qinghe.GetComponent<Collider2D>();
+                    }
+                }
+            }
 
             if (_state == EnemyState.Dead)
             {
@@ -772,12 +797,11 @@ namespace CloudEyrie
         /// <summary>射一支箭。出生点对齐弓的高度，朝**拉弓时锁定的朝向**飞。</summary>
         private void ShootArrow()
         {
+            // ⚠️ 这里曾经有一句 `if (parent == null) return;` —— 而本项目的敌人是**场景根节点**
+            // （模组化关卡里机关/敌人都是散件，没有统一的父节点），于是这句话让**每一支箭都不生成**。
+            // 表现就是玩家一直在掉灵炁、却从来没见过箭。
+            // 父节点为空完全合法：MinionArrow.Spawn 里 SetParent(null) 就是挂到场景根。
             Transform parent = transform.parent;
-
-            if (parent == null)
-            {
-                return;
-            }
 
             // 用 _facing（进攻击时锁定）而不是重新算朝向 —— 保证箭和弓同向
             float dir = _facing != 0f ? _facing : 1f;
@@ -881,7 +905,25 @@ namespace CloudEyrie
                 return false;
             }
 
-            return VerticalOffsetToTarget() <= GameConfig.Current.Enemy.VerticalTolerance;
+            return VerticalOffsetToTarget() <= VerticalToleranceFor(horizontalRange);
+        }
+
+        /// <summary>
+        /// 垂直容差。远程型要放宽 —— 它站在高台上、玩家在地面打，
+        /// 高差很容易超过 70（实测：弓手在土台上，玩家在下面 250，于是它完全不动、一支箭都不射）。
+        /// 近战型必须保留原来的小容差，否则它会隔着地面追玩家。
+        /// </summary>
+        private float VerticalToleranceFor(float horizontalRange)
+        {
+            float baseTol = GameConfig.Current.Enemy.VerticalTolerance;
+
+            if (!Ranged)
+            {
+                return baseTol;
+            }
+
+            // 射程内的高差容忍随距离放大，但仍有限度，避免"隔着整张地图锁定"
+            return Mathf.Max(baseTol, 220f);
         }
 
         /// <summary>
