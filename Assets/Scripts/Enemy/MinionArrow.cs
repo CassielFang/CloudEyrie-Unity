@@ -37,6 +37,9 @@ namespace CloudEyrie
         /// <summary>素材画的是**朝左**的箭，朝右飞要镜像节点</summary>
         private const float ArrowNaturalDir = -1f;
 
+        /// <summary>箭的世界长度（与命中判定盒同量级）</summary>
+        private const float ArrowLength = 150f;
+
         /// <summary>箭身的半宽 / 半高，命中判定用（配置驱动）</summary>
         private static float HitHalfW { get { return GameConfig.Current.Combat.ArrowHitHalfW; } }
         private static float HitHalfH { get { return GameConfig.Current.Combat.ArrowHitHalfH; } }
@@ -87,6 +90,8 @@ namespace CloudEyrie
             // 里穿出来。抛射物归到特效层（与灵弹/刀光同一档）。
             SpriteRenderer arrowSprite = go.AddComponent<SpriteRenderer>();
             arrowSprite.sortingOrder = SortingOrders.Fx;
+            arrowSprite.sprite = BuildArrowSprite();
+            arrowSprite.color = new Color32(255, 226, 190, 255);
 
             MinionArrow arrow = go.AddComponent<MinionArrow>();
             arrow._rigidBody = rb;
@@ -107,10 +112,93 @@ namespace CloudEyrie
 
             // 素材朝左；要朝右飞就镜像
             float sx = Mathf.Approximately(arrow._dir, ArrowNaturalDir) ? 1f : -1f;
-            go.transform.localScale = new Vector3(sx, 1f, 1f);
+            float k = ArrowLength / 128f;
+            go.transform.localScale = new Vector3(sx * k, k, 1f);
 
-            arrow.PlayArt();
             return arrow;
+        }
+
+        /// <summary>
+        /// 箭的外观。
+        ///
+        /// 曾经这里靠 <c>SequencePlayer</c> 播 `小怪-箭`：manifest 能读到（画布 158×20、
+        /// 1 帧），但 sprite 始终没被赋到渲染器上 —— 实测结果是**箭完全隐形**，
+        /// 玩家只看到自己在掉灵炁。所以改成运行时画一张，不依赖序列帧资源。
+        /// </summary>
+        private static Sprite _arrowSprite;
+
+        private static Sprite BuildArrowSprite()
+        {
+            if (_arrowSprite != null)
+            {
+                return _arrowSprite;
+            }
+
+            const int w = 128;
+            const int h = 24;
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Bilinear;
+
+            var pixels = new Color32[w * h];
+
+            // 全透明底
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                pixels[i] = new Color32(255, 255, 255, 0);
+            }
+
+            Color32 shaft = new Color32(255, 236, 205, 255);
+            Color32 glow = new Color32(255, 190, 120, 200);
+
+            // 箭杆：中间一条横线
+            for (int x = 12; x < 104; x++)
+            {
+                for (int y = h / 2 - 2; y <= h / 2 + 1; y++)
+                {
+                    pixels[y * w + x] = shaft;
+                }
+            }
+
+            // 外发光：上下各一层淡橙
+            for (int x = 12; x < 104; x++)
+            {
+                pixels[(h / 2 - 3) * w + x] = glow;
+                pixels[(h / 2 + 2) * w + x] = glow;
+            }
+
+            // 箭头：向右的三角
+            for (int i = 0; i < 22; i++)
+            {
+                int x = 104 + i;
+                int half = Mathf.Max(1, 9 - i / 3);
+
+                for (int y = h / 2 - half; y <= h / 2 + half; y++)
+                {
+                    pixels[y * w + x] = shaft;
+                }
+            }
+
+            // 尾羽：尾端上下两撇
+            for (int i = 0; i < 12; i++)
+            {
+                int x = 12 - i / 2;
+                int spread = i;
+
+                if (x < 0)
+                {
+                    break;
+                }
+
+                pixels[Mathf.Clamp(h / 2 - 1 - spread, 0, h - 1) * w + x] = glow;
+                pixels[Mathf.Clamp(h / 2 + spread, 0, h - 1) * w + x] = glow;
+            }
+
+            tex.SetPixels32(pixels);
+            tex.Apply();
+
+            _arrowSprite = Sprite.Create(tex, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 1f);
+            _arrowSprite.name = "arrow_runtime";
+            return _arrowSprite;
         }
 
         private void PlayArt()
