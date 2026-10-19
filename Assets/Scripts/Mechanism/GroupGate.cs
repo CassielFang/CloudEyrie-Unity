@@ -99,10 +99,35 @@ namespace CloudEyrie
             ApplyBlocking(open: false);
         }
 
+        /// <summary>玩家是否站在门前（不要求进入触发区，被门挡住时也算）</summary>
+        private bool IsPlayerNear()
+        {
+            if (_player == null)
+            {
+                _player = FindAnyObjectByType<QingheController>();
+            }
+
+            if (_player == null)
+            {
+                return false;
+            }
+
+            return Mathf.Abs(_player.transform.position.x - transform.position.x) <= hintRadius;
+        }
+
+        /// <summary>离门多近就开始给提示</summary>
+        [SerializeField] private float hintRadius = 420f;
+
+        private QingheController _player;
+
         private void Update()
         {
-            // 只在玩家靠近时检查 —— 组状态变了要立刻反应，但没必要每帧全图轮询
-            if (!_playerInside)
+            // 只在玩家靠近时检查 —— 组状态变了要立刻反应，但没必要每帧全图轮询。
+            //
+            // ⚠️ 不能只认"站在触发区里"：门本身是实心的，玩家被挡在门口时**进不去触发区**，
+            // 于是提示一条都不弹（实测反馈"根本过不去、没有任何提示"）。
+            // 所以判定改成"触发区 **或** 离门够近"。
+            if (!_playerInside && !IsPlayerNear())
             {
                 // 离开门时不重置 _hintIndex：同一道谜题已经提示到第几级就记住，
                 // 回头再来不会从"火墙挡住了去路"重新念一遍。
