@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 54111559}
   - component: {fileID: 54111558}
   - component: {fileID: 54111557}
+  - component: {fileID: 54111560}
   m_Layer: 8
   m_Name: FirePillar_4
   m_TagString: Untagged
@@ -222,6 +223,23 @@ Transform:
   - {fileID: 1777357021}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &54111560
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 54111556}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fd64f10d38fd24a90547905503cac9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.FirePillarView
+  clipName: "\u706B\u7130-\u706B\u67F1"
+  widthScale: 0.9
+  heightScale: 1.05
+  sortingLayer: Default
+  sortingOrder: 5
 --- !u!1 &72918740
 GameObject:
   m_ObjectHideFlags: 0
@@ -2479,6 +2497,7 @@ GameObject:
   - component: {fileID: 894470611}
   - component: {fileID: 894470610}
   - component: {fileID: 894470609}
+  - component: {fileID: 894470612}
   m_Layer: 8
   m_Name: FirePillar_3
   m_TagString: Untagged
@@ -2571,6 +2590,23 @@ Transform:
   - {fileID: 1666819567}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &894470612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894470608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fd64f10d38fd24a90547905503cac9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.FirePillarView
+  clipName: "\u706B\u7130-\u706B\u67F1"
+  widthScale: 0.9
+  heightScale: 1.05
+  sortingLayer: Default
+  sortingOrder: 5
 --- !u!1 &948400967
 GameObject:
   m_ObjectHideFlags: 0
@@ -2582,6 +2618,7 @@ GameObject:
   - component: {fileID: 948400970}
   - component: {fileID: 948400969}
   - component: {fileID: 948400968}
+  - component: {fileID: 948400971}
   m_Layer: 8
   m_Name: FirePillar_2
   m_TagString: Untagged
@@ -2674,6 +2711,23 @@ Transform:
   - {fileID: 1615275312}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &948400971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 948400967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fd64f10d38fd24a90547905503cac9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.FirePillarView
+  clipName: "\u706B\u7130-\u706B\u67F1"
+  widthScale: 0.9
+  heightScale: 1.05
+  sortingLayer: Default
+  sortingOrder: 5
 --- !u!1001 &978642329
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4443,6 +4497,7 @@ GameObject:
   - component: {fileID: 1769374250}
   - component: {fileID: 1769374249}
   - component: {fileID: 1769374248}
+  - component: {fileID: 1769374251}
   m_Layer: 8
   m_Name: FirePillar_1
   m_TagString: Untagged
@@ -4535,6 +4590,23 @@ Transform:
   - {fileID: 646311762}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1769374251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1769374247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89fd64f10d38fd24a90547905503cac9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.FirePillarView
+  clipName: "\u706B\u7130-\u706B\u67F1"
+  widthScale: 0.9
+  heightScale: 1.05
+  sortingLayer: Default
+  sortingOrder: 5
 --- !u!1 &1777357020
 GameObject:
   m_ObjectHideFlags: 0

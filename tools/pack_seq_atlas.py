@@ -54,6 +54,52 @@ def load_frames(mp4):
     return frames
 
 
+def key_fire(bgr):
+    """火焰专用抠图：白底去掉、灰烟去掉、但**保留白热的焰心**。
+
+    两步：
+    1. 与画布边框连通的近白区域 = 背景（泛洪），删掉；
+    2. 低饱和的灰（烟）删掉。
+    只做第 2 步会把焰心挖出一个黑洞——焰心是接近白的过曝区域，饱和度很低；
+    只做第 1 步又删不掉烟（烟是灰的，不是白）。两步合起来才对。
+    """
+    import numpy as _np
+
+    h, w = bgr.shape[:2]
+    f = bgr.astype(_np.float32) / 255.0
+    mx = f.max(axis=2)
+    mn = f.min(axis=2)
+    sat = _np.where(mx > 0.01, (mx - mn) / _np.maximum(mx, 0.01), 0.0)
+
+    # 1) 边框连通的近白 = 背景
+    seed = (mn > 0.90).astype(_np.uint8) * 255
+    mask = _np.zeros((h + 2, w + 2), _np.uint8)
+    border = [(0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)]
+    for (x, y) in border:
+        if seed[y, x]:
+            cv2.floodFill(seed, mask, (x, y), 128, loDiff=6, upDiff=6, flags=8)
+    background = (seed == 128)
+
+    # 2) 低饱和灰烟 = 也不要（但别碰已经很亮的焰心）
+    smoke = (sat < 0.18) & (mx < 0.88)
+
+    # 3) 白热焰心：近白但**紧挨着橙色火焰**的才算。
+    #    烟的高光边缘也是近白，但它和火焰之间隔着灰烟 —— 用"火焰膨胀后覆盖"来区分。
+    fire_body = (sat > 0.35) & (mx > 0.40)
+    grown = cv2.dilate(fire_body.astype(_np.uint8) * 255,
+                       _np.ones((25, 25), _np.uint8)) > 0
+    core = (mx > 0.80) & grown
+
+    keep = (fire_body | core) & (~background) & (~smoke)
+
+    alpha = (_np.where(keep, 255, 0)).astype(_np.uint8)
+    alpha = cv2.GaussianBlur(alpha, (3, 3), 0.6)
+
+    rgba = cv2.cvtColor(bgr, cv2.COLOR_BGR2BGRA)
+    rgba[:, :, 3] = alpha
+    return rgba
+
+
 def key_background(bgr):
     """白底 → alpha，按**每帧自己的边缘色**估背景。
 
@@ -282,6 +328,8 @@ def main():
     ap.add_argument("--feet-y", type=int, default=None,
                     help="脚底在 canvas 里的 y，默认 canvas-24")
     ap.add_argument("--loop", action="store_true", help="裁到最后与首帧最像的一帧")
+    ap.add_argument("--key-mode", choices=["white", "fire"], default="white",
+                    help="抠图模式：white=白底泛洪（人物）；fire=按饱和度保留火焰、扔掉灰烟")
     ap.add_argument("--recenter-x", action="store_true",
                     help="逐帧按包围盒居中（走路/奔跑原地循环用，抵消横向漂移）")
     ap.add_argument("--flip", action="store_true", help="水平镜像（统一朝向）")
@@ -304,7 +352,8 @@ def main():
     raw = load_frames(a.mp4)
     if a.flip:
         raw = [cv2.flip(f, 1) for f in raw]
-    keyed = [key_background(f) for f in raw]
+    key_fn = key_fire if a.key_mode == "fire" else key_background
+    keyed = [key_fn(f) for f in raw]
 
     if a.min_edge > 0:
         kept = []

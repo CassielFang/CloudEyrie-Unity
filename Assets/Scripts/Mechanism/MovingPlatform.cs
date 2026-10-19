@@ -427,9 +427,19 @@ namespace CloudEyrie
 
             if (IsStandingOnTop(collision))
             {
-                _riders.Add(body);
+                if (_riders.Add(body) && kind == MotionKind.MagneticRide && !_magneticHintShown)
+                {
+                    // 磁力浮台的行为是"站上去才走"，光看画面猜不出来（实测反馈"不知道是干什么的"）。
+                    // 第一次踩上时给一句提示，之后不再打扰。
+                    _magneticHintShown = true;
+                    EventBus.Emit(GameEvents.HintRequested,
+                                  new HintEvent { Text = "站上磁力浮台，它会带你过去", Seconds = 3.5f });
+                }
             }
         }
+
+        /// <summary>磁力平台的"首次踩上"提示只发一次</summary>
+        private bool _magneticHintShown;
 
         /// <summary>
         /// 判断这次接触算不算「站在平台上面」。
