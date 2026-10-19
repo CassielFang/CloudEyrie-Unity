@@ -51,27 +51,77 @@ namespace CloudEyrie
             var renderer = go.AddComponent<SpriteRenderer>();
             renderer.sortingLayerName = sortingLayer;
             renderer.sortingOrder = sortingOrder;
+            _artRenderer = renderer;
 
             var player = go.AddComponent<SequencePlayer>();
             player.basePath = "video_fx";
             player.pixelsPerUnit = 1f;
 
-            // 先播一次拿到画布尺寸，再按碰撞盒定缩放
+            // 先播一次，尺寸等 manifest 异步加载完再摆（见 Update）
             player.Play(clipName, true);
 
-            Vector2 canvas = Vector2.zero;
+            _box = box;
+            _boxExact = box as BoxCollider2D;
+            _art = go.transform;
+            _canvasReady = false;
+        }
 
-            if (player.TryGetCanvasSize(out canvas) && canvas.y > 0.01f)
+        private Collider2D _box;
+        private BoxCollider2D _boxExact;
+        private Transform _art;
+        private SpriteRenderer _artRenderer;
+        private bool _canvasReady;
+
+        private void Update()
+        {
+            if (_art == null)
             {
-                Bounds b = box.bounds;
-                float targetW = b.size.x * widthScale;
-                float targetH = b.size.y * heightScale;
-                float k = Mathf.Min(targetW / canvas.x, targetH / canvas.y);
-                go.transform.localScale = new Vector3(k, k, 1f);
+                return;
+            }
 
-                // 底边贴碰撞盒底边（火焰从地面往上烧）
-                float halfH = canvas.y * k * 0.5f;
-                go.transform.position = new Vector3(b.center.x, b.min.y + halfH, 0f);
+            // 火柱在"喷发间隙"是关掉碰撞盒的（Hazard 的行为），此时 collider.bounds 为 0。
+            // 所以尺寸只能读 size/offset —— 用 bounds 会算出 0 缩放（实测踩过）。
+            if (!_canvasReady)
+            {
+                var player = _art.GetComponent<SequencePlayer>();
+                Vector2 canvas;
+
+                if (player == null || !player.TryGetCanvasSize(out canvas) || canvas.y <= 0.01f)
+                {
+                    return;
+                }
+
+                Vector2 size = _boxExact != null ? _boxExact.size : (Vector2)_box.bounds.size;
+                Vector2 offset = _boxExact != null ? _boxExact.offset : Vector2.zero;
+                float sy = _box.transform.lossyScale.y;
+
+                if (size.y <= 0.01f)
+                {
+                    size = new Vector2(70f, 900f);   // 兜底，别让火焰消失
+                }
+
+                float targetW = size.x * widthScale;
+                float targetH = size.y * heightScale;
+
+                // 火柱是 70×900 的细高条，等比缩放会被宽度限制成很小一团。
+                // 火焰本身是流体，纵向拉伸不会露馅，所以两轴分别缩放。
+                float kx = targetW / canvas.x;
+                float ky = targetH / canvas.y;
+                _art.localScale = new Vector3(kx, ky, 1f);
+
+                // 底边对齐碰撞盒底边：中心 = 根节点 + 本地 offset（换算到世界）
+                float centerY = transform.position.y + offset.y * sy;
+                float bottomY = centerY - size.y * sy * 0.5f;
+                _art.position = new Vector3(transform.position.x + offset.x * _box.transform.lossyScale.x,
+                                            bottomY + canvas.y * ky * 0.5f, 0f);
+
+                _canvasReady = true;
+            }
+
+            // 喷发时才显火：碰撞盒开 = 正在喷
+            if (_artRenderer != null && _box != null)
+            {
+                _artRenderer.enabled = _box.enabled;
             }
         }
     }
