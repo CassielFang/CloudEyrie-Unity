@@ -16,7 +16,7 @@ MonoBehaviour:
     Max: 100
     Initial: 80
     RegenOutOfCombat: 5
-    RegenInCombat: 1
+    RegenInCombat: 2.5
     SpringRestoreRate: 30
     SpringRestoreCapRatio: 1
     SwitchEntityToMist: 10
