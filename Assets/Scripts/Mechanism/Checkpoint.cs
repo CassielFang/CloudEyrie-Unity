@@ -58,6 +58,15 @@ namespace CloudEyrie
                 LevelHost.Instance.SetCheckpoint(checkpointId);
             }
 
+            // 接触灵泉之后解除形态限制：灵雾/灵合可以随意切
+            QingheController qinghe = who != null ? who.GetComponentInParent<QingheController>() : null;
+            CompanionStateMachine forms = qinghe != null ? qinghe.GetComponent<CompanionStateMachine>() : null;
+
+            if (forms != null)
+            {
+                forms.UnlockForms();
+            }
+
             if (restoreSpirit)
             {
                 SpiritEnergySystem.ResetToFull();

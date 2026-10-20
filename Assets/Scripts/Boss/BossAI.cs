@@ -265,6 +265,16 @@ namespace CloudEyrie
             }
 
             _started = true;
+
+            // Boss 战是唯一不限形态的场合：解除每关一次灵雾的限制
+            QingheController qinghe = FindAnyObjectByType<QingheController>();
+            CompanionStateMachine forms = qinghe != null ? qinghe.GetComponent<CompanionStateMachine>() : null;
+
+            if (forms != null)
+            {
+                forms.UnlockForms();
+            }
+
             EnterP1();
         }
 

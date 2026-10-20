@@ -317,6 +317,18 @@ namespace CloudEyrie
             // 8) 收尾
             ResetProtocol.AfterLevelLoad(carryPlayerState);
 
+            // 死亡/换关后一律回到**实体**形态。
+            // 之前会把死时的灵雾态带进来（灵炁耗尽 → 强制切雾 → 重开还是雾），
+            // 玩家一复活就飘着，既看不懂也没法正常走。
+            QingheController qinghe = FindAnyObjectByType<QingheController>();
+            CompanionStateMachine forms = qinghe != null ? qinghe.GetComponent<CompanionStateMachine>() : null;
+
+            if (forms != null)
+            {
+                // 每关开始重置「只有一次灵雾」的额度，并回到实体
+                forms.ResetLimitedAccess();
+            }
+
             if (screenFade != null)
             {
                 screenFade.FadeTo(0f, fadeSeconds);

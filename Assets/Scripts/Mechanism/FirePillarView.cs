@@ -173,6 +173,14 @@ namespace CloudEyrie
 
                 float contentBottom = ContentBottomFraction(_artRenderer);
 
+                // 纹理没开 Read/Write 时扫描拿不到值（返回 0），会退回画布底边、
+                // 整根火柱悬空一截（实测"三个火柱离地太远"）。
+                // 兜底用生成时的实测留白：首帧画布底部 26/512 ≈ 5.1%。
+                if (contentBottom <= 0.001f)
+                {
+                    contentBottom = 26f / 512f;
+                }
+
                 _art.localScale = new Vector3(kx, kx, 1f);
                 _art.position = new Vector3(transform.position.x + offset.x * _box.transform.lossyScale.x,
                                             bottomY + segH * 0.5f - contentBottom * segH, 0f);

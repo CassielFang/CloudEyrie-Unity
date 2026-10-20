@@ -96,6 +96,44 @@ namespace CloudEyrie
             return _form;
         }
 
+        /// <summary>形态限制：默认每关只有一次 5 秒灵雾；接触灵泉 / 进 Boss 后解除</summary>
+        public enum FormAccess
+        {
+            Limited,
+            Unlimited,
+        }
+
+        /// <summary>受限期内一次灵雾能维持多久</summary>
+        public const float MistWindowSeconds = 5f;
+
+        private FormAccess _access = FormAccess.Limited;
+        private bool _mistUsed;
+        private float _mistTimeLeft;
+
+        /// <summary>每关开始重置：回到「只有一次灵雾」，并强制回到实体</summary>
+        public void ResetLimitedAccess()
+        {
+            _access = FormAccess.Limited;
+            _mistUsed = false;
+            _mistTimeLeft = 0f;
+
+            if (_form != CompanionForm.Entity)
+            {
+                ForceSwitchTo(CompanionForm.Entity);
+            }
+        }
+
+        /// <summary>解除限制（接触灵泉 / 进入 Boss 战）</summary>
+        public void UnlockForms()
+        {
+            _access = FormAccess.Unlimited;
+        }
+
+        public bool IsFormUnlocked()
+        {
+            return _access == FormAccess.Unlimited;
+        }
+
         public bool IsSwitchLocked()
         {
             return _switchLockRemaining > 0f;
@@ -133,6 +171,19 @@ namespace CloudEyrie
             _switchLockRemaining = Mathf.Max(0f, _switchLockRemaining - dt);
             _mergeCooldownRemaining = Mathf.Max(0f, _mergeCooldownRemaining - dt);
             _mergeSleepRemaining = Mathf.Max(0f, _mergeSleepRemaining - dt);
+
+            // 受限期的灵雾只维持 5 秒，到点自动拍回实体
+            if (_form == CompanionForm.Mist && _access == FormAccess.Limited)
+            {
+                _mistTimeLeft -= dt;
+
+                if (_mistTimeLeft <= 0f)
+                {
+                    EventBus.Emit(GameEvents.HintRequested,
+                                  new HintEvent { Text = "灵雾只能维持 5 秒 · 接触灵泉后可自由切换", Seconds = 3f });
+                    ForceSwitchTo(CompanionForm.Entity);
+                }
+            }
 
             // 移动（委托给当前形态状态）
             _currentState.Update(dt, ctx);
@@ -206,6 +257,17 @@ namespace CloudEyrie
             _form = target;
             _currentState = _states[target];
 
+            // 灵雾计时：进雾就开始倒计时（受限期只有 5 秒）
+            if (target == CompanionForm.Mist)
+            {
+                _mistUsed = true;
+                _mistTimeLeft = MistWindowSeconds;
+            }
+            else
+            {
+                _mistTimeLeft = 0f;
+            }
+
             if (!forced)
             {
                 _switchLockRemaining = spirit.SwitchLockDuration;
@@ -257,6 +319,12 @@ namespace CloudEyrie
                 case CompanionForm.Mist:
                     if (_form == CompanionForm.Entity)
                     {
+                        // 未接触灵泉前的关卡里，灵雾只有一次机会（持续 MistWindowSeconds）。
+                        if (_access == FormAccess.Limited && _mistUsed)
+                        {
+                            return Deny("本关灵雾已用过（接触灵泉后可自由切换）");
+                        }
+
                         return Ok(spirit.SwitchEntityToMist);
                     }
 
