@@ -327,6 +327,13 @@ namespace CloudEyrie
             {
                 // 每关开始重置「只有一次灵雾」的额度，并回到实体
                 forms.ResetLimitedAccess();
+
+                // 死亡重开（carryPlayerState）是从灵泉复活的 —— 那一关的形态
+                // 早就解锁了，不该因为重载场景又锁回去。
+                if (carryPlayerState)
+                {
+                    forms.UnlockForms();
+                }
             }
 
             if (screenFade != null)

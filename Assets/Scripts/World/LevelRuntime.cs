@@ -143,6 +143,16 @@ namespace CloudEyrie
 
             _player.transform.position = _segmentRespawn.Value;
 
+            // 回到段首也把「本关那一次灵雾」还回来。
+            // 否则用错一次就彻底没法过关（实测反馈：用了一次没成功就卡死）。
+            // 注意只重置**额度**；接触过灵泉的解锁状态保持不变。
+            CompanionStateMachine forms = _player.GetComponent<CompanionStateMachine>();
+
+            if (forms != null && !forms.IsFormUnlocked())
+            {
+                forms.ResetLimitedAccess();
+            }
+
             // 下一帧再解锁，避免同一帧里连续判定
             StartCoroutine(ReleaseFallFlag());
         }
