@@ -411,6 +411,10 @@ namespace CloudEyrie
             // 浊湮铺满战场：实体形态踩上去持续掉灵炁，浮空（灵雾/灵合）免疫
             _corruption = CorruptionField.Spawn(LevelRoot(), _spawnX);
 
+            // 这一段的核心就是"切形态"，得明说 —— 否则玩家会站着挨掉灵炁
+            EventBus.Emit(GameEvents.HintRequested,
+                          new HintEvent { Text = "浊湮铺地 · 切灵雾或灵合浮空可免疫", Seconds = 4f });
+
             Debug.Log("[Boss] P2 狂乱 —— 浊湮领域展开");
         }
 
