@@ -739,69 +739,17 @@ namespace CloudEyrie
         /// </summary>
         private void TickFogFireWaves(float dt, float interval)
         {
-            // 狐火是 Boss 的**护盾**，不只是骚扰。
-            //
-            // 原设计（docs/archive/关于boss战的一些修改.md）写得很明确：
-            // 「6 只狐火被杀尽后方产生伤害」。移植到 Unity 时这一层丢了 ——
-            // Boss 全程可打，狐火只是旁边追人，于是玩家清完狐火会觉得"没有衔接"。
-            // 现在补回去：场上有狐火 → Boss 免伤；清空 → 开一个输出窗口；窗口结束 → 再召一波。
-            int alive = AliveFogFireCount;
+            // 与原版一致：定时召一波，狐火只是骚扰，Boss 一直可打。
+            // （我曾在这里加过「清空狐火才免伤」的护盾规则 —— 那是我自己发挥的，
+            //   既不在 Cocos 版里，也不在 17 天计划里。已还原。）
+            _waveTimer -= dt;
 
-            // 开场：等 FirstWaveDelay 之后召第一波
-            if (!_waveSpawned)
-            {
-                _waveTimer -= dt;
-
-                if (_waveTimer <= 0f)
-                {
-                    SetInvulnerable(true);
-                    SummonFogFireWave();
-                }
-
-                return;
-            }
-
-            if (alive > 0)
-            {
-                if (_fogCleared)
-                {
-                    _fogCleared = false;
-                }
-
-                _vulnerableWindow = 0f;
-                SetInvulnerable(true);
-                return;
-            }
-
-            // 一波都还没出过的时候不当作"清空"（开场那几秒不该白送输出窗口）
-            if (!_waveSpawned)
+            if (_waveTimer > 0f)
             {
                 return;
             }
 
-            if (!_fogCleared)
-            {
-                _fogCleared = true;
-                _vulnerableWindow = FogClearedWindow;
-
-                SetInvulnerable(false);
-                GameAudio.PlaySfx(SfxCue.FoxCry);
-                EventBus.Emit(GameEvents.HintRequested,
-                              new HintEvent { Text = "狐火已清 · 趁现在打它", Seconds = 3f });
-                return;
-            }
-
-            _vulnerableWindow -= dt;
-            SetInvulnerable(false);
-
-            if (_vulnerableWindow > 0f)
-            {
-                return;
-            }
-
-            // 窗口结束：重新挂上护盾并召下一波
-            _fogCleared = false;
-            SetInvulnerable(true);
+            _waveTimer = interval;
             SummonFogFireWave();
         }
 
