@@ -2667,12 +2667,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.MovingPlatform
   kind: 3
-  amplitude: 260
+  amplitude: 420
   period: 3
   phase: 0
   stepHold: 1.5
   magneticHold: 3
-  magneticSpeed: 110
+  magneticSpeed: 140
   magneticDirection: {x: 0, y: 1}
   visual: {fileID: 0}
   sinkDelay: 1.5

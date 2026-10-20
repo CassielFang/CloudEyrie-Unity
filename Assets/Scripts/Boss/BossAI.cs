@@ -355,11 +355,240 @@ namespace CloudEyrie
             PlayArt(idleAnimation, true);
 
             Debug.Log("[Boss] P1 幻影 —— 开打");
+
+            if (identifyEnabled)
+            {
+                BuildClones();
+                EnterSplit();
+            }
+            else
+            {
+                _waveTimer = FirstWaveDelay;
+            }
+        }
+
+        // ============================================================ 分身与识破
+
+        private void BuildClones()
+        {
+            if (_clonesBuilt)
+            {
+                return;
+            }
+
+            _clonesBuilt = true;
+            _slots.Clear();
+            _slotClones.Clear();
+            _slotArt.Clear();
+
+            Transform art = transform.Find(artName);
+            Vector3 artScale = art != null ? art.lossyScale : Vector3.one;
+            SpriteRenderer rootArt = art != null ? art.GetComponent<SpriteRenderer>() : null;
+
+            // 槽位 0 = 根节点（真身的家）
+            _slots.Add(transform);
+            _slotClones.Add(gameObject.AddComponent<BossClone>());
+            _slotArt.Add(rootArt);
+
+            Transform parent = transform.parent;
+
+            for (int i = 1; i < Mathf.Max(1, cloneCount); i++)
+            {
+                var go = new GameObject(transform.name + "_分身" + i);
+                go.transform.SetParent(parent, false);
+                go.transform.position = transform.position;
+                go.transform.localScale = artScale;
+
+                var sr = go.AddComponent<SpriteRenderer>();
+                sr.sortingLayerName = rootArt != null ? rootArt.sortingLayerName : "Default";
+                sr.sortingOrder = rootArt != null ? rootArt.sortingOrder : SortingOrders.Boss;
+
+                var player = go.AddComponent<SequencePlayer>();
+                player.basePath = "video_fx";
+                player.pixelsPerUnit = 1f;
+                player.aheadPages = 0;
+                player.behindPages = 0;
+                player.Play(idleAnimation, true);
+
+                _slots.Add(go.transform);
+                _slotClones.Add(go.AddComponent<BossClone>());
+                _slotArt.Add(sr);
+            }
+        }
+
+        private void EnterSplit()
+        {
+            foreach (BossClone c in _slotClones)
+            {
+                if (c != null)
+                {
+                    c.gameObject.SetActive(true);
+                }
+            }
+
+            ScatterSlots();
+            ApplyRoles();
+            SetRevealed(false);
+            _reshuffleLeft = reshuffleInterval;
+
+            Debug.Log($"[Boss] P1 起手：分裂出 {_slots.Count} 身");
+        }
+
+        private void TickClones(float dt)
+        {
+            if (_slots.Count == 0)
+            {
+                return;
+            }
+
+            UpdateReveal();
+
+            _reshuffleLeft -= dt;
+
+            if (_reshuffleLeft > 0f)
+            {
+                return;
+            }
+
+            // 重排：位置重洗 + 真身换人 + 识破作废（原版「分身切换后重新识破」）
+            ScatterSlots();
+            ApplyRoles();
+            SetRevealed(false);
+            _reshuffleLeft = reshuffleInterval;
+            Debug.Log("[Boss] 分身重排，真身转移");
+        }
+
+        private void ScatterSlots()
+        {
+            int n = _slots.Count;
+            var order = new System.Collections.Generic.List<int>();
+
+            for (int i = 0; i < n; i++)
+            {
+                order.Add(i);
+            }
+
+            // 洗牌
+            for (int i = order.Count - 1; i > 0; i--)
+            {
+                int j = Random.Range(0, i + 1);
+                int tmp = order[i];
+                order[i] = order[j];
+                order[j] = tmp;
+            }
+
+            for (int i = 0; i < n; i++)
+            {
+                int idx = order[i % order.Count];
+                float t = n <= 1 ? 0.5f : idx / (float)(n - 1);
+                float x = _spawnX + (t * 2f - 1f) * cloneSpread;
+
+                Vector3 p = _slots[i].position;
+                _slots[i].position = new Vector3(x, p.y, p.z);
+            }
+        }
+
+        private void ApplyRoles()
+        {
+            int real = Random.Range(0, Mathf.Max(1, _slots.Count));
+
+            for (int i = 0; i < _slotClones.Count; i++)
+            {
+                if (_slotClones[i] != null)
+                {
+                    _slotClones[i].isReal = i == real;
+                }
+            }
+        }
+
+        /// <summary>灵雾形态靠近任一身位 → 整组识破</summary>
+        private void UpdateReveal()
+        {
+            if (_revealed || !identifyEnabled)
+            {
+                return;
+            }
+
+            if (_playerRef == null)
+            {
+                _playerRef = FindAnyObjectByType<QingheController>();
+                _playerForms = _playerRef != null ? _playerRef.GetComponent<CompanionStateMachine>() : null;
+            }
+
+            if (_playerRef == null || _playerForms == null)
+            {
+                return;
+            }
+
+            if (_playerForms.GetCurrentForm() != CompanionForm.Mist)
+            {
+                return;
+            }
+
+            Vector2 p = _playerRef.transform.position;
+
+            foreach (Transform slot in _slots)
+            {
+                if (slot == null)
+                {
+                    continue;
+                }
+
+                if (Vector2.Distance(slot.position, p) <= identifyRadius)
+                {
+                    SetRevealed(true);
+                    GameAudio.PlaySfx(SfxCue.FoxCry);
+                    EventBus.Emit(GameEvents.HintRequested,
+                                  new HintEvent { Text = "识破真身 · 切回实体打它", Seconds = 3f });
+                    Debug.Log("[Boss] 灵雾识破真身");
+                    return;
+                }
+            }
+        }
+
+        private void SetRevealed(bool on)
+        {
+            _revealed = on;
+
+            // 未识破前免伤（原版「未识破前青禾的攻击无效」）
+            SetInvulnerable(identifyEnabled && !on);
+
+            for (int i = 0; i < _slotArt.Count; i++)
+            {
+                if (_slotArt[i] == null)
+                {
+                    continue;
+                }
+
+                if (!identifyEnabled || !on)
+                {
+                    _slotArt[i].color = Color.white;
+                    continue;
+                }
+
+                bool real = _slotClones[i] != null && _slotClones[i].isReal;
+                _slotArt[i].color = real ? TintReal : TintFake;
+            }
+
+            for (int i = 0; i < _slotClones.Count; i++)
+            {
+                if (_slotClones[i] != null)
+                {
+                    _slotClones[i].identified = on;
+                }
+            }
         }
 
         private void TickP1(float dt)
         {
-            TickFogFireWaves(dt, GameConfig.Current.Boss.FogFireWaveInterval);
+            if (identifyEnabled)
+            {
+                TickClones(dt);
+            }
+            else
+            {
+                TickFogFireWaves(dt, GameConfig.Current.Boss.FogFireWaveInterval);
+            }
 
             if (_damageable.GetHpRatio() <= GameConfig.Current.Boss.Phase2HpRatio)
             {
@@ -578,6 +807,46 @@ namespace CloudEyrie
 
         /// <summary>狐火清空后给玩家的输出窗口（秒）</summary>
         private const float FogClearedWindow = 6f;
+
+        // ============================================================ P1 幻影分身
+        //
+        // 移植自 Cocos 版 boss/BossP1AI.ts（那套是成熟的）：
+        //   分裂 3 身（1 真 2 假）→ 未识破前免伤 → 切灵雾飞近任一身识破
+        //   → 真身显灵炁纹路、假身压暗 → 切回实体输出 → 每 10 秒重排、识破作废。
+        // 之前 Unity 版把这套删了（理由：幻影动画本身画着三只），但那样 P1 就只剩
+        // "站着挨打"，试玩反馈"打完狐火没衔接"。现在按原版补回来。
+
+        [Header("P1 幻影分身")]
+        [Tooltip("开启后 P1 走「分身 + 灵雾识破」；关掉则 P1 是可随时攻击的靶子")]
+        [SerializeField] private bool identifyEnabled = true;
+
+        [Tooltip("身位总数（含真身）")]
+        [SerializeField] private int cloneCount = 3;
+
+        [Tooltip("三个身位以出生点为中心左右展开的半径")]
+        [SerializeField] private float cloneSpread = 460f;
+
+        [Tooltip("灵雾形态靠近多少距离算识破")]
+        [SerializeField] private float identifyRadius = 300f;
+
+        [Tooltip("隔多久重排一次（真身换位、识破作废）")]
+        [SerializeField] private float reshuffleInterval = 10f;
+
+        private readonly System.Collections.Generic.List<Transform> _slots = new System.Collections.Generic.List<Transform>();
+        private readonly System.Collections.Generic.List<BossClone> _slotClones = new System.Collections.Generic.List<BossClone>();
+        private readonly System.Collections.Generic.List<SpriteRenderer> _slotArt = new System.Collections.Generic.List<SpriteRenderer>();
+
+        private bool _clonesBuilt;
+        private bool _revealed;
+        private float _reshuffleLeft;
+        private QingheController _playerRef;
+        private CompanionStateMachine _playerForms;
+
+        /// <summary>真身染色（灵炁纹路）</summary>
+        private static readonly Color TintReal = new Color32(150, 245, 255, 255);
+
+        /// <summary>假身压暗</summary>
+        private static readonly Color TintFake = new Color32(70, 70, 90, 255);
 
         /// <summary>狐火是否已被清空（处于输出窗口内）</summary>
         private bool _fogCleared;

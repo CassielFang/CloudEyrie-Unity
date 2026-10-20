@@ -433,7 +433,7 @@ namespace CloudEyrie
                     // 第一次踩上时给一句提示，之后不再打扰。
                     _magneticHintShown = true;
                     EventBus.Emit(GameEvents.HintRequested,
-                                  new HintEvent { Text = "站上磁力浮台，它会带你过去", Seconds = 3.5f });
+                                  new HintEvent { Text = "站上移动平台，它会带你过去", Seconds = 3.5f });
                 }
             }
         }
