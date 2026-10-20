@@ -175,6 +175,18 @@ namespace CloudEyrie
             locked = true;
         }
 
+        /// <summary>
+        /// 直接把相机横向对准某个世界坐标（锁定状态下也生效）。
+        ///
+        /// Boss 战用：战场在玩家右侧很远，锁相机只会把画面冻在玩家原来的位置，
+        /// Boss 根本不在画面里（实测：「九尾狐呢？」——满血条、场上却只有狐火）。
+        /// </summary>
+        public void FocusX(float worldX)
+        {
+            cameraX = ClampX(worldX);
+            Sync();
+        }
+
         public void Unlock()
         {
             locked = false;

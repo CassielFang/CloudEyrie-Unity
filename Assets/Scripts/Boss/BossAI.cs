@@ -275,6 +275,20 @@ namespace CloudEyrie
                 forms.UnlockForms();
             }
 
+            // 相机对准战场。
+            //
+            // 战场在玩家右侧很远（Boss 2200 / 玩家 300），关卡流程只做了 Lock()，
+            // 锁住的却是**玩家原来所在的位置** —— 结果满血条、Boss 却不在画面里
+            // （实测反馈「九尾狐呢？」）。开打时把镜头推到 Boss 与玩家之间的战场中心。
+            CameraFollow cam = FindAnyObjectByType<CameraFollow>();
+
+            if (cam != null && qinghe != null)
+            {
+                float mid = (transform.position.x + qinghe.transform.position.x) * 0.5f;
+                cam.FocusX(Mathf.Max(mid, transform.position.x - 380f));
+                cam.Lock();
+            }
+
             EnterP1();
         }
 
