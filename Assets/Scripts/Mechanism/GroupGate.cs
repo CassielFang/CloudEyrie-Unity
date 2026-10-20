@@ -10,6 +10,9 @@ namespace CloudEyrie
 
         /// <summary>等一组剑碑按序共鸣完（金境段3）。</summary>
         StelesComplete,
+
+        /// <summary>等一组可推玄石全部归位（土境段3）。</summary>
+        RockSeated,
     }
 
     /// <summary>
@@ -207,6 +210,9 @@ namespace CloudEyrie
             {
                 case GateCondition.StelesComplete:
                     return SwordStele.GroupComplete(groupId);
+
+                case GateCondition.RockSeated:
+                    return PushableRock.GroupAllSeated(groupId);
 
                 default:
                     return Brazier.GroupAllLit(groupId);

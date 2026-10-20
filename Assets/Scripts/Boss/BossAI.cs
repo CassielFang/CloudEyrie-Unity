@@ -265,6 +265,12 @@ namespace CloudEyrie
             }
 
             _started = true;
+
+            // 开打第一句就把规则说清楚 —— 原设计「狐火杀尽才吃伤害」，
+            // 不说的话玩家会以为打不动是 bug（试玩反馈正是"打完狐火没衔接"）。
+            EventBus.Emit(GameEvents.HintRequested,
+                          new HintEvent { Text = "狐火缠身时伤不到它 · 清光狐火再打", Seconds = 4f });
+
             EnterP1();
         }
 
@@ -500,16 +506,83 @@ namespace CloudEyrie
         /// </summary>
         private void TickFogFireWaves(float dt, float interval)
         {
-            _waveTimer -= dt;
+            // 狐火是 Boss 的**护盾**，不只是骚扰。
+            //
+            // 原设计（docs/archive/关于boss战的一些修改.md）写得很明确：
+            // 「6 只狐火被杀尽后方产生伤害」。移植到 Unity 时这一层丢了 ——
+            // Boss 全程可打，狐火只是旁边追人，于是玩家清完狐火会觉得"没有衔接"。
+            // 现在补回去：场上有狐火 → Boss 免伤；清空 → 开一个输出窗口；窗口结束 → 再召一波。
+            int alive = AliveFogFireCount;
 
-            if (_waveTimer > 0f)
+            // 开场：等 FirstWaveDelay 之后召第一波
+            if (!_waveSpawned)
+            {
+                _waveTimer -= dt;
+
+                if (_waveTimer <= 0f)
+                {
+                    SetInvulnerable(true);
+                    SummonFogFireWave();
+                }
+
+                return;
+            }
+
+            if (alive > 0)
+            {
+                if (_fogCleared)
+                {
+                    _fogCleared = false;
+                }
+
+                _vulnerableWindow = 0f;
+                SetInvulnerable(true);
+                return;
+            }
+
+            // 一波都还没出过的时候不当作"清空"（开场那几秒不该白送输出窗口）
+            if (!_waveSpawned)
             {
                 return;
             }
 
-            _waveTimer = interval;
+            if (!_fogCleared)
+            {
+                _fogCleared = true;
+                _vulnerableWindow = FogClearedWindow;
+
+                SetInvulnerable(false);
+                GameAudio.PlaySfx(SfxCue.FoxCry);
+                EventBus.Emit(GameEvents.HintRequested,
+                              new HintEvent { Text = "狐火已清 · 趁现在打它", Seconds = 3f });
+                return;
+            }
+
+            _vulnerableWindow -= dt;
+            SetInvulnerable(false);
+
+            if (_vulnerableWindow > 0f)
+            {
+                return;
+            }
+
+            // 窗口结束：重新挂上护盾并召下一波
+            _fogCleared = false;
+            SetInvulnerable(true);
             SummonFogFireWave();
         }
+
+        /// <summary>狐火清空后给玩家的输出窗口（秒）</summary>
+        private const float FogClearedWindow = 6f;
+
+        /// <summary>狐火是否已被清空（处于输出窗口内）</summary>
+        private bool _fogCleared;
+
+        /// <summary>输出窗口剩余时间</summary>
+        private float _vulnerableWindow;
+
+        /// <summary>是否已经召出过至少一波狐火</summary>
+        private bool _waveSpawned;
 
         private void SummonFogFireWave()
         {
@@ -525,6 +598,8 @@ namespace CloudEyrie
 
             int count = Mathf.Min(cfg.FogFirePerWave, room);
             Transform root = LevelRoot();
+
+            _waveSpawned = true;
 
             for (int i = 0; i < count; i++)
             {

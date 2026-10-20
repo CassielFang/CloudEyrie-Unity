@@ -671,6 +671,84 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1536, y: 200}
   m_EdgeRadius: 0
+--- !u!1 &253417716
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 253417717}
+  - component: {fileID: 253417718}
+  m_Layer: 0
+  m_Name: GateSense
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &253417717
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253417716}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1377518433}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &253417718
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253417716}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: -180, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 460, y: 520}
+  m_EdgeRadius: 0
 --- !u!1 &255532449
 GameObject:
   m_ObjectHideFlags: 0
@@ -10448,6 +10526,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1377518433}
   - component: {fileID: 1377518434}
+  - component: {fileID: 1377518435}
   m_Layer: 8
   m_Name: Platform
   m_TagString: Untagged
@@ -10467,7 +10546,8 @@ Transform:
   m_LocalPosition: {x: 4706.5, y: -95, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 253417717}
   m_Father: {fileID: 1989022788}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &1377518434
@@ -10516,6 +10596,31 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 197, y: 400}
   m_EdgeRadius: 0
+--- !u!114 &1377518435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1377518432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f7fcf8afc7f3464eabf66d9c0cf6a56, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.GroupGate
+  condition: 2
+  groupId: tu_03
+  blocker: {fileID: 1377518434}
+  sense: {fileID: 253417718}
+  art: {fileID: 1377518433}
+  fadeDuration: 0.7
+  hintDelay: 1.2
+  hintInterval: 6
+  lockedHints:
+  - "\u8FD9\u9053\u77F3\u5899\u6CA1\u6709\u95E8"
+  - "\u63A8\u52A8\u5DE6\u8FB9\u7684\u7384\u77F3\u5230\u4F4D\uFF0C\u77F3\u5899\u4F1A\u6D88\u5931"
+  hintHighlightSeconds: 2.5
+  hintRadius: 420
 --- !u!1 &1409339679
 GameObject:
   m_ObjectHideFlags: 0
