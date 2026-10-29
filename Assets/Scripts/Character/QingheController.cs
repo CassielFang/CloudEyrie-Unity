@@ -673,6 +673,18 @@ namespace CloudEyrie
             inp.Jump = InputSystem.WasPressed(GameAction.Jump);
             inp.JumpHeld = InputSystem.IsDown(GameAction.Jump);
             inp.Dash = InputSystem.WasPressed(GameAction.Dash);
+
+            // 受击硬直：被打中的一小段时间里不收方向/跳跃/踏云闪。
+            //
+            // 没这一段的话，挨打和没挨打操作上**完全没有区别** —— 玩家感觉不到
+            // "我被打到了"，只会看到灵炁数字掉了一截。硬直是挨打的重量感来源。
+            if (_combat != null && _combat.IsStunned)
+            {
+                inp.Left = inp.Right = inp.Up = inp.Down = false;
+                inp.Jump = inp.Dash = false;
+                inp.JumpHeld = false;
+            }
+
             // 开场过场：脚本接管方向（见 ScriptedMoveX 的说明）。
             // 放在填写之后、使用之前，玩家在过场里按方向键也不会打乱编排。
             if (!Mathf.Approximately(ScriptedMoveX, 0f))

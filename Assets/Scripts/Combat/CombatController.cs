@@ -875,7 +875,22 @@ namespace CloudEyrie
             // 挨打比打中更要有反馈：顿帧长一点、震屏也重一些
             Fx.HitStop.Play(0.08f, () => Fx.CameraShake.Shake(6f, 0.16f));
 
+            // 受击硬直：0.16 秒内不收方向/跳跃（由 QingheController 读 IsStunned 清空输入快照）。
+            // 格挡成功**不**进硬直 —— 挡下来就该继续打。
+            _stunUntil = Time.time + stunDuration;
+
             return new PlayerDamageResult { SpiritCost = amount, PerfectBlocked = false };
+        }
+
+        [Tooltip("没挡住的命中造成的操作硬直（秒）")]
+        [SerializeField] private float stunDuration = 0.16f;
+
+        private float _stunUntil;
+
+        /// <summary>是否处于受击硬直（读输入快照时用）</summary>
+        public bool IsStunned
+        {
+            get { return Time.time < _stunUntil; }
         }
 
         // ============================================================ 灵合形态
