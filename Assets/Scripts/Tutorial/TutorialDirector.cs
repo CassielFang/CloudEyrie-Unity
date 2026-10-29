@@ -57,7 +57,17 @@ namespace CloudEyrie.Tutorial
         {
             _player = FindAnyObjectByType<QingheController>();
 
-            Canvas canvas = UiDraw.EnsureCanvas(transform);
+            // 优先挂到**已有的 HUD canvas** 上，而不是自己再造一个。
+            //
+            // 自己造的话场上会有两个 sortingOrder 都是 100 的 canvas，
+            // 谁在上面没有定义 —— 现在正好没撞车，但这属于运气，不是设计。
+            Canvas canvas = FindHudCanvas();
+
+            if (canvas == null)
+            {
+                canvas = UiDraw.EnsureCanvas(transform);
+            }
+
             RectTransform node = UiDraw.MakeNode(canvas.transform, "TutorialBanner");
             node.anchorMin = new Vector2(0.5f, 1f);
             node.anchorMax = new Vector2(0.5f, 1f);
@@ -72,6 +82,22 @@ namespace CloudEyrie.Tutorial
 
             _collectBaseline = PlayerProgress.FragmentCount;
             RefreshBanner();
+        }
+
+        /// <summary>找 HUD 那个 canvas（名字固定为 UiCanvas，且在 Hud 之下）</summary>
+        private static Canvas FindHudCanvas()
+        {
+            Canvas[] all = FindObjectsByType<Canvas>(FindObjectsInactive.Exclude);
+
+            foreach (Canvas c in all)
+            {
+                if (c.name == "UiCanvas" && c.transform.parent != null && c.transform.parent.name == "Hud")
+                {
+                    return c;
+                }
+            }
+
+            return null;
         }
 
         private void Update()
