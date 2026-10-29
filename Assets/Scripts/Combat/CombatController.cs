@@ -131,6 +131,14 @@ namespace CloudEyrie
         /// <summary>播一次性动作；没有视图就什么都不做（逻辑不依赖表现）。</summary>
         private void PlayViewClip(string clipName, float timeScale = 1f)
         {
+            // 新表现层（AutoSprite Animator）优先：它只认剑招，其余状态自己回静息
+            Character.QingheAnimatorView anim = GetComponentInChildren<Character.QingheAnimatorView>();
+
+            if (anim != null)
+            {
+                anim.PlayAction(clipName);
+            }
+
             SpriteSequenceView v = View;
 
             if (v != null)

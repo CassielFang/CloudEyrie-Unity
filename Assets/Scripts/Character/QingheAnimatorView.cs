@@ -43,19 +43,20 @@ namespace CloudEyrie.Character
             _body = GetComponent<Rigidbody2D>();
             _collider = GetComponent<BoxCollider2D>();
 
-            // 旧序列的**渲染器**关掉，但组件本身留着：
-            // 战斗/形态代码靠它广播当前动作（PlayOneShot 会写 CurrentClip），
-            // 关掉组件就连"现在在出哪一招"都读不到了。
-            _sequence = GetComponentInChildren<SpriteSequenceView>(true);
+            // 旧序列整套停用：渲染器关掉、组件也关掉（不再参与任何表现）。
+            // 战斗侧的动作改由 CombatController → PlayAction 直接驱动 Animator。
+            SpriteSequenceView oldView = GetComponentInChildren<SpriteSequenceView>(true);
 
-            if (_sequence != null)
+            if (oldView != null)
             {
-                _sequenceRenderer = _sequence.GetComponent<SpriteRenderer>();
+                SpriteRenderer oldRenderer = oldView.GetComponent<SpriteRenderer>();
 
-                if (_sequenceRenderer != null)
+                if (oldRenderer != null)
                 {
-                    _sequenceRenderer.enabled = false;
+                    oldRenderer.enabled = false;
                 }
+
+                oldView.enabled = false;
             }
 
             if (controller == null)
@@ -172,15 +173,10 @@ namespace CloudEyrie.Character
                 return "Idle";
             }
 
-            // 出招期间播剑招（旧序列在维护 CurrentClip，这里只做映射）
-            string clip = _sequence != null ? _sequence.CurrentClip : null;
-
-            if (!string.IsNullOrEmpty(clip))
+            // 出招窗口：由 CombatController 通过 PlayAction 打进来，到点自动回移动状态
+            if (Time.time < _actionUntil)
             {
-                if (clip.Contains("轻击一")) return "QuickStrike";
-                if (clip.Contains("轻击二")) return "TripleCombo";
-                if (clip.Contains("轻击三")) return "RisingCrescent";
-                if (clip.Contains("重击")) return "CycloneSlash";
+                return _actionState;
             }
 
             bool grounded = IsGrounded();
@@ -236,11 +232,21 @@ namespace CloudEyrie.Character
 
             if (mapped == null)
             {
+                // 没有对应剪辑的动作（格挡/受击/落地/踏云闪）→ 不播，保持静息
                 return;
             }
 
             _state = mapped;
+            _actionState = mapped;
+            _actionUntil = Time.time + actionSeconds;
             _animator.CrossFade(mapped, 0.06f);
         }
+
+        [Tooltip("一次剑招占用的时间（这段时间内不回到移动状态）")]
+        [SerializeField] private float actionSeconds = 0.35f;
+
+        /// <summary>出招窗口：这段时间内不回到移动状态</summary>
+        private float _actionUntil;
+        private string _actionState = "Idle";
     }
 }
