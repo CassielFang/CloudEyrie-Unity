@@ -1265,7 +1265,13 @@ namespace CloudEyrie
 
             // 打击感：顿帧 + 轻微震屏。
             // 之前这两样都没有，打上去只有火花，手感是"划过空气"。
-            Fx.HitStop.Play(0.05f, () => Fx.CameraShake.Shake(3f, 0.1f));
+            //
+            // 顿帧长度**按伤害缩放**：轻击 15 伤害约 0.04s，重击满蓄 37.5 伤害约 0.1s。
+            // 固定 0.05 的话，重击和轻击打上去"手感一样重"，武器重量就丢了。
+            float stopSeconds = Mathf.Clamp(0.02f + _pendingDamage * 0.002f, 0.03f, 0.11f);
+            float shakeAmount = Mathf.Clamp(2f + _pendingDamage * 0.12f, 2f, 8f);
+
+            Fx.HitStop.Play(stopSeconds, () => Fx.CameraShake.Shake(shakeAmount, 0.1f));
 
             GameLog.V($"[Combat] 命中 {hitNode.name}");
         }
