@@ -13,13 +13,27 @@ MonoBehaviour:
   m_Name: TuTheme
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelTheme
   layers:
+  - path: Tu/bg/tu_haze
+    factor: 0.25
+    yOffset: 60
+    height: 1100
+    drift: 10
+    driftPeriod: 50
+    autoPan: 1
   - path: Tu/bg/tu_far
     factor: 0.6
     yOffset: 100
     height: 900
-    drift: 16
-    driftPeriod: 44
+    drift: 20
+    driftPeriod: 40
     autoPan: 1
+  - path: Tu/bg/tu_near
+    factor: 1.08
+    yOffset: -200
+    height: 620
+    drift: 0
+    driftPeriod: 40
+    autoPan: 0
   scenery: []
   viewWidthOverride: 0
   tint: {r: 1, g: 0.97, b: 0.9, a: 1}

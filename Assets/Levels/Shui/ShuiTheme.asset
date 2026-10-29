@@ -13,13 +13,27 @@ MonoBehaviour:
   m_Name: ShuiTheme
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelTheme
   layers:
+  - path: Shui/bg/shui_haze
+    factor: 0.25
+    yOffset: 60
+    height: 1100
+    drift: 10
+    driftPeriod: 50
+    autoPan: 1
   - path: Shui/bg/shui_far
     factor: 0.6
     yOffset: 100
     height: 900
-    drift: 24
-    driftPeriod: 38
+    drift: 20
+    driftPeriod: 40
     autoPan: 1
+  - path: Shui/bg/shui_near
+    factor: 1.08
+    yOffset: -200
+    height: 620
+    drift: 0
+    driftPeriod: 40
+    autoPan: 0
   scenery: []
   viewWidthOverride: 0
   tint: {r: 0.94, g: 0.97, b: 1, a: 1}

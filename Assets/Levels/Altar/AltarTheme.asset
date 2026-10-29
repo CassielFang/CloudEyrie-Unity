@@ -13,13 +13,27 @@ MonoBehaviour:
   m_Name: AltarTheme
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelTheme
   layers:
-  - path: Altar/bg/altar_far
-    factor: 0.5
-    yOffset: 100
-    height: 900
-    drift: 12
+  - path: Altar/bg/altar_haze
+    factor: 0.25
+    yOffset: 60
+    height: 1100
+    drift: 10
     driftPeriod: 50
     autoPan: 1
+  - path: Altar/bg/altar_far
+    factor: 0.6
+    yOffset: 100
+    height: 900
+    drift: 20
+    driftPeriod: 40
+    autoPan: 1
+  - path: Altar/bg/altar_near
+    factor: 1.08
+    yOffset: -200
+    height: 620
+    drift: 0
+    driftPeriod: 40
+    autoPan: 0
   scenery: []
   viewWidthOverride: 0
   tint: {r: 1, g: 0.98, b: 0.94, a: 1}

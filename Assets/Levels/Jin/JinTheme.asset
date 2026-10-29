@@ -13,13 +13,27 @@ MonoBehaviour:
   m_Name: JinTheme
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelTheme
   layers:
+  - path: Jin/bg/jin_haze
+    factor: 0.25
+    yOffset: 60
+    height: 1100
+    drift: 10
+    driftPeriod: 50
+    autoPan: 1
   - path: Jin/bg/jin_far
     factor: 0.6
     yOffset: 100
     height: 900
-    drift: 14
-    driftPeriod: 46
+    drift: 20
+    driftPeriod: 40
     autoPan: 1
+  - path: Jin/bg/jin_near
+    factor: 1.08
+    yOffset: -200
+    height: 620
+    drift: 0
+    driftPeriod: 40
+    autoPan: 0
   scenery: []
   viewWidthOverride: 0
   tint: {r: 0.96, g: 0.98, b: 1, a: 1}
