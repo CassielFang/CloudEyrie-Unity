@@ -140,10 +140,13 @@ namespace CloudEyrie.EditorTools
                     Color32 c = src[y * w + x];
                     int luma = (c.r * 77 + c.g * 150 + c.b * 29) >> 8;
 
-                    int shade = Mathf.RoundToInt(Mathf.Lerp(16f, 78f, luma / 255f));
+                    // 之前 shade 16..78 + alpha 64..235，出来的是一条**近黑的横带**，
+                    // 玩家反馈"像一堵墙横在画面中间"。
+                    // 改成偏中の灰 + 更低的 alpha：只当"近处山脊的暗部"，不抢主体。
+                    int shade = Mathf.RoundToInt(Mathf.Lerp(52f, 104f, luma / 255f));
                     float edge = Mathf.Clamp01((cut - y) / (float)feather);
 
-                    byte a = (byte)Mathf.RoundToInt(Mathf.Lerp(64f, 235f, edge));
+                    byte a = (byte)Mathf.RoundToInt(Mathf.Lerp(28f, 120f, edge));
                     dst[y * w + x] = new Color32((byte)shade, (byte)(shade + 2), (byte)(shade + 6), a);
                 }
             }
