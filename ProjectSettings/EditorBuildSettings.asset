@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Host.unity
     guid: 44f65bda4ff60fd47b28a59ea08e34af
   - enabled: 1
+    path: Assets/Levels/Trial/Trial.unity
+    guid: 6fd115a0de92f3a4db73e3ae677a6468
+  - enabled: 1
     path: Assets/Levels/Mu/Mu.unity
     guid: dfaf2dcaab150774ca54e0507fa40faf
   - enabled: 1

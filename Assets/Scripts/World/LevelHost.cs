@@ -34,6 +34,15 @@ namespace CloudEyrie
         [Tooltip("从标题进游戏时先开哪一关")]
         [SerializeField] private string firstLevelId = "mu";
 
+        /// <summary>
+        /// 跨场景指定「本次进入哪一关」。
+        ///
+        /// 标题页的「试炼」按钮要先 LoadSingle(Host)，而 Host 身上写死了 firstLevelId=mu，
+        /// 没有这条通道就只能先进木境再跳一次。这里让调用方在加载 Host **之前**写一个 id，
+        /// Host 的 Start 读到就优先用它，并且用完立刻清空（避免影响下一次正常开局）。
+        /// </summary>
+        public static string PendingLevelId;
+
         [Tooltip("换关时压黑 / 淡入的时长 /秒")]
         [SerializeField] private float fadeSeconds = 0.35f;
 
@@ -123,7 +132,10 @@ namespace CloudEyrie
                 return;
             }
 
-            EnterLevel(firstLevelId);
+            string startId = string.IsNullOrEmpty(PendingLevelId) ? firstLevelId : PendingLevelId;
+            PendingLevelId = null;
+
+            EnterLevel(startId);
         }
 
         /// <summary>已加载的关卡场景里，有没有哪一个是关卡目录里的关卡。</summary>
