@@ -166,11 +166,49 @@ namespace CloudEyrie.Elements
                 return;
             }
 
+            // 岩浆坑在 WORLD 层以下（火境的 Lava_1/2 在 y=-820），本身是 trigger，
+            // 上面的循环把它们排除掉了 —— 结果是岩浆源永远落在格子外、一次都画不上去。
+            // 所以只把**名字是 Lava 的机关**并进来，并且限制尺寸：
+            // 不加限制的话，一个横跨全关的坑就会把格子撑到几十万格，
+            // 贴图刷新直接卡死编辑器（实测卡死过一次）。
+            foreach (Hazard hazard in FindObjectsByType<Hazard>(FindObjectsInactive.Exclude))
+            {
+                if (!hazard.name.StartsWith("Lava"))
+                {
+                    continue;
+                }
+
+                var hc = hazard.GetComponent<Collider2D>();
+
+                if (hc == null || !hc.enabled)
+                {
+                    continue;
+                }
+
+                if (hc.bounds.size.x > 1600f || hc.bounds.size.y > 900f)
+                {
+                    continue;
+                }
+
+                Bounds b = bounds.Value;
+                b.Encapsulate(hc.bounds);
+                bounds = b;
+            }
+
             Bounds total = bounds.Value;
             total.Expand(new Vector3(2f * MaterialGrid.CellSize, 2f * MaterialGrid.CellSize, 0f));
 
             int w = Mathf.CeilToInt(total.size.x / MaterialGrid.CellSize);
             int h = Mathf.CeilToInt(total.size.y / MaterialGrid.CellSize);
+
+            // 最后一道保险：格子最多 1600×260（约 41 万格）。超出就按场景主地面重来，
+            // 宁可少模拟一块，也不能把编辑器拖死。
+            if (w > 1600 || h > 260 || w <= 0 || h <= 0)
+            {
+                GameLog.W($"[ElementSystem] 格子范围异常 {w}×{h}，回退到 1202×160");
+                w = 1202;
+                h = 160;
+            }
 
             _grid.Configure(new Vector2(total.min.x, total.min.y), w, h);
         }
