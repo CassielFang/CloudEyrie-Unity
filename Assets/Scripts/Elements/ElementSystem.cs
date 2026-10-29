@@ -106,19 +106,13 @@ namespace CloudEyrie.Elements
                 }
                 else if (n.StartsWith("Pit") && !sandBound)
                 {
-                    // ⚠️ 暂时**不自动铺沙**。
+                    // 土境的坑整段在地面以下（-694 以下），坑沿不是能站人的地面 ——
+                    // 直接在坑上/坑边铺沙，沙会顺着空洞漏到格子底（实测 rows 0..41）。
                     //
-                    // 土境的三个坑整段在地面以下（-694 以下），坑沿不是能站人的地面；
-                    // 试过两个方案都不成立：
-                    //   · 铺在坑口 → 在格子外/地板底下，看不见；
-                    //   · 铺在坑旁边地面 → 那些列本来就是坑的空洞，沙直接漏到格子底。
-                    // 而且土境有三个坑，三处同时铺沙会把模拟负载翻三倍（卡死过一次）。
-                    //
-                    // 结论：流沙要落在**明确指定的、脚下有实心地面的**位置，
-                    // 这属于关卡数据（LevelDefinition 侧），不该由 ElementSystem 猜。
-                    // MaterialType.Sand 与 TickSand 已经就绪，等关卡侧给坐标。
+                    // 所以先**探地面**：从格子顶往下打射线，命中 WORLD 层且离地不远的列
+                    // 才是"能堆沙"的位置。探不到就不铺 —— 宁可不铺，也不要铺在悬空处。
                     sandBound = true;
-                    GameLog.I("[ElementSystem] 流沙材质已就绪，但土境尚未指定铺沙点（需要关卡数据）");
+                    TryPlaceQuicksand(hazard);
                 }
             }
 
@@ -138,6 +132,69 @@ namespace CloudEyrie.Elements
                     src.Radius = 260f;
                 }
             }
+        }
+
+        /// <summary>
+        /// 在坑附近找一块**脚下有实心地面**的位置铺流沙。
+        ///
+        /// 为什么要探：土境的坑整段在地面以下，坑沿不是能站人的地面。
+        /// 直接按"坑的包围盒"算出来的位置，沙会顺着空洞一路漏到格子底。
+        /// 这里从格子顶往下打射线，只接受**命中 WORLD 层、且离地不远**的列。
+        /// </summary>
+        private void TryPlaceQuicksand(Hazard hazard)
+        {
+            var hc = hazard.GetComponent<Collider2D>();
+
+            if (hc == null || _grid == null)
+            {
+                return;
+            }
+
+            int worldLayer = LayerMask.NameToLayer("WORLD");
+            int mask = worldLayer >= 0 ? (1 << worldLayer) : ~0;
+
+            float top = _grid.Origin.y + _grid.Height * MaterialGrid.CellSize - 16f;
+            float floorY = -295f;
+
+            // 坑的左右两侧各试几个距离，优先靠坑（玩家看得见的地方）
+            float[] offsets = { -260f, -360f, -460f, 260f, 360f, 460f };
+
+            foreach (float dx in offsets)
+            {
+                float x = hc.bounds.center.x + dx;
+                RaycastHit2D[] hits = Physics2D.RaycastAll(new Vector2(x, top), Vector2.down, 4000f, mask);
+
+                float groundY = float.NaN;
+
+                foreach (RaycastHit2D hit in hits)
+                {
+                    if (hit.collider == null || hit.point.y > floorY + 40f)
+                    {
+                        continue;
+                    }
+
+                    groundY = hit.point.y;
+                    break;
+                }
+
+                if (float.IsNaN(groundY))
+                {
+                    continue;
+                }
+
+                var go = new GameObject("QuicksandSource");
+                go.transform.SetParent(transform, false);
+                go.transform.position = new Vector3(x, groundY + 150f, 0f);
+
+                var src = go.AddComponent<ElementSource>();
+                src.Kind = ElementSource.SourceKind.Sand;
+                src.Radius = 120f;
+
+                GameLog.I($"[ElementSystem] 流沙铺在 x={x:0}（地面 y={groundY:0}）");
+                return;
+            }
+
+            GameLog.W("[ElementSystem] 坑附近找不到实心地面，本关不铺流沙");
         }
 
         /// <summary>按场景里 WORLD 层碰撞体的包围盒定格子范围</summary>
