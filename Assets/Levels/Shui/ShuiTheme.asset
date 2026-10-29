@@ -14,23 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.LevelTheme
   layers:
   - path: Shui/bg/shui_haze
-    factor: 0.25
-    yOffset: 60
-    height: 1100
-    drift: 10
+    factor: 0.12
+    yOffset: 120
+    height: 1200
+    drift: 0
     driftPeriod: 50
-    autoPan: 1
+    autoPan: 0
   - path: Shui/bg/shui_far
-    factor: 0.6
-    yOffset: 100
-    height: 900
-    drift: 20
+    factor: 0.35
+    yOffset: 60
+    height: 950
+    drift: 0
     driftPeriod: 40
-    autoPan: 1
+    autoPan: 0
   - path: Shui/bg/shui_near
-    factor: 1.08
-    yOffset: -200
-    height: 620
+    factor: 0.9
+    yOffset: -180
+    height: 700
     drift: 0
     driftPeriod: 40
     autoPan: 0

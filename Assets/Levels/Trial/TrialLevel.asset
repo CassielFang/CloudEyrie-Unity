@@ -30,7 +30,7 @@ MonoBehaviour:
     trigger: 1
     atX: 0
     volumeName: 
-    camera: 1
+    camera: 0
     autoPanSpeed: 18
     setBgm: 1
     bgm: 0
