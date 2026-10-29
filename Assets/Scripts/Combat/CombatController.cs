@@ -599,6 +599,20 @@ namespace CloudEyrie
             // 而运行时 Shader.Find 在构建里可能返回 null（见 InkFx 的说明）。
             SpawnAttackInk();
 
+            // 剑气引火：挥剑时在身前落一点火星。
+            //
+            // 这是金境的元素主线 —— 金境没有现成火源，靠「挥剑点着地上的油」。
+            // 半径给得很小（18），而且只对可燃物起作用（Ignite 只把 Flammable 变 Fire），
+            // 所以不会在普通地面上凭空生火。
+            if (Elements.ElementSystem.Instance != null)
+            {
+                float facing = _ctx != null ? _ctx.Facing : 1f;
+                Vector2 sparkAt = (Vector2)transform.position
+                                  + new Vector2(facing * 90f, _qinghe != null ? _qinghe.FigureHeight * QingheController.ChestRatio : 60f);
+
+                Elements.ElementSystem.Instance.Ignite(sparkAt, 18f);
+            }
+
             // 光刃（slash_light / slash_heavy）**不再使用** —— 那两张是灰盒期的硬边
             // 几何图形，压在现在的水墨美术上很出戏。攻击表现已全部交给 InkFx 的墨迹。
             // 节点保留在场景里没删，只是永不显示；确认没问题后可以把它们从场景清掉。

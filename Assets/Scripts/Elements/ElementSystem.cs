@@ -110,7 +110,7 @@ namespace CloudEyrie.Elements
                     if (EnableOilPlacement && n.StartsWith("FirePillar") && !oilPlaced)
                     {
                         oilPlaced = true;
-                        TryPlaceOilNear(hazard);
+                        TryPlaceOilNear(hazard.transform);
                     }
                 }
                 else if (n.StartsWith("Lava"))
@@ -152,6 +152,20 @@ namespace CloudEyrie.Elements
                     var src = t.gameObject.AddComponent<ElementSource>();
                     src.Kind = ElementSource.SourceKind.Water;
                     src.Radius = 260f;
+                }
+            }
+
+            // 金境：没有火源，但有**剑轮**。金境的元素主线是「油 + 剑气引火」：
+            // 地面铺一片油，玩家挥剑时火星落上去就烧起来（战斗侧调 Ignite）。
+            // 这里只负责铺油 —— 点火的时机在 CombatController。
+            if (!oilPlaced)
+            {
+                SwordWheel wheel = FindAnyObjectByType<SwordWheel>(FindObjectsInactive.Exclude);
+
+                if (wheel != null)
+                {
+                    oilPlaced = true;
+                    TryPlaceOilNear(wheel.transform);
                 }
             }
         }
@@ -261,9 +275,9 @@ namespace CloudEyrie.Elements
         /// 只铺在**连续平地**上：油是贴地的，铺在斜坡或坑沿上会顺着格子滑走/漏掉，
         /// 表现成"点不着的一小撮"。判据与流沙同一套。
         /// </summary>
-        private void TryPlaceOilNear(Hazard pillar)
+        private void TryPlaceOilNear(Transform anchor)
         {
-            if (_grid == null)
+            if (_grid == null || anchor == null)
             {
                 return;
             }
@@ -273,7 +287,7 @@ namespace CloudEyrie.Elements
 
             float top = _grid.Origin.y + _grid.Height * MaterialGrid.CellSize - 16f;
             float floorY = -295f;
-            float center = pillar.transform.position.x;
+            float center = anchor.position.x;
 
             const float step = 40f;
             const int needed = 8;           // 8 × 40 = 320 单位
