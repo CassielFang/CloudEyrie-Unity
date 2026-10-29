@@ -14,7 +14,11 @@ namespace CloudEyrie.Elements
     [RequireComponent(typeof(SpriteRenderer))]
     public class MaterialPainter : MonoBehaviour
     {
-        [Tooltip("每格画成几×几像素。格子已经很小了，默认 1 就够")]
+        // ⚠️ 必须是 1。
+        // 试过提到 2 想让沙丘边缘柔和：格子 1202×140 → 贴图 2404×280（67 万像素），
+        // 沙在动时每 tick 都要重传整张图，直接卡死编辑器（第四次了）。
+        // 方块感改用「每格随机明暗 + 双线性过滤」缓解，别再把分辨率翻倍。
+        [Tooltip("每格画成几×几像素（大于 1 会显著拖慢刷新）")]
         [SerializeField] private int pixelsPerCell = 1;
 
         [Tooltip("边缘噪声幅度（0~1）")]
@@ -131,6 +135,10 @@ namespace CloudEyrie.Elements
                     int x0 = cx * pixelsPerCell;
                     int y0 = cy * pixelsPerCell;
 
+                    // 每格一个固定的明暗系数（格坐标哈希，帧间稳定不闪）。
+                    // 分辨率只有 1px/格，靠这个把"一整片同色方块"打散成有颗粒的堆。
+                    float grain = 0.82f + 0.36f * Hash(cx, cy);
+
                     for (int py = 0; py < pixelsPerCell; py++)
                     {
                         for (int px = 0; px < pixelsPerCell; px++)
@@ -139,7 +147,7 @@ namespace CloudEyrie.Elements
                             int y = y0 + py;
                             int index = y * pw + x;
 
-                            float n = 1f - edgeNoise * 0.5f + _noise[index] * edgeNoise;
+                            float n = grain * (1f - edgeNoise * 0.5f + _noise[index] * edgeNoise);
                             Color c = baseColor;
                             c.a *= n;
 
@@ -151,6 +159,17 @@ namespace CloudEyrie.Elements
 
             _texture.SetPixels32(_pixels);
             _texture.Apply(false);
+        }
+
+        /// <summary>格坐标 → 0..1 的稳定哈希（不用 Random，帧间必须一致，否则整片会闪）</summary>
+        private static float Hash(int x, int y)
+        {
+            unchecked
+            {
+                int h = x * 374761393 + y * 668265263;
+                h = (h ^ (h >> 13)) * 1274126177;
+                return ((h ^ (h >> 16)) & 0x7fffffff) / 2147483647f;
+            }
         }
     }
 }
