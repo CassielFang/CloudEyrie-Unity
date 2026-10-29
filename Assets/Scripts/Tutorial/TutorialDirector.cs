@@ -75,10 +75,12 @@ namespace CloudEyrie.Tutorial
             node.anchoredPosition = new Vector2(0f, -150f);
             node.sizeDelta = new Vector2(1500f, 90f);
 
-            _banner = UiDraw.MakeText(node, "Label", "", 34,
+            // 字号跟 HUD 的提示文字（Hint 40 号）对齐 —— 之前是 34，
+            // 同一块画面里两种字号，横幅显得"不是这套 UI 里的东西"。
+            _banner = UiDraw.MakeText(node, "Label", "", 40,
                 new Color32(255, 240, 205, 255), ScreenStage.ThinOutline);
             _banner.alignment = TextAnchor.MiddleCenter;
-            _banner.rectTransform.sizeDelta = new Vector2(1480f, 84f);
+            _banner.rectTransform.sizeDelta = new Vector2(1780f, 90f);
 
             _collectBaseline = PlayerProgress.FragmentCount;
             RefreshBanner();
