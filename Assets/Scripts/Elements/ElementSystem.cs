@@ -18,6 +18,15 @@ namespace CloudEyrie.Elements
         [Tooltip("地面以下多深也标记成实心（防止水流穿地）")]
         [SerializeField] private int groundDepthCells = 6;
 
+        /// <summary>
+        /// 是否自动在火柱旁铺油。
+        ///
+        /// 关掉的原因不是逻辑不通，而是**性能**：油铺好之后火柱一喷就整片烧起来，
+        /// 满屏火格子每 tick 都在改，编辑器会在两三个 eval 内卡死。
+        /// 等给元素层加上"同时燃烧格数上限"再打开。
+        /// </summary>
+        private const bool EnableOilPlacement = false;
+
         private MaterialGrid _grid;
 
         public MaterialGrid Grid { get { return _grid; } }
@@ -61,7 +70,7 @@ namespace CloudEyrie.Elements
         private void BindSources()
         {
             bool sandBound = false;
-
+            bool oilPlaced = false;
             foreach (Brazier brazier in FindObjectsByType<Brazier>(FindObjectsInactive.Exclude))
             {
                 if (brazier.GetComponent<ElementSource>() != null)
@@ -90,6 +99,19 @@ namespace CloudEyrie.Elements
                     src.Bind(hazard);
                     src.Kind = ElementSource.SourceKind.Fire;
                     src.Radius = 130f;
+
+                    // ⚠️ 油暂时**不自动铺**。
+                    //
+                    // 「油 + 火」这条链子本身是通的（铺上去、火柱一喷就整片烧起来，
+                    // 实测过），但烧起来之后编辑器会卡死在两三个 eval 内 ——
+                    // 满屏火格子每 tick 都在改，贴图上传 + 网格 tick 扛不住。
+                    // 在给元素层加"最大同时燃烧格数"之前，先关掉自动铺油。
+                    // 需要验证时用 ElementSystem.SetMaterial(pos, r, Flammable) 手动铺。
+                    if (EnableOilPlacement && n.StartsWith("FirePillar") && !oilPlaced)
+                    {
+                        oilPlaced = true;
+                        TryPlaceOilNear(hazard);
+                    }
                 }
                 else if (n.StartsWith("Lava"))
                 {
@@ -231,6 +253,92 @@ namespace CloudEyrie.Elements
             }
 
             GameLog.W("[ElementSystem] 找不到连续平地，本关不铺流沙");
+        }
+
+        /// <summary>
+        /// 在火柱附近找一段平地铺油（可燃物）。
+        ///
+        /// 只铺在**连续平地**上：油是贴地的，铺在斜坡或坑沿上会顺着格子滑走/漏掉，
+        /// 表现成"点不着的一小撮"。判据与流沙同一套。
+        /// </summary>
+        private void TryPlaceOilNear(Hazard pillar)
+        {
+            if (_grid == null)
+            {
+                return;
+            }
+
+            int worldLayer = LayerMask.NameToLayer("WORLD");
+            int mask = worldLayer >= 0 ? (1 << worldLayer) : ~0;
+
+            float top = _grid.Origin.y + _grid.Height * MaterialGrid.CellSize - 16f;
+            float floorY = -295f;
+            float center = pillar.transform.position.x;
+
+            const float step = 40f;
+            const int needed = 8;           // 8 × 40 = 320 单位
+            const float maxDrop = 10f;
+
+            var run = new System.Collections.Generic.List<Vector2>();
+            float runMin = float.MaxValue;
+            float runMax = float.MinValue;
+
+            for (float off = -600f; off <= 600f; off += step)
+            {
+                float x = center + off;
+                RaycastHit2D[] hits = Physics2D.RaycastAll(new Vector2(x, top), Vector2.down, 4000f, mask);
+                float groundY = float.NaN;
+
+                foreach (RaycastHit2D hit in hits)
+                {
+                    if (hit.collider == null || hit.point.y > floorY + 40f)
+                    {
+                        continue;
+                    }
+
+                    groundY = hit.point.y;
+                    break;
+                }
+
+                if (float.IsNaN(groundY) || groundY < floorY - 40f)
+                {
+                    run.Clear();
+                    continue;
+                }
+
+                run.Add(new Vector2(x, groundY));
+                runMin = Mathf.Min(runMin, groundY);
+                runMax = Mathf.Max(runMax, groundY);
+
+                if (run.Count < needed)
+                {
+                    continue;
+                }
+
+                if (runMax - runMin > maxDrop)
+                {
+                    run.RemoveAt(0);
+                    continue;
+                }
+
+                Vector2 mid = run[run.Count / 2];
+
+                var go = new GameObject("OilSource");
+                go.transform.SetParent(transform, false);
+                go.transform.position = new Vector3(mid.x, mid.y + 24f, 0f);
+
+                var src = go.AddComponent<ElementSource>();
+                src.Kind = ElementSource.SourceKind.Flammable;
+
+                // 90 而不是 150：150 铺出来是一大片，火柱一喷整片烧起来，
+                // 满屏都是火色块，把场景糊掉了（实测截图整张发白）。
+                src.Radius = 90f;
+
+                GameLog.I($"[ElementSystem] 油铺在 x={mid.x:0}（离火柱 {off:0}，地面 y={mid.y:0}）");
+                return;
+            }
+
+            GameLog.W("[ElementSystem] 火柱附近找不到平地，本关不铺油");
         }
 
         /// <summary>按场景里 WORLD 层碰撞体的包围盒定格子范围</summary>

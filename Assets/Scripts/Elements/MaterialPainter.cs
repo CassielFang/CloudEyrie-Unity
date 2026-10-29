@@ -25,9 +25,14 @@ namespace CloudEyrie.Elements
         [Range(0f, 1f)]
         [SerializeField] private float edgeNoise = 0.35f;
 
+        [Tooltip("重画间隔（秒）。太小会把编辑器拖死")]
+        [SerializeField] private float paintInterval = 0.12f;
+
+        private float _sincePaint;
+
         [Header("颜色")]
         [SerializeField] private Color waterColor = new Color(0.40f, 0.70f, 0.78f, 0.50f);
-        [SerializeField] private Color fireColor = new Color(1f, 0.58f, 0.22f, 0.80f);
+        [SerializeField] private Color fireColor = new Color(1f, 0.58f, 0.22f, 0.55f);
         [SerializeField] private Color lavaColor = new Color(0.95f, 0.32f, 0.12f, 0.90f);
         [SerializeField] private Color residueColor = new Color(0.16f, 0.15f, 0.15f, 0.30f);
         [SerializeField] private Color sandColor = new Color(0.70f, 0.58f, 0.34f, 1f);
@@ -97,11 +102,19 @@ namespace CloudEyrie.Elements
                 return;
             }
 
-            if (_grid != null && _grid.Dirty)
+            // 节流：格子一变就整张重画 + 上传，格子大（1202×140）时这一步很贵。
+            // 一大片油被点着时，每 tick 都在改 → 每帧都在传图 → 编辑器直接卡死（已经卡死过四次）。
+            // 0.12 秒一次（约 8Hz）肉眼看不出区别，但把上传次数压到原来的三分之一以下。
+            _sincePaint += Time.unscaledDeltaTime;
+
+            if (_grid == null || !_grid.Dirty || _sincePaint < paintInterval)
             {
-                Repaint();
-                _grid.ClearDirty();
+                return;
             }
+
+            _sincePaint = 0f;
+            Repaint();
+            _grid.ClearDirty();
         }
 
         private void Repaint()
