@@ -54,6 +54,7 @@ namespace CloudEyrie.Character
 
         private readonly Dictionary<string, GameObject> _instances = new Dictionary<string, GameObject>();
 
+        private QingheController _owner;
         private Rigidbody2D _body;
         private BoxCollider2D _collider;
         private Transform _facingRoot;
@@ -68,6 +69,7 @@ namespace CloudEyrie.Character
 
         private void Start()
         {
+            _owner = GetComponent<QingheController>();
             _body = GetComponent<Rigidbody2D>();
             _collider = GetComponent<BoxCollider2D>();
 
@@ -83,9 +85,11 @@ namespace CloudEyrie.Character
             root.transform.SetParent(transform, false);
             _facingRoot = root.transform;
 
-            // AutoSprite 的帧实际朝左画（目录名写 _right）；面向右 = 镜像
+            // 素材天然朝右 —— 这一点是**量出来的**，不是看名字：
+            // 待机首帧的内容包围盒 x=[155,494]，剔除躯干后右侧有 107px 的细长尾巴（剑尖），
+            // 左侧只有 10px。剑在右 = 朝右。所以向右就是 scaleX = +1，不需要镜像。
             _facing = 1f;
-            _facingRoot.localScale = new Vector3(-1f, 1f, 1f);
+            _facingRoot.localScale = new Vector3(1f, 1f, 1f);
 
             foreach (var pair in Frames)
             {
@@ -204,24 +208,32 @@ namespace CloudEyrie.Character
 
         private void UpdateFacing()
         {
-            if (_body == null)
+            // **朝向以控制器为准，不看速度**。
+            // 速度在停下/撞墙/被击退时会归零或反号，按速度翻会让角色在
+            // 静止的瞬间"回头"；控制器里的 Context.Facing 是输入方向，稳定得多。
+            float face = 0f;
+
+            if (_owner != null && _owner.Context != null)
+            {
+                face = _owner.Context.Facing;
+            }
+
+            if (Mathf.Abs(face) < 0.1f && _body != null)
+            {
+                face = _body.linearVelocity.x;
+            }
+
+            if (Mathf.Abs(face) < 0.1f)
             {
                 return;
             }
 
-            float vx = _body.linearVelocity.x;
-
-            if (Mathf.Abs(vx) < 4f)
-            {
-                return;
-            }
-
-            float want = vx > 0f ? 1f : -1f;
+            float want = face > 0f ? 1f : -1f;
 
             if (!Mathf.Approximately(want, _facing))
             {
                 _facing = want;
-                _facingRoot.localScale = new Vector3(-want, 1f, 1f);
+                _facingRoot.localScale = new Vector3(want, 1f, 1f);
             }
         }
 
