@@ -29,12 +29,10 @@ namespace CloudEyrie.Elements
         private float _wetRemaining;
         private float _probeTimer;
         private Collider2D _collider;
-        private CombatController _combat;
 
         private void Awake()
         {
             _collider = GetComponent<Collider2D>();
-            _combat = GetComponent<CombatController>();
         }
 
         private void Update()
@@ -109,14 +107,13 @@ namespace CloudEyrie.Elements
 
                 float dmg = burnDps * dt;
 
-                if (_combat != null)
-                {
-                    _combat.ReceivePlayerDamage(dmg);
-                }
-                else
-                {
-                    SpiritEnergySystem.Consume(dmg);
-                }
+                // 直接扣灵炁，不走 CombatController.ReceivePlayerDamage。
+                //
+                // 那条路是**格挡判定入口**：它只返回一个 SpiritCost，真正的扣除由调用方做。
+                // 之前这里调了它却没用返回值 —— 结果是"身上着火、状态显示 Burning、
+                // 灵炁一点不掉"（实测 80.0 烧了几秒还是 80.0）。
+                // 而且灼烧本来就不该被格挡掉。
+                SpiritEnergySystem.Damage(dmg);
             }
         }
 
