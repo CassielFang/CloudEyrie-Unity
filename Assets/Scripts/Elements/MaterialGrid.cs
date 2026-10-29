@@ -45,6 +45,15 @@ namespace CloudEyrie.Elements
         private MaterialType[] _next;
         private byte[] _nextFireAge;
 
+        /// <summary>
+        /// 本 tick 内"已经有东西移到这里"的标记。
+        ///
+        /// 没有它会出经典的重复移动 bug：相邻两格沙同时判断「下方为空」，
+        /// 都往同一格写，然后各自把原位清空 —— 一次 tick 净损失一格沙。
+        /// 实测沙丘在没有水的情况下从 2121 格掉到 740 格，就是它。
+        /// </summary>
+        private bool[] _moved;
+
         private float _tickAccumulator;
 
         /// <summary>材质有变化时置位，供表现层重画</summary>
@@ -78,6 +87,7 @@ namespace CloudEyrie.Elements
                 _fireAge = new byte[total];
                 _next = new MaterialType[total];
                 _nextFireAge = new byte[total];
+                _moved = new bool[total];
             }
         }
 
@@ -187,6 +197,7 @@ namespace CloudEyrie.Elements
         {
             System.Array.Copy(_cells, _next, _cells.Length);
             System.Array.Copy(_fireAge, _nextFireAge, _fireAge.Length);
+            System.Array.Clear(_moved, 0, _moved.Length);
 
             // 先数一遍当前有多少格在烧。
             //
@@ -402,11 +413,15 @@ namespace CloudEyrie.Elements
             int bi = below * width + x;
             MaterialType bm = _cells[bi];
 
-            // 落到水里：沉下去变成实心（"遇水成泥")
+            // 落到水里：**沙自己**变成实心（成泥），水化成残留。
+            //
+            // 之前写的是「沙变空、水变实心」—— 结果沙一格一格凭空消失，
+            // 实测倒下 700 多格沙、实心只多了 14 格，看起来像"沙被水吃掉"。
+            // 现在的写法守恒：沙 −1、实心 +1、水 −1，账对得上。
             if (bm == MaterialType.Water)
             {
-                _next[i] = MaterialType.Empty;
-                _next[bi] = MaterialType.Solid;
+                _next[i] = MaterialType.Solid;
+                _next[bi] = MaterialType.Residue;
                 return;
             }
 
@@ -420,8 +435,15 @@ namespace CloudEyrie.Elements
 
             if (bm == MaterialType.Empty || bm == MaterialType.Fire || bm == MaterialType.Residue)
             {
+                if (_moved[bi])
+                {
+                    return;
+                }
+
                 _next[bi] = MaterialType.Sand;
                 _next[i] = MaterialType.Empty;
+                _moved[bi] = true;
+                _moved[i] = true;
                 return;
             }
 
@@ -439,10 +461,12 @@ namespace CloudEyrie.Elements
 
                 int ni = below * width + nx;
 
-                if (_cells[ni] == MaterialType.Empty)
+                if (_cells[ni] == MaterialType.Empty && !_moved[ni])
                 {
                     _next[ni] = MaterialType.Sand;
                     _next[i] = MaterialType.Empty;
+                    _moved[ni] = true;
+                    _moved[i] = true;
                     return;
                 }
             }
