@@ -990,6 +990,51 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &412897774
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 412897776}
+  - component: {fileID: 412897775}
+  m_Layer: 0
+  m_Name: Elements
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &412897775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412897774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a89e249e24ea604abbd8ef9518d2cd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.Elements.ElementSystem
+  groundDepthCells: 6
+--- !u!4 &412897776
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412897774}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &414381563
 GameObject:
   m_ObjectHideFlags: 0
@@ -12008,6 +12053,7 @@ MonoBehaviour:
   - "\u7528\u653B\u51FB\u70B9\u71C3\u4E24\u4FA7\u7684\u706B\u76C6"
   - "\u4E24\u5EA7\u90FD\u70B9\u4EAE\uFF0C\u706B\u5899\u5C31\u4F1A\u7184\u706D"
   hintHighlightSeconds: 2.5
+  hintRadius: 420
 --- !u!61 &2115364520
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -12199,3 +12245,4 @@ SceneRoots:
   - {fileID: 1551177031}
   - {fileID: 303072045}
   - {fileID: 1208558730}
+  - {fileID: 412897776}

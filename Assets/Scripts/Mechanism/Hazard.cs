@@ -106,6 +106,12 @@ namespace CloudEyrie
             SetActive(_active);
         }
 
+        /// <summary>当前是否处于危险期（火柱喷发中）。元素层据此决定要不要喷火。</summary>
+        public bool IsDangerous
+        {
+            get { return _active; }
+        }
+
         private void Update()
         {
             if (period <= 0.0001f)
