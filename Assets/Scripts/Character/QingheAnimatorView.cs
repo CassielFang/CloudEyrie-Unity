@@ -60,6 +60,8 @@ namespace CloudEyrie.Character
         private Transform _facingRoot;
 
         private string _state;
+        private Elements.StatusHost _status;
+        private Color _tint = Color.white;
         private string _actionState = "Idle";
         private float _actionUntil;
         private float _facing = 1f;
@@ -170,12 +172,65 @@ namespace CloudEyrie.Character
             }
 
             UpdateFacing();
+            UpdateStatusTint();
 
             string desired = ChooseState();
 
             if (desired != _state)
             {
                 Show(desired);
+            }
+        }
+
+        /// <summary>
+        /// 元素状态的可读化：身上着火偏红、潮湿偏蓝。
+        ///
+        /// 之前 StatusHost 已经有 Burning/Wet 状态位、也在扣灵炁，但**画面上完全看不出来** ——
+        /// 玩家只会觉得"莫名其妙掉血"。这里用最简单的颜色变化给一个即时反馈。
+        /// </summary>
+        private void UpdateStatusTint()
+        {
+            if (_status == null)
+            {
+                _status = GetComponent<Elements.StatusHost>();
+
+                if (_status == null)
+                {
+                    return;
+                }
+            }
+
+            Color want = Color.white;
+
+            if ((_status.Status & Elements.ElementStatus.Burning) != 0)
+            {
+                want = new Color(1f, 0.72f, 0.55f, 1f);
+            }
+            else if ((_status.Status & Elements.ElementStatus.Wet) != 0)
+            {
+                want = new Color(0.72f, 0.84f, 1f, 1f);
+            }
+
+            if (want == _tint)
+            {
+                return;
+            }
+
+            _tint = want;
+
+            foreach (var pair in _instances)
+            {
+                if (pair.Value == null)
+                {
+                    continue;
+                }
+
+                SpriteRenderer sr = pair.Value.GetComponentInChildren<SpriteRenderer>(true);
+
+                if (sr != null)
+                {
+                    sr.color = want;
+                }
             }
         }
 
