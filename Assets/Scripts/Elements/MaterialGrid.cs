@@ -140,6 +140,14 @@ namespace CloudEyrie.Elements
 
                     int i = y * width + x;
                     _cells[i] = map(_cells[i]);
+
+                    // 新点着的火必须从 0 岁开始。
+                    // 不清年龄的话，它会继承这一格上一个残留物的旧年龄，下一次 Tick 立刻判"烧完"——
+                    // 表现是火一闪就没（实测：源在不停点火，网格里 fire 常年是 0、residue 却一直涨）。
+                    if (_cells[i] == MaterialType.Fire)
+                    {
+                        _fireAge[i] = 0;
+                    }
                 }
             }
         }
