@@ -98,7 +98,6 @@ namespace CloudEyrie
         private static readonly string[] MenuLabels =
         {
             "启　境",
-            "试　炼",
             "设　置",
             "成　就",
             "退　出",
@@ -116,7 +115,7 @@ namespace CloudEyrie
 
         /// <summary>每个菜单项对应的子面板；<c>null</c> 表示不是面板（启境 / 退出）。</summary>
         private static readonly SubPanelKind?[] MenuKinds =
-            { null, null, SubPanelKind.Settings, SubPanelKind.Achievements, null };
+            { null, SubPanelKind.Settings, SubPanelKind.Achievements, null };
 
         private class MenuItem
         {
@@ -731,14 +730,8 @@ namespace CloudEyrie
 
             if (_selected == 0)
             {
-                // 进 Host（关卡宿主），由它再叠加加载第一关 —— 不再是直接进 Main
-                GameSceneManager.LoadSingle(GameScenes.Host);
-                return;
-            }
-
-            if (_selected == 1)
-            {
-                // 试炼场：先告诉 Host 这次要进哪一关，再加载它
+                // 「启境」先走一遍试炼场，教完再从试炼场进木境。
+                // 不再单独占一个菜单项 —— 五个字挤在一起会把「成就/退出」顶出画面。
                 LevelHost.PendingLevelId = "trial";
                 GameSceneManager.LoadSingle(GameScenes.Host);
                 return;

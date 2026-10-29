@@ -1,0 +1,700 @@
+fileFormatVersion: 2
+guid: 0d2b4afcfe439a24f8abec9cdd99d69c
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -48374344112153095
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_0"
+  - first:
+      213: -4633618885820963393
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_1"
+  - first:
+      213: 2980401218301002292
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_2"
+  - first:
+      213: -8588107302516608728
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_3"
+  - first:
+      213: 4645205013088091844
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_4"
+  - first:
+      213: 8888596877421021440
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_5"
+  - first:
+      213: -1625904097941589038
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_6"
+  - first:
+      213: -1314380921689547133
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_7"
+  - first:
+      213: 413470518120992681
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_8"
+  - first:
+      213: -4681116400042297045
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_9"
+  - first:
+      213: -52551641479540835
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_10"
+  - first:
+      213: -6346803639646538221
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_11"
+  - first:
+      213: 3657166438032503569
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_12"
+  - first:
+      213: 6438755423946201070
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_13"
+  - first:
+      213: 6058134215706815795
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_14"
+  - first:
+      213: -810101558213440367
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_15"
+  - first:
+      213: 4219265275066299654
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_16"
+  - first:
+      213: 455247611340111708
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_17"
+  - first:
+      213: 2113231212964631388
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_18"
+  - first:
+      213: -1321169330402755171
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_19"
+  - first:
+      213: -8194070639615407464
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_20"
+  - first:
+      213: -2096472083200308553
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_21"
+  - first:
+      213: 8039638093739001323
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_22"
+  - first:
+      213: -2587852881875723180
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_23"
+  - first:
+      213: -5971935068072993749
+    second: "\u9752\u79BE_Sword_Quick_Strike_right_24"
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 1536
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: AutoSpriteAnim_000
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 6144
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d98aa6351743b024088bd9e3a56e5f58
+      internalID: -1733274478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_001
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 6144
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cd77f587ed4c1ca4a8f681287aaf2ff0
+      internalID: -2619545
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_002
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 6144
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a1e5539cc7508e748a82a13feb6f6a26
+      internalID: 1104968024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_003
+      rect:
+        serializedVersion: 2
+        x: 4608
+        y: 6144
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3661e9c73e7599246b86a0c68d97fb7f
+      internalID: -751727646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_004
+      rect:
+        serializedVersion: 2
+        x: 6144
+        y: 6144
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c4153426bb7114040b7c5bf35606a909
+      internalID: -1992135574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_005
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4608
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0d5361125a63d02408c717331b164773
+      internalID: 1914934476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_006
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 4608
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2ab22a62604daa443ba2695d42b7b67c
+      internalID: -1079441897
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_007
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 4608
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8681a6137a7bd4647ad317b521f97cea
+      internalID: 1998759974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_008
+      rect:
+        serializedVersion: 2
+        x: 4608
+        y: 4608
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3ec50aed4792a3142a3b1ca9d93f0009
+      internalID: -799905684
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_009
+      rect:
+        serializedVersion: 2
+        x: 6144
+        y: 4608
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 977773618a7db1842b4895f2249ac671
+      internalID: 1748289565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_010
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 3072
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 53910b2043544e0438a3a37f086426c4
+      internalID: 1995387866
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_011
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 3072
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9795211c939640b4e813fad2fbc51bf5
+      internalID: 2034024005
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_012
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 3072
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ec2e2d5e0e2b3b54997b32a5d8a20dc9
+      internalID: 324231254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_013
+      rect:
+        serializedVersion: 2
+        x: 4608
+        y: 3072
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b2b1737f693f49f49ad5df46d8ec3150
+      internalID: -1541848623
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_014
+      rect:
+        serializedVersion: 2
+        x: 6144
+        y: 3072
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7f1573f3a73b58241bad6b189e84a0ad
+      internalID: 479349237
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_015
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1536
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9c25edf824b330c48a7d675dfcf8e9dc
+      internalID: 785548552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_016
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 1536
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c6741b194bb3d4143b0973130868d69e
+      internalID: 1612986847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_017
+      rect:
+        serializedVersion: 2
+        x: 3072
+        y: 1536
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c5cdf5a5c3eb7cf47b2d012501aa20e1
+      internalID: -1944315605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_018
+      rect:
+        serializedVersion: 2
+        x: 4608
+        y: 1536
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: af544f36c3d1fe74bb56d5b5c9f451b6
+      internalID: -584908491
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_019
+      rect:
+        serializedVersion: 2
+        x: 6144
+        y: 1536
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e353f20d67cca844cb3fef35520d1e01
+      internalID: -1176024935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_020
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 232e73f90fddf834f8b27c5942f466b3
+      internalID: -777079235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: AutoSpriteAnim_021
+      rect:
+        serializedVersion: 2
+        x: 1536
+        y: 0
+        width: 1536
+        height: 1536
+      alignment: 9
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d8067d9203f02242a85fc87227eecf5
+      internalID: -455629838
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: c07b7cb8367b96349bafe933e29b5a30
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      AutoSpriteAnim_000: -1733274478
+      AutoSpriteAnim_001: -2619545
+      AutoSpriteAnim_002: 1104968024
+      AutoSpriteAnim_003: -751727646
+      AutoSpriteAnim_004: -1992135574
+      AutoSpriteAnim_005: 1914934476
+      AutoSpriteAnim_006: -1079441897
+      AutoSpriteAnim_007: 1998759974
+      AutoSpriteAnim_008: -799905684
+      AutoSpriteAnim_009: 1748289565
+      AutoSpriteAnim_010: 1995387866
+      AutoSpriteAnim_011: 2034024005
+      AutoSpriteAnim_012: 324231254
+      AutoSpriteAnim_013: -1541848623
+      AutoSpriteAnim_014: 479349237
+      AutoSpriteAnim_015: 785548552
+      AutoSpriteAnim_016: 1612986847
+      AutoSpriteAnim_017: -1944315605
+      AutoSpriteAnim_018: -584908491
+      AutoSpriteAnim_019: -1176024935
+      AutoSpriteAnim_020: -777079235
+      AutoSpriteAnim_021: -455629838
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

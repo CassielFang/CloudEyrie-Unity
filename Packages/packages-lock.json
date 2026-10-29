@@ -1,5 +1,14 @@
 {
   "dependencies": {
+    "com.autospriteio.autosprite": {
+      "version": "https://github.com/autospriteio/autosprite-unity.git?path=/Assets/AutoSprite",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.2d.sprite": "1.0.0"
+      },
+      "hash": "9944d55572ff9772bbb61feb3821a4e1a4738722"
+    },
     "com.ivanmurzak.unity.mcp": {
       "version": "1.0.1",
       "depth": 0,

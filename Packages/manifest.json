@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.autospriteio.autosprite": "https://github.com/autospriteio/autosprite-unity.git?path=/Assets/AutoSprite",
     "com.ivanmurzak.unity.mcp": "1.0.1",
     "com.ivanmurzak.unity.mcp.animation": "2.0.0",
     "com.ivanmurzak.unity.mcp.timeline": "2.0.0",
@@ -16,6 +17,7 @@
     "com.unity.ide.visualstudio": "2.0.27",
     "com.unity.inputsystem": "1.20.0",
     "com.unity.multiplayer.center": "2.0.1",
+    "com.unity.pipeline": "0.8.0-exp.1",
     "com.unity.render-pipelines.universal": "17.6.0",
     "com.unity.test-framework": "1.8.0",
     "com.unity.timeline": "6.6.0",
@@ -56,8 +58,7 @@
     "com.unity.modules.vehicles": "1.0.0",
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0",
-    "com.unity.pipeline": "0.8.0-exp.1"
+    "com.unity.modules.xr": "1.0.0"
   },
   "scopedRegistries": [
     {

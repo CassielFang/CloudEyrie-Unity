@@ -148,13 +148,34 @@ namespace CloudEyrie.Tutorial
 
             if (_index >= steps.Length)
             {
-                _finished = true;
-                _banner.text = finishText;
-                EventBus.Emit(GameEvents.HintRequested, new HintEvent { Text = finishText, Seconds = 4f });
+                if (!_finished)
+                {
+                    _finished = true;
+                    _banner.text = finishText;
+                    EventBus.Emit(GameEvents.HintRequested, new HintEvent { Text = finishText, Seconds = 4f });
+
+                    // 试炼场现在是「启境」的第一个场景 —— 教完自动接木境，
+                    // 玩家不用再回标题页点一遍。
+                    StartCoroutine(AdvanceToFirstLevel());
+                }
+
                 return;
             }
 
             _banner.text = $"<color=#FFD98A>教学 {_index + 1}/{steps.Length}</color>  {steps[_index].text}";
+        }
+
+        /// <summary>试炼完成 → 停两秒让玩家看完提示 → 进木境</summary>
+        private System.Collections.IEnumerator AdvanceToFirstLevel()
+        {
+            yield return new WaitForSeconds(2.5f);
+
+            LevelHost host = LevelHost.Instance;
+
+            if (host != null)
+            {
+                host.EnterLevel("mu");
+            }
         }
     }
 }
