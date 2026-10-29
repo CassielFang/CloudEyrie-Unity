@@ -330,10 +330,27 @@ namespace CloudEyrie.Elements
                 return;
             }
 
+            // 水渗到沙上 → 沙变泥（实心），水化成残留。
+            // 之前只写了"沙落到水里"那一半，水在沙**上面**时永远不会反应 ——
+            // 实测倒 64 格水到沙丘上，沙一格没变。
+            if (bm == MaterialType.Sand)
+            {
+                _next[bi] = MaterialType.Solid;
+                _next[i] = MaterialType.Residue;
+                return;
+            }
+
             if (bm == MaterialType.Empty || bm == MaterialType.Flammable)
             {
+                if (_moved[bi])
+                {
+                    return;
+                }
+
                 _next[bi] = MaterialType.Water;
                 _next[i] = MaterialType.Empty;
+                _moved[bi] = true;
+                _moved[i] = true;
                 return;
             }
 
@@ -351,10 +368,12 @@ namespace CloudEyrie.Elements
 
                 int ni = y * width + nx;
 
-                if (_cells[ni] == MaterialType.Empty)
+                if (_cells[ni] == MaterialType.Empty && !_moved[ni])
                 {
                     _next[ni] = MaterialType.Water;
                     _next[i] = MaterialType.Empty;
+                    _moved[ni] = true;
+                    _moved[i] = true;
                     return;
                 }
             }
