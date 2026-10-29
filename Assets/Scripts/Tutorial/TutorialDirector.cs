@@ -172,10 +172,12 @@ namespace CloudEyrie.Tutorial
             _banner.text = $"<color=#FFD98A>教学 {_index + 1}/{steps.Length}</color>  {steps[_index].text}";
         }
 
-        /// <summary>试炼完成 → 停两秒让玩家看完提示 → 进木境</summary>
+        /// <summary>试炼完成 → 留出读提示的时间 → 进木境</summary>
         private System.Collections.IEnumerator AdvanceToFirstLevel()
         {
-            yield return new WaitForSeconds(2.5f);
+            // 3.5 秒而不是 2.5：结束语是「试炼完成 · 前往青芽境」，
+            // 2.5 秒刚读完一半就切场景，观感像被抢走。
+            yield return new WaitForSeconds(3.5f);
 
             LevelHost host = LevelHost.Instance;
 

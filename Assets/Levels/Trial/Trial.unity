@@ -7527,7 +7527,7 @@ MonoBehaviour:
     targetX: 0
     dummy: {fileID: 0}
     fireCells: 0
-  finishText: "\u8BD5\u70BC\u5B8C\u6210 \xB7 \u7075\u7081\u4E0E\u5F62\u6001\u90FD\u5DF2\u89E3\u9501"
+  finishText: "\u8BD5\u70BC\u5B8C\u6210 \xB7 \u524D\u5F80\u9752\u82BD\u5883"
 --- !u!4 &1710224582
 Transform:
   m_ObjectHideFlags: 0
