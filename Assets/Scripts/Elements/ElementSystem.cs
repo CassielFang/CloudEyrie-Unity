@@ -60,6 +60,8 @@ namespace CloudEyrie.Elements
         /// <summary>把场景里已有的火盆 / 火柱 / 岩浆接成元素源</summary>
         private void BindSources()
         {
+            bool sandBound = false;
+
             foreach (Brazier brazier in FindObjectsByType<Brazier>(FindObjectsInactive.Exclude))
             {
                 if (brazier.GetComponent<ElementSource>() != null)
@@ -101,6 +103,22 @@ namespace CloudEyrie.Elements
                     var src = hazard.gameObject.AddComponent<ElementSource>();
                     src.Kind = ElementSource.SourceKind.Water;
                     src.Radius = 160f;
+                }
+                else if (n.StartsWith("Pit") && !sandBound)
+                {
+                    // ⚠️ 暂时**不自动铺沙**。
+                    //
+                    // 土境的三个坑整段在地面以下（-694 以下），坑沿不是能站人的地面；
+                    // 试过两个方案都不成立：
+                    //   · 铺在坑口 → 在格子外/地板底下，看不见；
+                    //   · 铺在坑旁边地面 → 那些列本来就是坑的空洞，沙直接漏到格子底。
+                    // 而且土境有三个坑，三处同时铺沙会把模拟负载翻三倍（卡死过一次）。
+                    //
+                    // 结论：流沙要落在**明确指定的、脚下有实心地面的**位置，
+                    // 这属于关卡数据（LevelDefinition 侧），不该由 ElementSystem 猜。
+                    // MaterialType.Sand 与 TickSand 已经就绪，等关卡侧给坐标。
+                    sandBound = true;
+                    GameLog.I("[ElementSystem] 流沙材质已就绪，但土境尚未指定铺沙点（需要关卡数据）");
                 }
             }
 
@@ -201,9 +219,9 @@ namespace CloudEyrie.Elements
             int w = Mathf.CeilToInt(total.size.x / MaterialGrid.CellSize);
             int h = Mathf.CeilToInt(total.size.y / MaterialGrid.CellSize);
 
-            // 最后一道保险：格子最多 1600×260（约 41 万格）。超出就按场景主地面重来，
-            // 宁可少模拟一块，也不能把编辑器拖死。
-            if (w > 1600 || h > 260 || w <= 0 || h <= 0)
+            // 最后一道保险：格子最多 1400×220（约 31 万格）。超出就按主地面重来，
+            // 宁可少模拟一块，也不能把编辑器拖死（已经被拖死过两次）。
+            if (w > 1400 || h > 220 || w <= 0 || h <= 0)
             {
                 GameLog.W($"[ElementSystem] 格子范围异常 {w}×{h}，回退到 1202×160");
                 w = 1202;

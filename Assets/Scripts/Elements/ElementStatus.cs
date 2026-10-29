@@ -21,6 +21,9 @@ namespace CloudEyrie.Elements
 
         /// <summary>灰烬 / 蒸汽（无作用，只做残留表现）</summary>
         Residue = 6,
+
+        /// <summary>流沙 / 尘土：会下落、会堆积，遇水沉为实心 —— 土境的主元素</summary>
+        Sand = 7,
     }
 
     /// <summary>实体身上的元素状态。位标志，可以同时"潮湿且燃烧"（潮湿会先挡住燃烧）。</summary>

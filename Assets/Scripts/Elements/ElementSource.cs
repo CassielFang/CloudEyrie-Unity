@@ -16,6 +16,7 @@ namespace CloudEyrie.Elements
             Water,
             Lava,
             Flammable,
+            Sand,
         }
 
         [SerializeField] private SourceKind kind = SourceKind.Fire;
@@ -48,6 +49,18 @@ namespace CloudEyrie.Elements
                 {
                     _lavaPainted = true;
                     ElementSystem.Instance?.SetMaterial(transform.position, radius, MaterialType.Lava);
+                }
+
+                return;
+            }
+
+            if (kind == SourceKind.Sand)
+            {
+                // 流沙同理：一次铺一片，之后靠重力自己塌
+                if (!_lavaPainted)
+                {
+                    _lavaPainted = true;
+                    ElementSystem.Instance?.SetMaterial(transform.position, radius, MaterialType.Sand);
                 }
 
                 return;

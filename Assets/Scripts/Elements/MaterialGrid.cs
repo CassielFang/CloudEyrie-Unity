@@ -190,6 +190,9 @@ namespace CloudEyrie.Elements
                         case MaterialType.Lava:
                             TickLava(x, y, i);
                             break;
+                        case MaterialType.Sand:
+                            TickSand(x, y, i);
+                            break;
                     }
                 }
             }
@@ -335,6 +338,68 @@ namespace CloudEyrie.Elements
                         _next[ni] = MaterialType.Residue;
                         return;
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// 流沙：竖直下落，落不下去就往左下/右下斜滑，都没有就停住堆起来。
+        /// 简单的"沙"行为就够了 —— 土境要的是"地形会变"，不是精确的颗粒物理。
+        /// </summary>
+        private void TickSand(int x, int y, int i)
+        {
+            int below = y - 1;
+
+            if (below < 0)
+            {
+                return;
+            }
+
+            int bi = below * width + x;
+            MaterialType bm = _cells[bi];
+
+            // 落到水里：沉下去变成实心（"遇水成泥")
+            if (bm == MaterialType.Water)
+            {
+                _next[i] = MaterialType.Empty;
+                _next[bi] = MaterialType.Solid;
+                return;
+            }
+
+            // 掉进岩浆：被烧成实心（熔渣）
+            if (bm == MaterialType.Lava)
+            {
+                _next[i] = MaterialType.Empty;
+                _next[bi] = MaterialType.Solid;
+                return;
+            }
+
+            if (bm == MaterialType.Empty || bm == MaterialType.Fire || bm == MaterialType.Residue)
+            {
+                _next[bi] = MaterialType.Sand;
+                _next[i] = MaterialType.Empty;
+                return;
+            }
+
+            // 堆住了：往两侧斜下滑一格
+            int dir = (x + y) % 2 == 0 ? 1 : -1;
+
+            for (int k = 0; k < 2; k++)
+            {
+                int nx = x + dir * (k == 0 ? 1 : -1);
+
+                if (nx < 0 || nx >= width)
+                {
+                    continue;
+                }
+
+                int ni = below * width + nx;
+
+                if (_cells[ni] == MaterialType.Empty)
+                {
+                    _next[ni] = MaterialType.Sand;
+                    _next[i] = MaterialType.Empty;
+                    return;
                 }
             }
         }
