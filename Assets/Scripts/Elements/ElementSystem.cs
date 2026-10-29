@@ -135,17 +135,21 @@ namespace CloudEyrie.Elements
         }
 
         /// <summary>
-        /// 在坑附近找一块**脚下有实心地面**的位置铺流沙。
+        /// 找一段**连续、平坦、且不被装饰物遮挡**的地面，在上面铺流沙。
         ///
-        /// 为什么要探：土境的坑整段在地面以下，坑沿不是能站人的地面。
-        /// 直接按"坑的包围盒"算出来的位置，沙会顺着空洞一路漏到格子底。
-        /// 这里从格子顶往下打射线，只接受**命中 WORLD 层、且离地不远**的列。
+        /// 为什么不是"坑旁边试几个点"：土境的柱子/台座密度很高，按坑偏移探到的点
+        /// 经常正好在柱子后面 —— 沙铺出来了，玩家看不见（上一轮就是这个问题）。
+        ///
+        /// 这里的判据有三条：
+        /// <list type="number">
+        ///   <item>射线从格子顶打到 WORLD，落点必须在地面高度附近（不是坑底）；</item>
+        ///   <item>连续 600 单位都符合 —— 保证是一整段平地，不是柱子顶；</item>
+        ///   <item>这段里的最高点与最低点落差 &lt; 12 —— 平地，不是斜坡。</item>
+        /// </list>
         /// </summary>
         private void TryPlaceQuicksand(Hazard hazard)
         {
-            var hc = hazard.GetComponent<Collider2D>();
-
-            if (hc == null || _grid == null)
+            if (_grid == null)
             {
                 return;
             }
@@ -155,15 +159,20 @@ namespace CloudEyrie.Elements
 
             float top = _grid.Origin.y + _grid.Height * MaterialGrid.CellSize - 16f;
             float floorY = -295f;
+            float left = _grid.Origin.x + 200f;
+            float right = _grid.Origin.x + _grid.Width * MaterialGrid.CellSize - 200f;
 
-            // 坑的左右两侧各试几个距离，优先靠坑（玩家看得见的地方）
-            float[] offsets = { -260f, -360f, -460f, 260f, 360f, 460f };
+            const float step = 40f;
+            const int needed = 15;          // 15 × 40 = 600 单位
+            const float maxDrop = 12f;
 
-            foreach (float dx in offsets)
+            var run = new System.Collections.Generic.List<Vector2>();
+            float runMin = float.MaxValue;
+            float runMax = float.MinValue;
+
+            for (float x = left; x <= right; x += step)
             {
-                float x = hc.bounds.center.x + dx;
                 RaycastHit2D[] hits = Physics2D.RaycastAll(new Vector2(x, top), Vector2.down, 4000f, mask);
-
                 float groundY = float.NaN;
 
                 foreach (RaycastHit2D hit in hits)
@@ -177,24 +186,51 @@ namespace CloudEyrie.Elements
                     break;
                 }
 
-                if (float.IsNaN(groundY))
+                if (float.IsNaN(groundY) || groundY < floorY - 40f)
                 {
+                    run.Clear();
+                    runMin = float.MaxValue;
+                    runMax = float.MinValue;
                     continue;
                 }
 
-                var go = new GameObject("QuicksandSource");
-                go.transform.SetParent(transform, false);
-                go.transform.position = new Vector3(x, groundY + 150f, 0f);
+                run.Add(new Vector2(x, groundY));
 
-                var src = go.AddComponent<ElementSource>();
-                src.Kind = ElementSource.SourceKind.Sand;
-                src.Radius = 120f;
+                if (groundY < runMin)
+                {
+                    runMin = groundY;
+                }
 
-                GameLog.I($"[ElementSystem] 流沙铺在 x={x:0}（地面 y={groundY:0}）");
-                return;
+                if (groundY > runMax)
+                {
+                    runMax = groundY;
+                }
+
+                if (run.Count >= needed)
+                {
+                    if (runMax - runMin > maxDrop)
+                    {
+                        // 是斜坡，不在这里铺
+                        run.RemoveAt(0);
+                        continue;
+                    }
+
+                    Vector2 mid = run[run.Count / 2];
+
+                    var go = new GameObject("QuicksandSource");
+                    go.transform.SetParent(transform, false);
+                    go.transform.position = new Vector3(mid.x, mid.y + 150f, 0f);
+
+                    var src = go.AddComponent<ElementSource>();
+                    src.Kind = ElementSource.SourceKind.Sand;
+                    src.Radius = 120f;
+
+                    GameLog.I($"[ElementSystem] 流沙铺在 x={mid.x:0}（连续平地 {run.Count * step:0} 单位，地面 y={mid.y:0}）");
+                    return;
+                }
             }
 
-            GameLog.W("[ElementSystem] 坑附近找不到实心地面，本关不铺流沙");
+            GameLog.W("[ElementSystem] 找不到连续平地，本关不铺流沙");
         }
 
         /// <summary>按场景里 WORLD 层碰撞体的包围盒定格子范围</summary>

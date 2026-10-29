@@ -26,7 +26,7 @@ namespace CloudEyrie.Elements
         [SerializeField] private Color fireColor = new Color(1f, 0.58f, 0.22f, 0.80f);
         [SerializeField] private Color lavaColor = new Color(0.95f, 0.32f, 0.12f, 0.90f);
         [SerializeField] private Color residueColor = new Color(0.16f, 0.15f, 0.15f, 0.30f);
-        [SerializeField] private Color sandColor = new Color(0.78f, 0.68f, 0.44f, 0.92f);
+        [SerializeField] private Color sandColor = new Color(0.70f, 0.58f, 0.34f, 1f);
 
         private MaterialGrid _grid;
         private SpriteRenderer _renderer;

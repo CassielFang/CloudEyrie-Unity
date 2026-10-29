@@ -56,11 +56,25 @@ namespace CloudEyrie.Elements
 
             if (kind == SourceKind.Sand)
             {
-                // 流沙同理：一次铺一片，之后靠重力自己塌
+                // 流沙：一次铺**一柱**，不是一盘。
+                //
+                // 只铺一盘的话，沙落地后被地面摊平，最后只剩薄薄一层（实测画面里
+                // 只有二十来个格子、两块小三角），完全看不出是"沙丘"。
+                // 往上一连叠几盘，落下来才会堆出形状。
                 if (!_lavaPainted)
                 {
                     _lavaPainted = true;
-                    ElementSystem.Instance?.SetMaterial(transform.position, radius, MaterialType.Sand);
+
+                    ElementSystem sys = ElementSystem.Instance;
+
+                    if (sys != null)
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            Vector2 p = (Vector2)transform.position + new Vector2(0f, i * radius * 1.1f);
+                            sys.SetMaterial(p, radius, MaterialType.Sand);
+                        }
+                    }
                 }
 
                 return;
