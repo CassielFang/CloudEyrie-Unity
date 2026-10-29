@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using CloudEyrie.Fx;
 
 namespace CloudEyrie
 {
@@ -284,9 +285,42 @@ namespace CloudEyrie
             _pan = 0f;
 
             Build();
+            ApplyTint(theme);
 
             Debug.Log($"[Parallax] 换主题「{theme.name}」：{_specs.Length} 层 / {scenery.Length} 组景物，" +
                       $"行程 [{camMin:F0}, {camMax:F0}]");
+        }
+
+        /// <summary>
+        /// 把主题的着色真正作用到背景层上，并把整屏色调交给 <see cref="ScreenGrade"/>。
+        ///
+        /// ⚠️ 这两个字段（tint / fogDensity）从引入主题起就**从未被读取过** ——
+        /// 六关的 tint 都写在资产里，但代码只用了 layers/scenery，
+        /// 表现就是"五行五境看着一个色调"。
+        /// </summary>
+        private void ApplyTint(LevelTheme theme)
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                var sr = transform.GetChild(i).GetComponent<SpriteRenderer>();
+
+                if (sr != null)
+                {
+                    Color baseColor = sr.color;
+                    sr.color = new Color(
+                        baseColor.r * theme.tint.r,
+                        baseColor.g * theme.tint.g,
+                        baseColor.b * theme.tint.b,
+                        baseColor.a);
+                }
+            }
+
+            ScreenGrade grade = ScreenGrade.Instance;
+
+            if (grade != null)
+            {
+                grade.Apply(theme.tint, theme.fogColor, theme.fogDensity);
+            }
         }
 
         private void Awake()

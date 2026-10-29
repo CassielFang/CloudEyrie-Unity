@@ -1001,6 +1001,7 @@ GameObject:
   - component: {fileID: 412897776}
   - component: {fileID: 412897775}
   - component: {fileID: 412897777}
+  - component: {fileID: 412897778}
   m_Layer: 0
   m_Name: Elements
   m_TagString: Untagged
@@ -1053,6 +1054,19 @@ MonoBehaviour:
   lavaColor: {r: 1, g: 0.42, b: 0.16, a: 1}
   springColor: {r: 0.45, g: 0.85, b: 1, a: 1}
   waterColor: {r: 0.35, g: 0.6, b: 0.9, a: 1}
+--- !u!114 &412897778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412897774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93ac3dc0dc5b08345af686e69b7f5e86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CloudEyrie.Fx.ScreenGrade
+  maxAlpha: 0.18
 --- !u!1 &414381563
 GameObject:
   m_ObjectHideFlags: 0

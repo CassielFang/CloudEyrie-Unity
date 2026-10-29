@@ -100,11 +100,12 @@ namespace CloudEyrie.EditorTools
 
                     // 提亮 + 降饱和
                     byte luma = (byte)((ar * 77 + ag * 150 + ab * 29) >> 8);
-                    ar = (byte)Mathf.Min(255, (ar + luma) / 2 + 24);
-                    ag = (byte)Mathf.Min(255, (ag + luma) / 2 + 24);
-                    ab = (byte)Mathf.Min(255, (ab + luma) / 2 + 28);
+                    ar = (byte)Mathf.Min(255, (ar + luma) / 2 + 14);
+                    ag = (byte)Mathf.Min(255, (ag + luma) / 2 + 14);
+                    ab = (byte)Mathf.Min(255, (ab + luma) / 2 + 18);
 
-                    var c2 = new Color32(ar, ag, ab, 216);
+                    // alpha 别太高：雾层是**打底**，216 会把整屏糊成一片单色（实测过）。
+                    var c2 = new Color32(ar, ag, ab, 70);
 
                     for (int dy = 0; dy < block && y + dy < h; dy++)
                     {
