@@ -103,47 +103,22 @@ namespace CloudEyrie
         private FormContext _ctx;
         private CompanionForm _currentForm = CompanionForm.Entity;
 
-        // ---- 表现层：帧序列 ----
-        // 战斗只管时序与判定，动作由 SpriteSequenceView 播。这里缓存一次引用，
-        // 没有视图时安静跳过（不要每帧 GetComponent）。
-        private SpriteSequenceView _view;
-        private bool _viewSearched;
-
+        // ---- 表现层：AutoSprite Animator ----
+        // 战斗只管时序与判定，动作交给 QingheAnimatorView。
+        // 旧的帧序列（video_fx/青禾-*）已整套删除，这里不再有回退路径。
         private static readonly string[] LightClips =
         {
             "青禾-轻击一", "青禾-轻击二", "青禾-轻击三",
         };
 
-        private SpriteSequenceView View
-        {
-            get
-            {
-                if (!_viewSearched)
-                {
-                    _viewSearched = true;
-                    _view = GetComponentInChildren<SpriteSequenceView>();
-                }
-
-                return _view;
-            }
-        }
-
         /// <summary>播一次性动作；没有视图就什么都不做（逻辑不依赖表现）。</summary>
         private void PlayViewClip(string clipName, float timeScale = 1f)
         {
-            // 新表现层（AutoSprite Animator）优先：它只认剑招，其余状态自己回静息
             Character.QingheAnimatorView anim = GetComponentInChildren<Character.QingheAnimatorView>();
 
             if (anim != null)
             {
                 anim.PlayAction(clipName);
-            }
-
-            SpriteSequenceView v = View;
-
-            if (v != null)
-            {
-                v.PlayOneShot(clipName, timeScale);
             }
         }
 
@@ -435,14 +410,13 @@ namespace CloudEyrie
             {
                 _blockHeld = true;
                 _blockElapsed = 0f;
-                if (View != null) View.PlayHold("青禾-格挡");
+                // 格挡没有 AutoSprite 素材 —— 按约定回静息，不播任何动作
                 GameAudio.PlaySfx(SfxCue.Block);
             }
 
             if (InputSystem.WasReleased(GameAction.Block))
             {
                 _blockHeld = false;
-                if (View != null) View.ClearHold();
             }
 
             // 蓄力计时（实体形态按住攻击键）

@@ -1,4 +1,5 @@
 using UnityEngine;
+using CloudEyrie.Character;
 
 namespace CloudEyrie
 {
@@ -396,9 +397,9 @@ namespace CloudEyrie
         /// </summary>
         private void TryFitSpineArt()
         {
-            // 换成帧序列之后，Art 上是 SpriteRenderer + SequencePlayer：
-            // 它由 SpriteSequenceView 自己摆，别按骨骼那套「量包围盒再缩」再来一遍。
-            if (_artNode != null && _artNode.GetComponent<SpriteSequenceView>() != null)
+            // 立绘改由 QingheAnimatorView 自己按包围盒对齐脚底，
+            // 这里只管骨骼那一套，碰到新视图就直接跳过。
+            if (_artNode != null && _artNode.GetComponent<QingheAnimatorView>() != null)
             {
                 _spineFitDone = true;
                 return;
@@ -469,9 +470,6 @@ namespace CloudEyrie
 
         /// <summary>冲刺拖尾的上一次状态（用来取上升沿）</summary>
         private bool _wasDashing;
-
-        /// <summary>帧序列立绘（惰性查找；没有视图的功能不受影响）</summary>
-        private SpriteSequenceView _sequenceView;
 
         /// <summary>上一帧的着地状态（用来取落地的那一瞬）</summary>
         private bool _wasGrounded;
@@ -572,9 +570,8 @@ namespace CloudEyrie
         {
             Transform node = SpriteArtNode();
 
-            // 序列帧立绘自己算尺寸（SpriteSequenceView.FitToCollider）：
-            // 这里按的是「整张画布的包围盒」，而序列帧的格子 384、人物只占 232 —— 再缩会小一圈。
-            if (node != null && node.GetComponent<SpriteSequenceView>() != null)
+            // 新视图（AutoSprite Animator）自己按包围盒对齐脚底，这里不再插手
+            if (node != null && node.GetComponent<QingheAnimatorView>() != null)
             {
                 return;
             }
@@ -734,16 +731,8 @@ namespace CloudEyrie
                             new Vector2(_ctx.Facing >= 0f ? 1f : -1f, 0f),
                             BodyScaleRatio);
 
-                // 动作跟着同一条上升沿走：拖尾、音效、立绘三者同时发生。
-                if (_sequenceView == null)
-                {
-                    _sequenceView = GetComponentInChildren<SpriteSequenceView>();
-                }
-
-                if (_sequenceView != null)
-                {
-                    _sequenceView.PlayOneShot("青禾-踏云闪");
-                }
+                // 动作跟着同一条上升沿走：拖尾与音效同时发生。
+                // 踏云闪没有 AutoSprite 素材 —— 按约定回静息，不播动作。
             }
 
             _wasDashing = _ctx.IsDashing;
@@ -923,16 +912,7 @@ namespace CloudEyrie
                         new Vector2(_ctx != null && _ctx.Facing < 0f ? -1f : 1f, 0f),
                         BodyScaleRatio);
 
-            if (_sequenceView == null)
-            {
-                _sequenceView = GetComponentInChildren<SpriteSequenceView>();
-            }
-
-            if (_sequenceView != null)
-            {
-                // 切形态时把一次性的出招打断掉，回到"按形态选片段"
-                _sequenceView.ClearHold();
-            }
+            // 形态切换的表现交给 InkFx 的光效；立绘按约定回静息（新视图没有形态素材）
         }
 
         /// <summary>形态切换时调整物理（重力开关）。</summary>
