@@ -14,7 +14,11 @@ namespace CloudEyrie.Elements
     /// </summary>
     public class MaterialGrid : MonoBehaviour
     {
-        public const float CellSize = 32f;
+        /// <summary>
+        /// 一格多大。8 单位 ≈ 屏幕 12px，是"能看出形状、又不至于像马赛克"的折中。
+        /// 32 单位那版实测一格有半个角色高，水潭看起来就是一个个大方块。
+        /// </summary>
+        public const float CellSize = 8f;
 
         [Tooltip("每秒钟模拟多少拍。太高没必要，火苗/水流都不会因此更自然")]
         [SerializeField] private float ticksPerSecond = 10f;
