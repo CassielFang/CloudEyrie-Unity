@@ -570,7 +570,7 @@ MonoBehaviour:
   jumpSpeed: 320
   secondJumpMult: 0.82
   maxJumpCount: 2
-  coyoteTime: 0.1
+  coyoteTime: 0.12
   jumpBufferTime: 0.12
   jumpCutMultiplier: 0.45
   riseGravityScale: 0.9

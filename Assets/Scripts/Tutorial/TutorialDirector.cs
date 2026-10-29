@@ -81,6 +81,13 @@ namespace CloudEyrie.Tutorial
                 return;
             }
 
+            // 玩家可能比教学晚生成（独立试玩时由 bootstrap 补进场景），
+            // Start 里抓到 null 的话，所有"走到某处"的判定就永远不会通过。
+            if (_player == null)
+            {
+                _player = FindAnyObjectByType<QingheController>();
+            }
+
             if (!IsStepDone(steps[_index]))
             {
                 return;
