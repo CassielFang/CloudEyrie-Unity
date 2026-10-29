@@ -681,7 +681,7 @@ GameObject:
   m_Component:
   - component: {fileID: 253417717}
   - component: {fileID: 253417718}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: GateSense
   m_TagString: Untagged
   m_Icon: {fileID: 0}
