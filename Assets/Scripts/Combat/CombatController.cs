@@ -857,6 +857,10 @@ namespace CloudEyrie
             // 没挡住的命中：播受击。放在这里而不是敌人 AI 里 ——
             // 「挨了一下」这件事只有这一处知道，敌人侧还包括被格挡/被弹开的情况。
             PlayViewClip("青禾-受击");
+
+            // 挨打比打中更要有反馈：顿帧长一点、震屏也重一些
+            Fx.HitStop.Play(0.08f, () => Fx.CameraShake.Shake(6f, 0.16f));
+
             return new PlayerDamageResult { SpiritCost = amount, PerfectBlocked = false };
         }
 
@@ -1244,6 +1248,11 @@ namespace CloudEyrie
             });
 
             SpawnHitSpark(hitNode.position);
+
+            // 打击感：顿帧 + 轻微震屏。
+            // 之前这两样都没有，打上去只有火花，手感是"划过空气"。
+            Fx.HitStop.Play(0.05f, () => Fx.CameraShake.Shake(3f, 0.1f));
+
             GameLog.V($"[Combat] 命中 {hitNode.name}");
         }
 
