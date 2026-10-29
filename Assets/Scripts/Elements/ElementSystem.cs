@@ -82,7 +82,7 @@ namespace CloudEyrie.Elements
 
                 string n = hazard.name;
 
-                if (n.StartsWith("FirePillar"))
+                if (n.StartsWith("FirePillar") || n.StartsWith("Flame") || n.StartsWith("FireWall"))
                 {
                     var src = hazard.gameObject.AddComponent<ElementSource>();
                     src.Bind(hazard);
@@ -94,6 +94,30 @@ namespace CloudEyrie.Elements
                     var src = hazard.gameObject.AddComponent<ElementSource>();
                     src.Kind = ElementSource.SourceKind.Lava;
                     src.Radius = 200f;
+                }
+                else if (n.StartsWith("WaterCurtain") || n.StartsWith("Water_Drift") || n.StartsWith("WaterLevel"))
+                {
+                    // 水境的三种水：垂帘 / 漂流带 / 水位 —— 都当作水源，遇火会互相熄灭
+                    var src = hazard.gameObject.AddComponent<ElementSource>();
+                    src.Kind = ElementSource.SourceKind.Water;
+                    src.Radius = 160f;
+                }
+            }
+
+            // 水位不是 Hazard（它带着 WaterLevel + WaterSurface 两个专用组件），
+            // 但它是水境最该参与元素交互的东西 —— 单独按名字接一次。
+            foreach (var root in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
+            {
+                foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
+                {
+                    if (t.name != "WaterLevel" || t.GetComponent<ElementSource>() != null)
+                    {
+                        continue;
+                    }
+
+                    var src = t.gameObject.AddComponent<ElementSource>();
+                    src.Kind = ElementSource.SourceKind.Water;
+                    src.Radius = 260f;
                 }
             }
         }
