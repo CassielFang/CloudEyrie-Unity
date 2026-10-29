@@ -27,6 +27,13 @@ MonoBehaviour:
     drift: 0
     driftPeriod: 40
     autoPan: 0
+  - path: Altar/bg/altar_mid
+    factor: 0.6
+    yOffset: -40
+    height: 900
+    drift: 0
+    driftPeriod: 12
+    autoPan: 0
   - path: Altar/bg/altar_near
     factor: 0.9
     yOffset: -180

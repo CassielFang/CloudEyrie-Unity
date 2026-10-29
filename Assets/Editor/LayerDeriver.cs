@@ -69,10 +69,57 @@ namespace CloudEyrie.EditorTools
             }
 
             SaveHaze(small, w2, h2, $"{dir}/{realm.ToLowerInvariant()}_haze.png");
+            SaveMid(small, w2, h2, $"{dir}/{realm.ToLowerInvariant()}_mid.png");
             SaveNear(small, w2, h2, $"{dir}/{realm.ToLowerInvariant()}_near.png");
 
             Object.DestroyImmediate(src);
             return realm + " derived " + w2 + "x" + h2;
+        }
+
+        /// <summary>
+        /// 中景层：小半径模糊 + 轻微压暗，用来填「远山 0.35 / 近景 0.90」之间那段空缺。
+        ///
+        /// 为什么需要它：只有两层时，视差系数差 2.5 倍以上，中间没有任何东西过渡，
+        /// 相机一动就能看出"两层硬切"。加一层 0.6 的中间调，眼睛会把它读成纵深。
+        /// </summary>
+        private static void SaveMid(Color32[] src, int w, int h, string outPath)
+        {
+            var dst = new Color32[w * h];
+            const int block = 3;
+
+            for (int y = 0; y < h; y += block)
+            {
+                for (int x = 0; x < w; x += block)
+                {
+                    int r = 0, g = 0, b = 0, n = 0;
+
+                    for (int dy = 0; dy < block && y + dy < h; dy++)
+                    {
+                        for (int dx = 0; dx < block && x + dx < w; dx++)
+                        {
+                            Color32 c = src[(y + dy) * w + x + dx];
+                            r += c.r; g += c.g; b += c.b; n++;
+                        }
+                    }
+
+                    byte ar = (byte)(r / n), ag = (byte)(g / n), ab = (byte)(b / n);
+
+                    // 压暗一档：中景要比远景"重"，但远没到剪影的程度
+                    ar = (byte)(ar * 0.82f);
+                    ag = (byte)(ag * 0.84f);
+                    ab = (byte)(ab * 0.84f);
+
+                    for (int dy = 0; dy < block && y + dy < h; dy++)
+                    {
+                        for (int dx = 0; dx < block && x + dx < w; dx++)
+                        {
+                            dst[(y + dy) * w + x + dx] = new Color32(ar, ag, ab, 210);
+                        }
+                    }
+                }
+            }
+
+            Write(dst, w, h, outPath);
         }
 
         /// <summary>雾层：8× 块平均（近似大半径模糊）+ 提亮 + 半透明</summary>
