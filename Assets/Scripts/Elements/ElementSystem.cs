@@ -25,7 +25,7 @@ namespace CloudEyrie.Elements
         /// 满屏火格子每 tick 都在改，编辑器会在两三个 eval 内卡死。
         /// 等给元素层加上"同时燃烧格数上限"再打开。
         /// </summary>
-        private const bool EnableOilPlacement = false;
+        private const bool EnableOilPlacement = true;
 
         private MaterialGrid _grid;
 

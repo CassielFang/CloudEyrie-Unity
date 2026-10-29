@@ -26,6 +26,15 @@ namespace CloudEyrie.Elements
         [Tooltip("火每格燃烧多少拍后熄灭（10 拍 = 1 秒）")]
         [SerializeField] private int fireLifetimeTicks = 40;
 
+        /// <summary>
+        /// 全网格同时燃烧的格数上限。只挡「蔓延」，不挡「已燃的烧完」。
+        ///
+        /// 数值来源：一片油（半径 90）大约 1000 格。上限 260 让火势明显收敛，
+        /// 又足以让一次点燃看起来"成片"。
+        /// </summary>
+        [Tooltip("全网格同时燃烧格数上限（防止火势膨胀把编辑器拖死）")]
+        [SerializeField] private int maxFireCells = 260;
+
         [Header("范围（世界坐标，左下角 + 尺寸）")]
         [SerializeField] private Vector2 origin = new Vector2(0f, -700f);
         [SerializeField] private int width = 320;
@@ -96,6 +105,13 @@ namespace CloudEyrie.Elements
         /// <summary>点一处火（半径内的可燃物立刻变成火）</summary>
         public void Ignite(Vector2 world, float radius)
         {
+            // 直接点燃也要受上限约束 —— 否则火源每 0.5 秒补一次火，
+            // 蔓延被挡住了、总量却还在涨（实测上限 260 时网格里仍有 388 格在烧）。
+            if (CountFire() >= maxFireCells)
+            {
+                return;
+            }
+
             Stamp(world, radius, (m) => m == MaterialType.Flammable ? MaterialType.Fire : m);
             Dirty = true;
         }
@@ -172,6 +188,14 @@ namespace CloudEyrie.Elements
             System.Array.Copy(_cells, _next, _cells.Length);
             System.Array.Copy(_fireAge, _nextFireAge, _fireAge.Length);
 
+            // 先数一遍当前有多少格在烧。
+            //
+            // 为什么需要上限：油铺开之后火柱一点就是几千格同时在烧，每 tick 都在改
+            // → 贴图不停重传 → 编辑器直接卡死（实测四五次）。
+            // 上限只挡「蔓延」，不挡「已燃的继续烧完」—— 火势会稳定在一个规模，
+            // 不会无限膨胀，也不会看起来"火灭了"。
+            bool allowSpread = CountFire() < maxFireCells;
+
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -182,7 +206,7 @@ namespace CloudEyrie.Elements
                     switch (m)
                     {
                         case MaterialType.Fire:
-                            TickFire(x, y, i);
+                            TickFire(x, y, i, allowSpread);
                             break;
                         case MaterialType.Water:
                             TickWater(x, y, i);
@@ -200,7 +224,22 @@ namespace CloudEyrie.Elements
             Swap();
         }
 
-        private void TickFire(int x, int y, int i)
+        private int CountFire()
+        {
+            int n = 0;
+
+            for (int i = 0; i < _cells.Length; i++)
+            {
+                if (_cells[i] == MaterialType.Fire)
+                {
+                    n++;
+                }
+            }
+
+            return n;
+        }
+
+        private void TickFire(int x, int y, int i, bool allowSpread)
         {
             _nextFireAge[i]++;
 
@@ -234,8 +273,13 @@ namespace CloudEyrie.Elements
                     switch (_cells[ni])
                     {
                         case MaterialType.Flammable:
-                            _next[ni] = MaterialType.Fire;
-                            _nextFireAge[ni] = 0;
+                            // 超过上限就不再蔓延（已经在烧的照常烧完）
+                            if (allowSpread)
+                            {
+                                _next[ni] = MaterialType.Fire;
+                                _nextFireAge[ni] = 0;
+                            }
+
                             break;
 
                         case MaterialType.Water:
